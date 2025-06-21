@@ -1,0 +1,495 @@
+name: Chinese Produce Forecasting MLOps CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+      force_retrain:
+        description: 'Force model retraining'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: 346761359662
+  S3_BUCKET: chinese-produce-forecast-346761359662
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # Code Quality and Testing
+  quality-check:
+    runs-on: ubuntu-latest
+    outputs:
+      code-changed: ${{ steps.changes.outputs.code }}
+      data-changed: ${{ steps.changes.outputs.data }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changes
+      uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          code:
+            - 'src/**'
+            - 'notebooks/**'
+            - 'requirements.txt'
+            - 'config.yaml'
+          data:
+            - 'data/**'
+            - 'schema/**'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install black flake8 isort mypy pytest-cov
+
+    - name: Code formatting check (Black)
+      run: black --check --diff src/ tests/
+
+    - name: Import sorting check (isort)
+      run: isort --check-only --diff src/ tests/
+
+    - name: Linting (flake8)
+      run: flake8 src/ tests/ --max-line-length=88 --extend-ignore=E203,W503
+
+    - name: Type checking (mypy)
+      run: mypy src/ --ignore-missing-imports
+
+    - name: Security scan (bandit)
+      run: |
+        pip install bandit
+        bandit -r src/ -f json -o bandit-report.json || true
+
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-scan-results
+        path: bandit-report.json
+
+  # Unit and Integration Tests
+  test:
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: needs.quality-check.outputs.code-changed == 'true'
+    
+    strategy:
+      matrix:
+        test-type: [unit, integration]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Run unit tests
+      if: matrix.test-type == 'unit'
+      run: |
+        pytest tests/unit/ -v --cov=src --cov-report=xml --cov-report=html
+
+    - name: Run integration tests
+      if: matrix.test-type == 'integration'
+      run: |
+        pytest tests/integration/ -v --cov=src --cov-report=xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: ${{ matrix.test-type }}
+        name: codecov-${{ matrix.test-type }}
+
+  # Data Validation
+  data-validation:
+    runs-on: ubuntu-latest
+    needs: quality-check
+    if: needs.quality-check.outputs.data-changed == 'true' || github.event.inputs.force_retrain == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Download data from S3
+      run: |
+        aws s3 sync s3://${{ env.S3_BUCKET }}/data/raw/ data/raw/
+
+    - name: Run data validation
+      run: |
+        python src/data_processing/validate_data.py \
+          --config config.yaml \
+          --data-path data/raw/ \
+          --output-path data/validation/
+
+    - name: Upload validation results
+      uses: actions/upload-artifact@v3
+      with:
+        name: data-validation-results
+        path: data/validation/
+
+  # Model Training
+  train-model:
+    runs-on: ubuntu-latest
+    needs: [quality-check, test, data-validation]
+    if: |
+      always() && 
+      (needs.quality-check.result == 'success') &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      (needs.data-validation.result == 'success' || needs.data-validation.result == 'skipped') &&
+      (needs.quality-check.outputs.code-changed == 'true' || 
+       needs.quality-check.outputs.data-changed == 'true' || 
+       github.event.inputs.force_retrain == 'true')
+    
+    outputs:
+      model-version: ${{ steps.train.outputs.model-version }}
+      model-performance: ${{ steps.train.outputs.model-performance }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Set model version
+      id: version
+      run: |
+        MODEL_VERSION="v$(date +%Y%m%d%H%M%S)-${GITHUB_SHA:0:7}"
+        echo "model-version=$MODEL_VERSION" >> $GITHUB_OUTPUT
+        echo "MODEL_VERSION=$MODEL_VERSION" >> $GITHUB_ENV
+
+    - name: Launch SageMaker training job
+      id: train
+      run: |
+        python src/training/train_model.py \
+          --config config.yaml \
+          --model-version ${{ env.MODEL_VERSION }} \
+          --output-s3-path s3://${{ env.S3_BUCKET }}/models/${{ env.MODEL_VERSION }}/
+        
+        # Extract performance metrics from training output
+        PERFORMANCE=$(python -c "
+        import boto3
+        import json
+        s3 = boto3.client('s3')
+        obj = s3.get_object(Bucket='${{ env.S3_BUCKET }}', Key='models/${{ env.MODEL_VERSION }}/evaluation.json')
+        metrics = json.loads(obj['Body'].read())
+        print(f\"{metrics['mape']:.4f}\")
+        ")
+        echo "model-performance=$PERFORMANCE" >> $GITHUB_OUTPUT
+
+    - name: Register model in SageMaker Model Registry
+      run: |
+        python src/models/register_model.py \
+          --config config.yaml \
+          --model-version ${{ env.MODEL_VERSION }} \
+          --model-path s3://${{ env.S3_BUCKET }}/models/${{ env.MODEL_VERSION }}/
+
+  # Model Evaluation and Approval
+  evaluate-model:
+    runs-on: ubuntu-latest
+    needs: train-model
+    if: needs.train-model.result == 'success'
+    
+    outputs:
+      deployment-approved: ${{ steps.evaluation.outputs.approved }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Evaluate model performance
+      id: evaluation
+      run: |
+        PERFORMANCE="${{ needs.train-model.outputs.model-performance }}"
+        THRESHOLD=15.0  # MAPE threshold from config
+        
+        python -c "
+        performance = float('$PERFORMANCE')
+        threshold = float('$THRESHOLD')
+        approved = 'true' if performance < threshold else 'false'
+        print(f'Model MAPE: {performance}%')
+        print(f'Threshold: {threshold}%')
+        print(f'Approved: {approved}')
+        with open('$GITHUB_OUTPUT', 'a') as f:
+            f.write(f'approved={approved}\n')
+        "
+
+    - name: Generate model evaluation report
+      run: |
+        python src/evaluation/generate_report.py \
+          --config config.yaml \
+          --model-version ${{ needs.train-model.outputs.model-version }} \
+          --output-path reports/
+
+    - name: Upload evaluation report
+      uses: actions/upload-artifact@v3
+      with:
+        name: model-evaluation-report
+        path: reports/
+
+  # Deployment to Development
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: [train-model, evaluate-model]
+    if: |
+      needs.evaluate-model.outputs.deployment-approved == 'true' &&
+      (github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'dev')
+    
+    environment: development
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to development
+      run: |
+        python src/deployment/deploy_model.py \
+          --config config.yaml \
+          --environment dev \
+          --model-version ${{ needs.train-model.outputs.model-version }}
+
+    - name: Run smoke tests
+      run: |
+        python tests/deployment/smoke_tests.py \
+          --environment dev \
+          --endpoint-name chinese-produce-forecast-dev
+
+  # Deployment to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [train-model, evaluate-model, deploy-dev]
+    if: |
+      needs.evaluate-model.outputs.deployment-approved == 'true' &&
+      needs.deploy-dev.result == 'success' &&
+      (github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging')
+    
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to staging
+      run: |
+        python src/deployment/deploy_model.py \
+          --config config.yaml \
+          --environment staging \
+          --model-version ${{ needs.train-model.outputs.model-version }}
+
+    - name: Run integration tests
+      run: |
+        python tests/deployment/integration_tests.py \
+          --environment staging \
+          --endpoint-name chinese-produce-forecast-staging
+
+  # Deployment to Production
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: [train-model, evaluate-model, deploy-staging]
+    if: |
+      needs.evaluate-model.outputs.deployment-approved == 'true' &&
+      needs.deploy-staging.result == 'success' &&
+      (github.ref == 'refs/heads/main' || github.event.inputs.environment == 'prod')
+    
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to production with blue-green strategy
+      run: |
+        python src/deployment/deploy_model.py \
+          --config config.yaml \
+          --environment prod \
+          --model-version ${{ needs.train-model.outputs.model-version }} \
+          --deployment-strategy blue-green
+
+    - name: Run production validation tests
+      run: |
+        python tests/deployment/production_tests.py \
+          --environment prod \
+          --endpoint-name chinese-produce-forecast-prod
+
+    - name: Update model monitoring
+      run: |
+        python src/monitoring/setup_monitoring.py \
+          --config config.yaml \
+          --environment prod \
+          --model-version ${{ needs.train-model.outputs.model-version }}
+
+  # Notification
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-dev, deploy-staging, deploy-prod]
+    if: always()
+    
+    steps:
+    - name: Send notification
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#mlops'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+    - name: Send email notification
+      if: failure()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "MLOps Pipeline Failed - Chinese Produce Forecasting"
+        to: btiduwarlambodhar@sandiego.edu
+        from: "MLOps Bot <${{ secrets.EMAIL_USERNAME }}>"
+        body: |
+          The MLOps pipeline for Chinese Produce Forecasting has failed.
+          
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          
+          Please check the GitHub Actions logs for more details.
+
+# Cleanup old artifacts
+cleanup:
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/main'
+  
+  steps:
+  - name: Configure AWS credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ${{ env.AWS_REGION }}
+
+  - name: Cleanup old models
+    run: |
+      # Keep only last 10 model versions
+      aws s3api list-objects-v2 \
+        --bucket ${{ env.S3_BUCKET }} \
+        --prefix models/ \
+        --query 'Contents[?LastModified<=`$(date -d "30 days ago" --iso-8601)`].Key' \
+        --output text | \
+      xargs -I {} aws s3 rm s3://${{ env.S3_BUCKET }}/{}
