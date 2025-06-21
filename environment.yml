@@ -1,0 +1,15 @@
+name: dsfenv
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+      - sagemaker
+      - boto3
+      - mlflow

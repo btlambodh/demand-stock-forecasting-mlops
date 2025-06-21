@@ -1,0 +1,286 @@
+# Chinese Produce Market Forecasting MLOps Configuration
+
+# Project Information
+project:
+  name: "chinese-produce-forecast"
+  version: "1.0.0"
+  author: "Bhupal Lambodhar"
+  email: "btiduwarlambodhar@sandiego.edu"
+  repository: "https://github.com/btlambodh/demand-stock-forecasting-mlops.git"
+  description: "MLOps pipeline for Chinese produce market RMB forecasting"
+
+# AWS Configuration
+aws:
+  region: "us-east-1"
+  account_id: "346761359662"
+  
+  # S3 Configuration
+  s3:
+    bucket_name: "chinese-produce-forecast-346761359662"
+    data_prefix: "data/"
+    model_prefix: "models/"
+    artifacts_prefix: "artifacts/"
+    logs_prefix: "logs/"
+  
+  # SageMaker Configuration
+  sagemaker:
+    execution_role: "arn:aws:iam::346761359662:role/SageMakerExecutionRole"
+    instance_type_training: "ml.m5.xlarge"
+    instance_type_inference: "ml.t2.medium"
+    instance_count: 1
+    max_runtime_seconds: 86400  # 24 hours
+    
+    # Model Registry
+    model_package_group_name: "chinese-produce-forecasting-models"
+    
+    # Endpoints
+    endpoint_config:
+      initial_instance_count: 1
+      instance_type: "ml.t2.medium"
+      variant_weight: 1
+      auto_scaling:
+        min_capacity: 1
+        max_capacity: 10
+        target_value: 70.0  # CPU utilization target
+
+  # CloudWatch Configuration
+  cloudwatch:
+    log_group: "/aws/sagemaker/chinese-produce-forecast"
+    metrics_namespace: "ChineseProduceForecast"
+
+# Data Configuration
+data:
+  # Raw Data Files
+  raw_files:
+    item_master: "data/raw/annex1.csv"
+    sales_transactions: "data/raw/annex2.csv"
+    wholesale_prices: "data/raw/annex3.csv"
+    loss_rates: "data/raw/annex4.csv"
+  
+  # Processed Data
+  processed_files:
+    features: "data/processed/features.parquet"
+    train: "data/processed/train.parquet"
+    validation: "data/processed/validation.parquet"
+    test: "data/processed/test.parquet"
+  
+  # Data Validation
+  validation:
+    max_missing_percentage: 0.1
+    min_data_points: 100
+    date_range:
+      start: "2020-01-01"
+      end: "2024-12-31"
+
+# Feature Engineering Configuration
+features:
+  # Temporal Features
+  temporal:
+    window_sizes: [7, 14, 30, 90]  # days
+    lag_features: [1, 7, 14, 30]   # days
+    seasonality:
+      yearly: true
+      monthly: true
+      weekly: true
+      daily: false
+  
+  # Price Features
+  price:
+    moving_averages: [7, 14, 30]
+    volatility_windows: [7, 14, 30]
+    price_ratios: true  # wholesale/retail ratios
+    percentage_change: true
+  
+  # External Features
+  external:
+    exchange_rate: true  # RMB/USD
+    weather: false       # Future enhancement
+    holidays: true       # Chinese holidays
+
+# Model Configuration
+models:
+  # Primary Models
+  neural_networks:
+    lstm:
+      hidden_units: [64, 32]
+      dropout: 0.2
+      epochs: 100
+      batch_size: 32
+      learning_rate: 0.001
+    
+    gru:
+      hidden_units: [64, 32]
+      dropout: 0.2
+      epochs: 100
+      batch_size: 32
+      learning_rate: 0.001
+    
+    transformer:
+      d_model: 64
+      n_heads: 8
+      num_layers: 4
+      dropout: 0.1
+      epochs: 100
+      batch_size: 32
+  
+  # Traditional Models
+  statistical:
+    arima:
+      max_p: 5
+      max_d: 2
+      max_q: 5
+      seasonal: true
+    
+    prophet:
+      seasonality_mode: "additive"
+      yearly_seasonality: true
+      weekly_seasonality: true
+      daily_seasonality: false
+  
+  # Ensemble Configuration
+  ensemble:
+    method: "weighted_average"
+    weights: "auto"  # Auto-calculated based on validation performance
+    
+  # Hyperparameter Optimization
+  hyperparameter_tuning:
+    method: "bayesian"  # Options: grid, random, bayesian
+    max_jobs: 20
+    max_parallel_jobs: 4
+    objective_metric: "validation:mape"
+
+# Training Configuration
+training:
+  # Data Split
+  train_ratio: 0.7
+  validation_ratio: 0.15
+  test_ratio: 0.15
+  
+  # Cross Validation
+  cross_validation:
+    method: "time_series_split"
+    n_splits: 5
+    test_size: 30  # days
+  
+  # Early Stopping
+  early_stopping:
+    patience: 10
+    min_delta: 0.001
+    restore_best_weights: true
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "mae"      # Mean Absolute Error
+    - "mse"      # Mean Squared Error
+    - "rmse"     # Root Mean Squared Error
+    - "mape"     # Mean Absolute Percentage Error
+    - "smape"    # Symmetric Mean Absolute Percentage Error
+    - "r2"       # R-squared
+  
+  # Performance Thresholds
+  thresholds:
+    mape_threshold: 15.0      # Maximum acceptable MAPE
+    rmse_threshold: 5.0       # Maximum acceptable RMSE
+    r2_threshold: 0.7         # Minimum acceptable R-squared
+  
+  # Forecasting Horizons
+  forecast_horizons: [1, 7, 14, 30]  # days
+
+# Monitoring Configuration
+monitoring:
+  # Model Performance Monitoring
+  performance:
+    drift_threshold: 0.1
+    performance_degradation_threshold: 0.15
+    monitoring_window: 7  # days
+  
+  # Data Quality Monitoring
+  data_quality:
+    missing_data_threshold: 0.05
+    outlier_threshold: 3.0  # standard deviations
+    schema_validation: true
+  
+  # Alerts
+  alerts:
+    email: "btiduwarlambodhar@sandiego.edu"
+    slack_webhook: null  # Optional
+    sns_topic: "arn:aws:sns:us-east-1:346761359662:produce-forecast-alerts"
+
+# Deployment Configuration
+deployment:
+  # Environment Configuration
+  environments:
+    dev:
+      instance_type: "ml.t2.medium"
+      auto_scaling_enabled: false
+    
+    staging:
+      instance_type: "ml.m5.large"
+      auto_scaling_enabled: true
+      min_capacity: 1
+      max_capacity: 3
+    
+    prod:
+      instance_type: "ml.m5.xlarge"
+      auto_scaling_enabled: true
+      min_capacity: 2
+      max_capacity: 10
+  
+  # Blue-Green Deployment
+  blue_green:
+    enabled: true
+    traffic_shift_percentage: 10
+    evaluation_period: 300  # seconds
+  
+  # Rollback Configuration
+  rollback:
+    auto_rollback_enabled: true
+    performance_threshold: 0.2  # 20% performance degradation triggers rollback
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  handlers:
+    - "console"
+    - "file"
+    - "cloudwatch"
+
+# Security Configuration
+security:
+  encryption:
+    s3_encryption: "AES256"
+    kms_key_id: null  # Use default AWS managed key
+  
+  vpc:
+    enabled: false  # Set to true for VPC deployment
+    vpc_id: null
+    subnet_ids: []
+    security_group_ids: []
+
+# Cost Optimization
+cost_optimization:
+  spot_instances:
+    enabled: false  # Enable for training cost savings
+    max_price: "0.50"  # USD per hour
+  
+  scheduled_scaling:
+    enabled: true
+    scale_down_cron: "0 18 * * *"  # Scale down at 6 PM
+    scale_up_cron: "0 8 * * *"     # Scale up at 8 AM
+    timezone: "Asia/Shanghai"
+
+# Testing Configuration
+testing:
+  unit_tests:
+    coverage_threshold: 80
+  
+  integration_tests:
+    data_quality_tests: true
+    model_performance_tests: true
+    endpoint_tests: true
+  
+  load_testing:
+    max_requests_per_second: 100
+    duration_minutes: 10

@@ -1,0 +1,46 @@
+{
+  "expected_files": {
+    "annex1.csv": {
+      "description": "Item master data",
+      "columns": [
+        "Item Code",
+        "Item Name",
+        "Category Code",
+        "Category Name"
+      ],
+      "expected_rows": 241
+    },
+    "annex2.csv": {
+      "description": "Sales transactions",
+      "columns": [
+        "Date",
+        "Time",
+        "Item Code",
+        "Quantity Sold (kilo)",
+        "Unit Selling Price (RMB/kg)",
+        "Sale or Return",
+        "Discount (Yes/No)"
+      ],
+      "expected_rows": 497990
+    },
+    "annex3.csv": {
+      "description": "Wholesale prices",
+      "columns": [
+        "Date",
+        "Item Code",
+        "Wholesale Price (RMB/kg)"
+      ],
+      "expected_rows": 55956
+    },
+    "annex4.csv": {
+      "description": "Loss rates",
+      "columns": [
+        "Item Code",
+        "Item Name",
+        "Loss Rate (%)"
+      ],
+      "expected_rows": 241
+    }
+  },
+  "instructions": "Place your actual CSV files in this directory (data/raw/) with the exact names listed above."
+}
