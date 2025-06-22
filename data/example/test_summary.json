@@ -1,0 +1,69 @@
+{
+  "test_data_generated": "2025-06-21T22:37:44.901423",
+  "output_directory": "data/example",
+  "files_created": {
+    "basic_test.json": {
+      "description": "Default test case matching your exact specification",
+      "use_case": "Basic endpoint verification"
+    },
+    "high_volume_test.json": {
+      "description": "High volume sales scenario (500+ units)",
+      "use_case": "Test handling of large transactions"
+    },
+    "low_volume_test.json": {
+      "description": "Low volume sales scenario (25 units)",
+      "use_case": "Test handling of small transactions"
+    },
+    "high_volatility_test.json": {
+      "description": "High price volatility scenario",
+      "use_case": "Test model behavior with volatile pricing"
+    },
+    "holiday_peak_test.json": {
+      "description": "Holiday peak demand scenario",
+      "use_case": "Test seasonal peak predictions"
+    },
+    "spring_fresh_test.json": {
+      "description": "Spring fresh produce scenario",
+      "use_case": "Test seasonal fresh produce patterns"
+    },
+    "batch_test.json": {
+      "description": "Batch prediction with multiple instances",
+      "use_case": "Test batch processing capabilities"
+    },
+    "random_test_*.json": {
+      "description": "Random test scenarios for robustness testing",
+      "use_case": "Test model robustness with varied inputs"
+    }
+  },
+  "data_structure": {
+    "format": "{ \"features\": { ... } }",
+    "required_fields": [
+      "Total_Quantity",
+      "Avg_Price",
+      "Transaction_Count",
+      "Price_Volatility",
+      "Min_Price",
+      "Max_Price",
+      "Discount_Count",
+      "Revenue",
+      "Discount_Rate",
+      "Price_Range",
+      "Wholesale Price (RMB/kg)",
+      "Loss Rate (%)",
+      "Month",
+      "DayOfWeek",
+      "IsWeekend",
+      "Year",
+      "Quarter",
+      "DayOfYear",
+      "WeekOfYear"
+    ]
+  },
+  "usage_instructions": {
+    "sagemaker_test_command": [
+      "python src/deployment/sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data data/example/basic_test.json",
+      "python src/deployment/sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data data/example/high_volume_test.json"
+    ],
+    "curl_example": "curl -X POST https://your-endpoint.amazonaws.com/invocations -H 'Content-Type: application/json' -d @data/example/basic_test.json"
+  }
+}

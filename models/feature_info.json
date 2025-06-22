@@ -93,7 +93,9 @@
   ],
   "num_features": 90,
   "model_version": "v20250621_001",
-  "training_date": "2025-06-21T12:38:32.437698",
+  "training_date": "2025-06-21T15:26:58.991456",
+  "best_model": "random_forest",
+  "best_model_mape": 11.69224556360008,
   "training_summary": {
     "models_trained": 4,
     "models_failed": 0

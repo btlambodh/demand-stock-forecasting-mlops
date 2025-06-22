@@ -368,7 +368,7 @@ class ModelTrainer:
         return test_results
 
     def save_models_and_results(self, results: Dict, evaluation_results: Dict, 
-                               feature_cols: list, output_path: str) -> Dict[str, str]:
+                           feature_cols: list, output_path: str) -> Dict[str, str]:
         """Save trained models and results"""
         self.logger.warning("SAVING MODELS AND RESULTS")
         self.logger.info("Saving models and results...")
@@ -376,8 +376,10 @@ class ModelTrainer:
         os.makedirs(output_path, exist_ok=True)
         
         saved_files = {}
+        best_model_name = None
+        best_mape = float('inf')
         
-        # Save models
+        # Save models and find best performer
         for name, result in results.items():
             if 'error' not in result:
                 try:
@@ -386,6 +388,13 @@ class ModelTrainer:
                     joblib.dump(model_artifact, model_path)
                     saved_files[name] = model_path
                     
+                    # Check if this is the best model
+                    eval_result = evaluation_results.get(name, {})
+                    mape = eval_result.get('metrics', {}).get('val_mape', float('inf'))
+                    if mape < best_mape:
+                        best_mape = mape
+                        best_model_name = name
+                    
                     # Log model file size
                     file_size = os.path.getsize(model_path) / 1024**2  # MB
                     self.logger.info(f"Saved {name} model ({file_size:.2f} MB)")
@@ -393,6 +402,19 @@ class ModelTrainer:
                 except Exception as e:
                     self.logger.error(f"Error saving {name}: {e}")
         
+        # Save best model as best_model.pkl
+        if best_model_name and best_model_name in saved_files:
+            best_model_path = os.path.join(output_path, 'best_model.pkl')
+            original_path = saved_files[best_model_name]
+            
+            # Copy the best model
+            import shutil
+            shutil.copy2(original_path, best_model_path)
+            saved_files['best_model'] = best_model_path
+            
+            self.logger.warning(f"BEST MODEL SAVED: {best_model_name} -> best_model.pkl (MAPE: {best_mape:.3f}%)")
+        
+        # Rest of your existing code...
         # Save evaluation results
         eval_data = {}
         for name, result in evaluation_results.items():
@@ -405,12 +427,14 @@ class ModelTrainer:
         saved_files['evaluation'] = eval_path
         self.logger.info(f"Saved evaluation results: {eval_path}")
         
-        # Save feature information
+        # Save feature information with best model info
         feature_info = {
             'feature_columns': feature_cols,
             'num_features': len(feature_cols),
             'model_version': self.model_version,
             'training_date': datetime.now().isoformat(),
+            'best_model': best_model_name,
+            'best_model_mape': best_mape,
             'training_summary': {
                 'models_trained': len([r for r in results.values() if 'error' not in r]),
                 'models_failed': len([r for r in results.values() if 'error' in r])
