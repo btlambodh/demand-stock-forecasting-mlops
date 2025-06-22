@@ -1,0 +1,280 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Data Drift Detection Report - Chinese Produce Forecasting</title>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    margin: 0; 
+                    padding: 20px; 
+                    background-color: #f8f9fa;
+                }
+                .container { 
+                    max-width: 1200px; 
+                    margin: 0 auto; 
+                    background-color: white; 
+                    border-radius: 10px; 
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                .header { 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; 
+                    padding: 30px; 
+                    text-align: center;
+                }
+                .header h1 { margin: 0; font-size: 2.5em; }
+                .header p { margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9; }
+                .status { 
+                    background-color: #27ae60; 
+                    color: white; 
+                    padding: 20px; 
+                    text-align: center; 
+                    font-size: 1.5em; 
+                    font-weight: bold;
+                }
+                .content { padding: 30px; }
+                .summary { 
+                    background-color: #f8f9fa; 
+                    padding: 25px; 
+                    margin: 20px 0; 
+                    border-radius: 8px; 
+                    border-left: 5px solid #667eea;
+                }
+                .summary h2 { margin-top: 0; color: #2c3e50; }
+                .metrics-grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                    gap: 20px; 
+                    margin: 20px 0; 
+                }
+                .metric { 
+                    background-color: white; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    text-align: center; 
+                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .metric-value { 
+                    font-size: 2em; 
+                    font-weight: bold; 
+                    margin-bottom: 5px; 
+                }
+                .metric-label { 
+                    color: #6c757d; 
+                    font-size: 0.9em; 
+                }
+                .drift-high { color: #dc3545; }
+                .drift-medium { color: #fd7e14; }
+                .drift-low { color: #ffc107; }
+                .drift-none { color: #28a745; }
+                table { 
+                    border-collapse: collapse; 
+                    width: 100%; 
+                    margin: 20px 0; 
+                    background-color: white;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                th, td { 
+                    padding: 12px 15px; 
+                    text-align: left; 
+                    border-bottom: 1px solid #e9ecef;
+                }
+                th { 
+                    background-color: #495057; 
+                    color: white; 
+                    font-weight: 600;
+                }
+                tr:hover { background-color: #f8f9fa; }
+                .footer {
+                    background-color: #495057;
+                    color: white;
+                    text-align: center;
+                    padding: 20px;
+                    margin-top: 30px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔍 Data Drift Detection Report</h1>
+                    <p>Chinese Produce Market Forecasting System</p>
+                </div>
+                
+                <div class="status">
+                    NO SIGNIFICANT DRIFT
+                </div>
+                
+                <div class="content">
+                    <div class="summary">
+                        <h2>📊 Executive Summary</h2>
+                        <p><strong>Analysis Timestamp:</strong> 2025-06-22T05:09:17.643331</p>
+                        <p><strong>Detection Method:</strong> Statistical</p>
+                        <p><strong>Reference Data:</strong> (1000, 11) rows × columns</p>
+                        <p><strong>Current Data:</strong> (1000, 11) rows × columns</p>
+                        <p><strong>Overall Drift Score:</strong> 0.208</p>
+                        <p><strong>Drift Threshold:</strong> 0.25</p>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">11</div>
+                            <div class="metric-label">Total Features Analyzed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-high">1</div>
+                            <div class="metric-label">High Drift (>0.5)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-medium">2</div>
+                            <div class="metric-label">Medium Drift (0.2-0.5)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-low">0</div>
+                            <div class="metric-label">Low Drift (0.1-0.2)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-none">8</div>
+                            <div class="metric-label">No Drift (<0.1)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">27.3%</div>
+                            <div class="metric-label">Features with Drift</div>
+                        </div>
+                    </div>
+                    
+                    <h2>📈 Feature-Level Drift Analysis</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature Name</th>
+                                <th>Drift Score</th>
+                                <th>Drift Detected</th>
+                                <th>Risk Level</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                <tr>
+                    <td><strong>Loss_Rate</strong></td>
+                    <td class="drift-high"><strong>1.2881</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">🔴 High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price</strong></td>
+                    <td class="drift-medium"><strong>0.4998</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">🟠 Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Volatility</strong></td>
+                    <td class="drift-medium"><strong>0.3849</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">🟠 Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category_Code</strong></td>
+                    <td class="drift-none"><strong>0.0454</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>IsWeekend</strong></td>
+                    <td class="drift-none"><strong>0.0372</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Month</strong></td>
+                    <td class="drift-none"><strong>0.0131</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Transaction_Count</strong></td>
+                    <td class="drift-none"><strong>0.0073</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfWeek</strong></td>
+                    <td class="drift-none"><strong>0.0039</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Wholesale_Price</strong></td>
+                    <td class="drift-none"><strong>0.0036</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity</strong></td>
+                    <td class="drift-none"><strong>0.0007</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue</strong></td>
+                    <td class="drift-none"><strong>0.0000</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">🟢 No Risk</td>
+                    <td></td>
+                </tr>
+            
+                        </tbody>
+                    </table>
+                    
+                    <div class="summary">
+                        <h2>🔬 Technical Details</h2>
+                        <p><strong>Method:</strong> statistical</p>
+                        <p><strong>Features Analyzed:</strong> 11</p>
+            <p><strong>Mean Drift Score:</strong> 0.2077</p><p><strong>Max Drift Score:</strong> 1.2881</p></div>
+                    <div class="summary">
+                        <h2>📋 Recommendations</h2>
+        
+                        <p>✅ <strong>No Immediate Action Required:</strong></p>
+                        <ul>
+                            <li>Continue regular monitoring schedule</li>
+                            <li>Maintain current model deployment</li>
+                            <li>Schedule next drift analysis as planned</li>
+                        </ul>
+            
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p>Generated by Chinese Produce Forecasting ML Monitoring System</p>
+                    <p>Report Time: 2025-06-22 05:09:17 UTC</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        
