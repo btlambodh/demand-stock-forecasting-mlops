@@ -1,43 +1,36 @@
 {
-  "test_data_generated": "2025-06-21T22:37:44.901423",
+  "test_data_generated": "2025-06-22T01:32:18.103813",
+  "generator_version": "2.0",
   "output_directory": "data/example",
-  "files_created": {
-    "basic_test.json": {
-      "description": "Default test case matching your exact specification",
-      "use_case": "Basic endpoint verification"
+  "total_files": 14,
+  "data_format": {
+    "single_prediction": {
+      "structure": "{ \"features\": { ... } }",
+      "example_files": [
+        "basic_test.json",
+        "high_volume_test.json"
+      ]
     },
-    "high_volume_test.json": {
-      "description": "High volume sales scenario (500+ units)",
-      "use_case": "Test handling of large transactions"
-    },
-    "low_volume_test.json": {
-      "description": "Low volume sales scenario (25 units)",
-      "use_case": "Test handling of small transactions"
-    },
-    "high_volatility_test.json": {
-      "description": "High price volatility scenario",
-      "use_case": "Test model behavior with volatile pricing"
-    },
-    "holiday_peak_test.json": {
-      "description": "Holiday peak demand scenario",
-      "use_case": "Test seasonal peak predictions"
-    },
-    "spring_fresh_test.json": {
-      "description": "Spring fresh produce scenario",
-      "use_case": "Test seasonal fresh produce patterns"
-    },
-    "batch_test.json": {
-      "description": "Batch prediction with multiple instances",
-      "use_case": "Test batch processing capabilities"
-    },
-    "random_test_*.json": {
-      "description": "Random test scenarios for robustness testing",
-      "use_case": "Test model robustness with varied inputs"
+    "batch_prediction": {
+      "structure": "{ \"instances\": [{ ... }, { ... }] }",
+      "example_files": [
+        "batch_test.json"
+      ]
     }
   },
-  "data_structure": {
-    "format": "{ \"features\": { ... } }",
-    "required_fields": [
+  "test_scenarios": {
+    "basic_test": "Basic test case matching exact specification",
+    "high_volume_test": "High volume sales scenario (450+ units)",
+    "low_volume_test": "Low volume sales scenario (35 units)",
+    "high_volatility_test": "High price volatility scenario",
+    "holiday_peak_test": "National Day holiday peak demand",
+    "spring_fresh_test": "Spring fresh produce season",
+    "summer_peak_test": "Summer peak demand scenario",
+    "weekend_shopping_test": "Weekend shopping pattern",
+    "batch_test": "Batch prediction with 8 diverse scenarios"
+  },
+  "feature_structure": {
+    "required_features": [
       "Total_Quantity",
       "Avg_Price",
       "Transaction_Count",
@@ -57,13 +50,27 @@
       "Quarter",
       "DayOfYear",
       "WeekOfYear"
-    ]
-  },
-  "usage_instructions": {
-    "sagemaker_test_command": [
-      "python src/deployment/sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data data/example/basic_test.json",
-      "python src/deployment/sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data data/example/high_volume_test.json"
     ],
-    "curl_example": "curl -X POST https://your-endpoint.amazonaws.com/invocations -H 'Content-Type: application/json' -d @data/example/basic_test.json"
+    "feature_count": 19,
+    "note": "These basic features will be expanded to 90 features by the inference script"
+  },
+  "sagemaker_usage": {
+    "deploy_command": "python fixed_sagemaker_deploy.py --config config.yaml --action deploy --model-path models/best_model.pkl --model-name chinese-produce-forecaster --endpoint-name produce-forecast-test",
+    "test_commands": [
+      "python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name produce-forecast-test --test-data data/example/basic_test.json",
+      "python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name produce-forecast-test --test-data data/example/batch_test.json",
+      "python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name produce-forecast-test --test-data data/example/high_volatility_test.json"
+    ],
+    "cleanup_command": "python fixed_sagemaker_deploy.py --config config.yaml --action delete --endpoint-name produce-forecast-test"
+  },
+  "direct_api_usage": {
+    "curl_example": "curl -X POST https://your-endpoint.amazonaws.com/invocations -H 'Content-Type: application/json' -d @data/example/basic_test.json",
+    "boto3_example": "import boto3; runtime = boto3.client('sagemaker-runtime'); response = runtime.invoke_endpoint(EndpointName='your-endpoint', ContentType='application/json', Body=json.dumps(test_data))"
+  },
+  "validation_notes": {
+    "feature_engineering": "Input features are automatically expanded to 90 features by the inference script",
+    "data_types": "All numeric values should be float or int",
+    "missing_values": "Any missing basic features will be filled with realistic defaults",
+    "expected_output": "JSON response with predictions, confidence scores, and metadata"
   }
 }

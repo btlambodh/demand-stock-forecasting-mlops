@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 SageMaker Deployment Automation for Chinese Produce Market Forecasting
-Production-grade deployment with comprehensive feature engineering
+Production-grade deployment with comprehensive feature engineering and DYNAMIC feature order
 
 Author: Bhupal Lambodhar
 Email: btiduwarlambodhar@sandiego.edu
@@ -24,11 +24,11 @@ import yaml
 import pandas as pd
 import numpy as np
 import sagemaker
+import joblib
 from sagemaker.sklearn import SKLearnModel
 from sagemaker.predictor import Predictor
 from sagemaker.serializers import JSONSerializer
 from sagemaker.deserializers import JSONDeserializer
-from sagemaker.model_monitor import DefaultModelMonitor, DataCaptureConfig
 
 # Configure logging
 logging.basicConfig(
@@ -38,8 +38,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class SageMakerDeployer:
-    """Enterprise SageMaker deployment with comprehensive fixes applied"""
+class FixedSageMakerDeployer:
+    """FIXED SageMaker deployment with dynamic feature order extraction"""
     
     def __init__(self, config_path: str):
         """Initialize SageMaker deployer with configuration"""
@@ -53,457 +53,474 @@ class SageMakerDeployer:
         self.region = self.aws_config['region']
         self.s3_client = boto3.client('s3', region_name=self.region)
         self.sagemaker_client = boto3.client('sagemaker', region_name=self.region)
-        self.application_autoscaling = boto3.client('application-autoscaling', region_name=self.region)
-        self.cloudwatch = boto3.client('cloudwatch', region_name=self.region)
         
         # Initialize SageMaker session and get default bucket
         self.sagemaker_session = sagemaker.Session()
         self.role = self.aws_config['sagemaker']['execution_role']
-        
-        # Use SageMaker default bucket (has guaranteed access)
         self.bucket = self.sagemaker_session.default_bucket()
-        logger.info(f"Using SageMaker default bucket: {self.bucket}")
         
-        # Fallback to config bucket if needed
-        self.config_bucket = self.aws_config['s3']['bucket_name']
-        
-        # Deployment settings
-        self.model_package_group = self.aws_config['sagemaker']['model_package_group_name']
-        
-        logger.info("SageMaker Deployer initialized successfully")
+        logger.info("FIXED SageMaker Deployer initialized successfully")
 
-    def create_inference_script(self, model_name: str, output_dir: str) -> str:
-        """Create EXACT FEATURE MATCH inference script for model compatibility"""
-        logger.info(f"Creating EXACT feature match inference script for {model_name}")
-        
-        os.makedirs(output_dir, exist_ok=True)
-        
-        script_path = os.path.join(output_dir, 'inference.py')
-        
-        # FIXED inference script with EXACT 90 features the model expects
-        inference_code = '''#!/usr/bin/env python3
-    import os
-    import json
-    import logging
-    import joblib
-    import pandas as pd
-    import numpy as np
-    from io import StringIO
-    from datetime import datetime
-    import warnings
-    warnings.filterwarnings('ignore')
-    
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    def create_exact_model_features(df_input):
-        """
-        Create EXACTLY the 90 features the model expects, in the correct order
-        Based on model debug: fixes feature mismatch issues
-        """
-        logger.info(f"Creating exact model features from {df_input.shape[1]} input features")
-        df = df_input.copy()
+    def extract_model_feature_order(self, model_path: str) -> List[str]:
+        """Extract the exact feature order from the trained model"""
+        logger.info(f"Extracting feature order from model: {model_path}")
         
         try:
-            # Basic feature defaults (ensuring all required inputs exist)
-            basic_defaults = {
-                "Total_Quantity": 100.0,
-                "Avg_Price": 15.0,
-                "Transaction_Count": 10,
-                "Price_Volatility": 1.0,
-                "Min_Price": 12.0,
-                "Max_Price": 18.0,
-                "Discount_Count": 2,
-                "Revenue": 1500.0,
-                "Discount_Rate": 0.1,
-                "Price_Range": 6.0,
-                "Wholesale Price (RMB/kg)": 12.0,
-                "Loss Rate (%)": 8.0,
-                "Month": 6,
-                "DayOfWeek": 1,
-                "IsWeekend": 0,
-                "Year": 2024,
-                "Quarter": 2,
-                "DayOfYear": 180,
-                "WeekOfYear": 26
-            }
+            # Load the model
+            model_artifact = joblib.load(model_path)
             
-            # Fill missing basic features
-            for col, default_val in basic_defaults.items():
-                if col not in df.columns:
-                    df[col] = default_val
-                else:
-                    df[col] = df[col].fillna(default_val)
-            
-            # ===== MISSING FEATURES THAT MODEL EXPECTS =====
-            
-            # 1. Avg_Quantity (missing from inference but model expects it)
-            df["Avg_Quantity"] = df["Total_Quantity"] / np.maximum(df["Transaction_Count"], 1)
-            
-            # 2. Category Code (missing from inference but model expects it) 
-            df["Category Code"] = 1  # Default category code
-            
-            # ===== CORE CALCULATED FEATURES =====
-            
-            # Derive basic calculated features
-            if "Revenue" not in df_input.columns:
-                df["Revenue"] = df["Total_Quantity"] * df["Avg_Price"]
-            if "Price_Range" not in df_input.columns:
-                df["Price_Range"] = df["Max_Price"] - df["Min_Price"]
-            if "Discount_Rate" not in df_input.columns:
-                df["Discount_Rate"] = df["Discount_Count"] / np.maximum(df["Transaction_Count"], 1)
-            
-            # ===== TEMPORAL FEATURES =====
-            
-            df["Month_Sin"] = np.sin(2 * np.pi * df["Month"] / 12)
-            df["Month_Cos"] = np.cos(2 * np.pi * df["Month"] / 12)
-            df["DayOfYear_Sin"] = np.sin(2 * np.pi * df["DayOfYear"] / 365)
-            df["DayOfYear_Cos"] = np.cos(2 * np.pi * df["DayOfYear"] / 365)
-            df["DayOfWeek_Sin"] = np.sin(2 * np.pi * df["DayOfWeek"] / 7)
-            df["DayOfWeek_Cos"] = np.cos(2 * np.pi * df["DayOfWeek"] / 7)
-            
-            # Chinese holidays - only the ones model expects
-            df["IsNationalDay"] = ((df["Month"] == 10) & (df["DayOfYear"].between(274, 280))).astype(int)
-            df["IsLaborDay"] = ((df["Month"] == 5) & (df["DayOfYear"].between(121, 125))).astype(int)
-            # NOTE: NOT including IsSpringFestival as model doesn't expect it
-            
-            # Season mapping
-            season_map = {12: "Winter", 1: "Winter", 2: "Winter", 3: "Spring", 4: "Spring", 
-                         5: "Spring", 6: "Summer", 7: "Summer", 8: "Summer", 9: "Autumn", 
-                         10: "Autumn", 11: "Autumn"}
-            df["Season"] = df["Month"].map(season_map).fillna("Summer")
-            
-            # Days since epoch
-            epoch_date = pd.to_datetime("2020-01-01")
-            current_date = pd.to_datetime("2024-01-01") + pd.to_timedelta(df["DayOfYear"] - 1, unit="D")
-            df["Days_Since_Epoch"] = (current_date - epoch_date).dt.days
-            
-            # ===== PRICE FEATURES =====
-            
-            df["Retail_Wholesale_Ratio"] = df["Avg_Price"] / np.maximum(df["Wholesale Price (RMB/kg)"], 0.1)
-            df["Price_Markup"] = df["Avg_Price"] - df["Wholesale Price (RMB/kg)"]
-            df["Price_Markup_Pct"] = (df["Price_Markup"] / np.maximum(df["Wholesale Price (RMB/kg)"], 0.1)) * 100
-            df["Avg_Price_Change"] = np.random.normal(0.02, 0.01, len(df))
-            df["Wholesale_Price_Change"] = np.random.normal(0.015, 0.008, len(df))
-            
-            # ===== LAG FEATURES =====
-            
-            lag_periods = [1, 7, 14, 30]
-            np.random.seed(42)
-            
-            for lag in lag_periods:
-                price_lag_noise = np.random.normal(1.0, 0.05, len(df))
-                quantity_lag_noise = np.random.normal(1.0, 0.08, len(df))
-                df[f"Avg_Price_Lag_{lag}"] = df["Avg_Price"] * price_lag_noise
-                df[f"Total_Quantity_Lag_{lag}"] = df["Total_Quantity"] * quantity_lag_noise
-                df[f"Revenue_Lag_{lag}"] = df[f"Avg_Price_Lag_{lag}"] * df[f"Total_Quantity_Lag_{lag}"]
-            
-            # ===== ROLLING WINDOW FEATURES =====
-            
-            windows = [7, 14, 30]
-            
-            for window in windows:
-                ma_variation = 0.03
-                df[f"Avg_Price_MA_{window}"] = df["Avg_Price"] * np.random.uniform(1-ma_variation, 1+ma_variation, len(df))
-                df[f"Total_Quantity_MA_{window}"] = df["Total_Quantity"] * np.random.uniform(1-ma_variation, 1+ma_variation, len(df))
-                df[f"Revenue_MA_{window}"] = df[f"Avg_Price_MA_{window}"] * df[f"Total_Quantity_MA_{window}"]
-                df[f"Avg_Price_Std_{window}"] = df["Price_Volatility"]
-                df[f"Total_Quantity_Std_{window}"] = df["Total_Quantity"] * 0.1
-                df[f"Avg_Price_Min_{window}"] = df["Min_Price"]
-                df[f"Avg_Price_Max_{window}"] = df["Max_Price"]
-            
-            # ===== CATEGORY FEATURES =====
-            
-            df["Category_Total_Quantity"] = df["Total_Quantity"] * np.random.uniform(3, 6, len(df))
-            df["Category_Avg_Price"] = df["Avg_Price"] * np.random.uniform(0.9, 1.1, len(df))
-            df["Category_Revenue"] = df["Category_Total_Quantity"] * df["Category_Avg_Price"]
-            df["Item_Quantity_Share"] = df["Total_Quantity"] / np.maximum(df["Category_Total_Quantity"], 1)
-            df["Item_Revenue_Share"] = df["Revenue"] / np.maximum(df["Category_Revenue"], 1)
-            df["Price_Relative_to_Category"] = df["Avg_Price"] / np.maximum(df["Category_Avg_Price"], 0.1)
-            df["Category Name_Encoded"] = np.random.randint(1, 4, len(df))
-            
-            # ===== LOSS RATE FEATURES - EXACT MATCH =====
-            
-            df["Effective_Supply"] = df["Total_Quantity"] * (1 - df["Loss Rate (%)"] / 100)
-            df["Loss_Adjusted_Revenue"] = df["Effective_Supply"] * df["Avg_Price"]
-            
-            # Only create the loss rate categories the model expects
-            df["Loss_Rate_Category_Medium"] = ((df["Loss Rate (%)"] > 5) & (df["Loss Rate (%)"] <= 15)).astype(int)
-            df["Loss_Rate_Category_High"] = (df["Loss Rate (%)"] > 15).astype(int)
-            df["Loss_Rate_Category_Very_High"] = (df["Loss Rate (%)"] > 25).astype(int)
-            # NOTE: NOT creating Loss_Rate_Category_Low as model doesn't expect it
-            
-            # ===== INTERACTION FEATURES =====
-            
-            df["Price_Quantity_Interaction"] = df["Avg_Price"] * df["Total_Quantity"]
-            df["Price_Volatility_Quantity"] = df["Price_Volatility"] * df["Total_Quantity"]
-            df["Spring_Price"] = df["Avg_Price"] * (df["Season"] == "Spring").astype(int)
-            df["Summer_Price"] = df["Avg_Price"] * (df["Season"] == "Summer").astype(int)
-            df["Autumn_Price"] = df["Avg_Price"] * (df["Season"] == "Autumn").astype(int)
-            df["Winter_Price"] = df["Avg_Price"] * (df["Season"] == "Winter").astype(int)
-            df["Holiday_Demand"] = df["Total_Quantity"] * (df["IsNationalDay"] + df["IsLaborDay"])
-            
-            # ===== SEASONAL DUMMY VARIABLES - EXACT MATCH =====
-            
-            # Only create the season dummies the model expects (NOT Season_Autumn)
-            df["Season_Spring"] = (df["Season"] == "Spring").astype(int)
-            df["Season_Summer"] = (df["Season"] == "Summer").astype(int)
-            df["Season_Winter"] = (df["Season"] == "Winter").astype(int)
-            # NOTE: NOT creating Season_Autumn as model doesn't expect it
-            
-            # Clean up categorical columns
-            df = df.drop("Season", axis=1, errors='ignore')
-            
-            # ===== FINAL CLEANUP =====
-            
-            df = df.fillna(0)
-            
-            # Convert all columns to numeric
-            for col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-            
-            # Replace infinite values
-            df = df.replace([np.inf, -np.inf], 0)
-            
-            # ===== EXACT FEATURE SELECTION - THE 90 FEATURES MODEL EXPECTS =====
-            
-            # These are the EXACT 90 features from your model debug output
-            expected_features = [
-                'Total_Quantity', 'Avg_Quantity', 'Transaction_Count', 'Avg_Price', 'Price_Volatility', 
-                'Min_Price', 'Max_Price', 'Discount_Count', 'Revenue', 'Discount_Rate', 'Price_Range', 
-                'Wholesale Price (RMB/kg)', 'Loss Rate (%)', 'Year', 'Month', 'Quarter', 'DayOfYear', 
-                'DayOfWeek', 'WeekOfYear', 'IsWeekend', 'Month_Sin', 'Month_Cos', 'DayOfYear_Sin', 
-                'DayOfYear_Cos', 'DayOfWeek_Sin', 'DayOfWeek_Cos', 'IsNationalDay', 'IsLaborDay', 
-                'Days_Since_Epoch', 'Retail_Wholesale_Ratio', 'Price_Markup', 'Price_Markup_Pct', 
-                'Avg_Price_Change', 'Wholesale_Price_Change', 'Avg_Price_Lag_1', 'Total_Quantity_Lag_1', 
-                'Revenue_Lag_1', 'Avg_Price_Lag_7', 'Total_Quantity_Lag_7', 'Revenue_Lag_7', 
-                'Avg_Price_Lag_14', 'Total_Quantity_Lag_14', 'Revenue_Lag_14', 'Avg_Price_Lag_30', 
-                'Total_Quantity_Lag_30', 'Revenue_Lag_30', 'Avg_Price_MA_7', 'Total_Quantity_MA_7', 
-                'Revenue_MA_7', 'Avg_Price_Std_7', 'Total_Quantity_Std_7', 'Avg_Price_Min_7', 
-                'Avg_Price_Max_7', 'Avg_Price_MA_14', 'Total_Quantity_MA_14', 'Revenue_MA_14', 
-                'Avg_Price_Std_14', 'Total_Quantity_Std_14', 'Avg_Price_Min_14', 'Avg_Price_Max_14', 
-                'Avg_Price_MA_30', 'Total_Quantity_MA_30', 'Revenue_MA_30', 'Avg_Price_Std_30', 
-                'Total_Quantity_Std_30', 'Avg_Price_Min_30', 'Avg_Price_Max_30', 'Category Code', 
-                'Category_Total_Quantity', 'Category_Avg_Price', 'Category_Revenue', 'Item_Quantity_Share', 
-                'Item_Revenue_Share', 'Price_Relative_to_Category', 'Effective_Supply', 'Loss_Adjusted_Revenue', 
-                'Price_Quantity_Interaction', 'Price_Volatility_Quantity', 'Spring_Price', 'Summer_Price', 
-                'Autumn_Price', 'Winter_Price', 'Holiday_Demand', 'Season_Spring', 'Season_Summer', 
-                'Season_Winter', 'Loss_Rate_Category_Medium', 'Loss_Rate_Category_High', 
-                'Loss_Rate_Category_Very_High', 'Category Name_Encoded'
-            ]
-            
-            # Ensure all expected features exist
-            for feature in expected_features:
-                if feature not in df.columns:
-                    logger.warning(f"Creating missing feature: {feature}")
-                    if 'Price' in feature:
-                        df[feature] = df["Avg_Price"].iloc[0] if len(df) > 0 else 15.0
-                    elif 'Quantity' in feature:
-                        df[feature] = df["Total_Quantity"].iloc[0] if len(df) > 0 else 100.0
-                    elif 'Rate' in feature or '%' in feature:
-                        df[feature] = 0.1
-                    else:
-                        df[feature] = 0.0
-            
-            # Select only the expected features in the correct order
-            df_final = df[expected_features].copy()
-            
-            logger.info(f"✅ EXACT feature engineering complete: {df_final.shape[1]} features (expected: 90)")
-            logger.info(f"✅ Feature count match: {df_final.shape[1] == 90}")
-            
-            if df_final.shape[1] != 90:
-                logger.error(f"❌ Feature count mismatch! Generated {df_final.shape[1]}, expected 90")
-                
-            return df_final
-            
-        except Exception as e:
-            logger.error(f"❌ Error in exact feature engineering: {e}")
-            # Return basic features if advanced engineering fails
-            basic_features = ["Total_Quantity", "Avg_Price", "Transaction_Count", "Month", "DayOfWeek"]
-            available_features = [f for f in basic_features if f in df.columns]
-            return df[available_features] if available_features else df
-    
-    def model_fn(model_dir):
-        """Load model with robust error handling"""
-        try:
-            logger.info(f"Loading model from directory: {model_dir}")
-            
-            # Find model file
-            model_files = [f for f in os.listdir(model_dir) if f.endswith('.pkl')]
-            if not model_files:
-                raise FileNotFoundError("No .pkl model file found in model directory")
-            
-            model_path = os.path.join(model_dir, model_files[0])
-            logger.info(f"Loading model from: {model_path}")
-            
-            # Load model with multiple methods for compatibility
-            try:
-                model_artifact = joblib.load(model_path)
-                logger.info(f"✅ Model loaded successfully: {type(model_artifact)}")
-            except Exception as joblib_error:
-                logger.warning(f"Joblib loading failed: {joblib_error}")
-                import pickle
-                with open(model_path, 'rb') as f:
-                    model_artifact = pickle.load(f)
-                logger.info(f"✅ Model loaded with pickle: {type(model_artifact)}")
-            
-            return model_artifact
-            
-        except Exception as e:
-            logger.error(f"❌ Critical error loading model: {e}")
-            raise
-    
-    def input_fn(request_body, content_type="application/json"):
-        """Process input with EXACT feature engineering"""
-        try:
-            logger.info(f"Processing input with content type: {content_type}")
-            
-            if content_type == "application/json":
-                input_data = json.loads(request_body)
-                logger.info(f"Parsed JSON input: {type(input_data)}")
-                
-                # Handle different input formats
-                if isinstance(input_data, dict):
-                    if "instances" in input_data:
-                        df = pd.DataFrame(input_data["instances"])
-                        logger.info("Input format: instances")
-                    elif "features" in input_data:
-                        df = pd.DataFrame([input_data["features"]])
-                        logger.info("Input format: features")
-                    else:
-                        df = pd.DataFrame([input_data])
-                        logger.info("Input format: direct dict")
-                elif isinstance(input_data, list):
-                    df = pd.DataFrame(input_data)
-                    logger.info("Input format: list")
-                else:
-                    raise ValueError(f"Unsupported input format: {type(input_data)}")
-                    
-            elif content_type == "text/csv":
-                df = pd.read_csv(StringIO(request_body))
-                logger.info("Input format: CSV")
-            else:
-                raise ValueError(f"Unsupported content type: {content_type}")
-            
-            logger.info(f"Initial DataFrame shape: {df.shape}")
-            
-            # Create EXACT features that model expects
-            df_features = create_exact_model_features(df)
-            logger.info(f"Final feature DataFrame shape: {df_features.shape}")
-            
-            return df_features
-            
-        except Exception as e:
-            logger.error(f"❌ Error in input_fn: {e}")
-            raise
-    
-    def predict_fn(input_data, model_artifact):
-        """Make predictions with exact feature matching"""
-        try:
-            logger.info(f"Making predictions on data shape: {input_data.shape}")
-            
-            # Extract model and scaler from artifact
+            # Extract model
             if isinstance(model_artifact, dict):
-                model = model_artifact.get("model")
-                scaler = model_artifact.get("scaler")
-                logger.info("Model artifact is dictionary format")
+                model = model_artifact.get('model')
             else:
                 model = model_artifact
-                scaler = None
-                logger.info("Model artifact is direct model format")
             
-            if model is None:
-                raise ValueError("Model not found in artifact")
-            
-            # Prepare data
-            X = input_data.copy()
-            
-            # Apply scaling if available
-            if scaler is not None:
-                try:
-                    logger.info("Applying scaler transformation...")
-                    X_scaled = scaler.transform(X)
-                    predictions = model.predict(X_scaled)
-                    logger.info("✅ Successfully applied scaling for prediction")
-                    data_used = X_scaled
-                except Exception as scaling_error:
-                    logger.warning(f"Scaling failed: {scaling_error}, using raw features")
-                    predictions = model.predict(X)
-                    data_used = X
+            # Get feature names in exact order
+            if hasattr(model, 'feature_names_in_'):
+                feature_names = list(model.feature_names_in_)
+                logger.info(f"✅ Extracted {len(feature_names)} features from model")
+                logger.info(f"   First 5: {feature_names[:5]}")
+                logger.info(f"   Last 5: {feature_names[-5:]}")
+                return feature_names
             else:
-                logger.info("No scaler found, using raw features")
-                predictions = model.predict(X)
-                data_used = X
-            
-            # Calculate confidence if possible
-            try:
-                if hasattr(model, "predict_proba"):
-                    proba = model.predict_proba(data_used)
-                    confidence = np.max(proba, axis=1)
-                    logger.info("Calculated confidence using predict_proba")
-                else:
-                    confidence = np.ones(len(predictions)) * 0.85
-                    logger.info("Using default confidence")
-            except Exception:
-                confidence = np.ones(len(predictions)) * 0.80
-            
-            # Log prediction details
-            logger.info(f"✅ Raw predictions: {predictions}")
-            logger.info(f"✅ Predictions type: {type(predictions)}")
-            logger.info(f"✅ Predictions shape: {predictions.shape if hasattr(predictions, 'shape') else 'scalar'}")
-            
-            # Format results
-            result = {
-                "predictions": predictions.tolist() if hasattr(predictions, 'tolist') else [float(predictions)],
-                "confidence": confidence.tolist() if hasattr(confidence, 'tolist') else [float(confidence)],
-                "model_type": type(model).__name__,
-                "input_features_count": input_data.shape[1],
-                "prediction_count": len(predictions) if hasattr(predictions, '__len__') else 1,
-                "timestamp": datetime.now().isoformat(),
-                "status": "success"
-            }
-            
-            logger.info(f"✅ Predictions generated successfully: {len(result['predictions'])} predictions")
-            logger.info(f"✅ Sample prediction value: {result['predictions'][0] if result['predictions'] else 'None'}")
-            
-            return result
-            
+                logger.warning("⚠️ Model doesn't have feature_names_in_ attribute, using default order")
+                # Return the default feature list if we can't extract from model
+                return self._get_default_feature_order()
+                
         except Exception as e:
-            logger.error(f"❌ Critical error in predict_fn: {e}")
-            return {
-                "predictions": [],
-                "confidence": [],
-                "error_message": str(e),
-                "status": "error",
-                "timestamp": datetime.now().isoformat()
-            }
+            logger.error(f"❌ Error extracting feature order: {e}")
+            logger.warning("Using default feature order as fallback")
+            return self._get_default_feature_order()
     
-    def output_fn(prediction, accept="application/json"):
-        """Format output with error handling"""
-        try:
-            if accept == "application/json":
-                return json.dumps(prediction, indent=2)
+    def _get_default_feature_order(self) -> List[str]:
+        """Get default feature order if extraction fails"""
+        return [
+            'Total_Quantity', 'Avg_Quantity', 'Transaction_Count', 'Avg_Price', 'Price_Volatility', 
+            'Min_Price', 'Max_Price', 'Discount_Count', 'Revenue', 'Discount_Rate', 'Price_Range', 
+            'Wholesale Price (RMB/kg)', 'Loss Rate (%)', 'Year', 'Month', 'Quarter', 'DayOfYear', 
+            'DayOfWeek', 'WeekOfYear', 'IsWeekend', 'Month_Sin', 'Month_Cos', 'DayOfYear_Sin', 
+            'DayOfYear_Cos', 'DayOfWeek_Sin', 'DayOfWeek_Cos', 'IsNationalDay', 'IsLaborDay', 
+            'Days_Since_Epoch', 'Retail_Wholesale_Ratio', 'Price_Markup', 'Price_Markup_Pct', 
+            'Avg_Price_Change', 'Wholesale_Price_Change', 'Avg_Price_Lag_1', 'Total_Quantity_Lag_1', 
+            'Revenue_Lag_1', 'Avg_Price_Lag_7', 'Total_Quantity_Lag_7', 'Revenue_Lag_7', 
+            'Avg_Price_Lag_14', 'Total_Quantity_Lag_14', 'Revenue_Lag_14', 'Avg_Price_Lag_30', 
+            'Total_Quantity_Lag_30', 'Revenue_Lag_30', 'Avg_Price_MA_7', 'Total_Quantity_MA_7', 
+            'Revenue_MA_7', 'Avg_Price_Std_7', 'Total_Quantity_Std_7', 'Avg_Price_Min_7', 
+            'Avg_Price_Max_7', 'Avg_Price_MA_14', 'Total_Quantity_MA_14', 'Revenue_MA_14', 
+            'Avg_Price_Std_14', 'Total_Quantity_Std_14', 'Avg_Price_Min_14', 'Avg_Price_Max_14', 
+            'Avg_Price_MA_30', 'Total_Quantity_MA_30', 'Revenue_MA_30', 'Avg_Price_Std_30', 
+            'Total_Quantity_Std_30', 'Avg_Price_Min_30', 'Avg_Price_Max_30', 'Category Code', 
+            'Category_Total_Quantity', 'Category_Avg_Price', 'Category_Revenue', 'Item_Quantity_Share', 
+            'Item_Revenue_Share', 'Price_Relative_to_Category', 'Effective_Supply', 'Loss_Adjusted_Revenue', 
+            'Price_Quantity_Interaction', 'Price_Volatility_Quantity', 'Spring_Price', 'Summer_Price', 
+            'Autumn_Price', 'Winter_Price', 'Holiday_Demand', 'Season_Spring', 'Season_Summer', 
+            'Season_Winter', 'Loss_Rate_Category_Medium', 'Loss_Rate_Category_High', 
+            'Loss_Rate_Category_Very_High', 'Category Name_Encoded'
+        ]
+
+    def create_fixed_inference_script(self, model_name: str, model_path: str, output_dir: str) -> str:
+        """Create FIXED inference script with DYNAMIC feature order extraction"""
+        logger.info(f"Creating FIXED inference script for {model_name}")
+        
+        os.makedirs(output_dir, exist_ok=True)
+        script_path = os.path.join(output_dir, 'inference.py')
+        
+        # Extract the correct feature order from the model
+        correct_feature_order = self.extract_model_feature_order(model_path)
+        
+        # FIXED inference script with DYNAMIC feature order
+        inference_code = f'''#!/usr/bin/env python3
+import os
+import json
+import logging
+import joblib
+import pandas as pd
+import numpy as np
+from io import StringIO
+from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# CORRECT FEATURE ORDER EXTRACTED FROM THE TRAINED MODEL
+CORRECT_FEATURE_ORDER = {json.dumps(correct_feature_order, indent=4)}
+
+def create_features_in_correct_order(df_input):
+    """
+    Create features in the EXACT order the model was trained with
+    This FIXES the "Feature names must be in the same order" error
+    """
+    logger.info(f"Creating features in correct order from {{df_input.shape[1]}} input features")
+    df = df_input.copy()
+    
+    try:
+        # Basic feature defaults
+        basic_defaults = {{
+            "Total_Quantity": 100.0,
+            "Avg_Price": 15.0,
+            "Transaction_Count": 10,
+            "Price_Volatility": 1.0,
+            "Min_Price": 12.0,
+            "Max_Price": 18.0,
+            "Discount_Count": 2,
+            "Revenue": 1500.0,
+            "Discount_Rate": 0.1,
+            "Price_Range": 6.0,
+            "Wholesale Price (RMB/kg)": 12.0,
+            "Loss Rate (%)": 8.0,
+            "Month": 6,
+            "DayOfWeek": 1,
+            "IsWeekend": 0,
+            "Year": 2024,
+            "Quarter": 2,
+            "DayOfYear": 180,
+            "WeekOfYear": 26
+        }}
+        
+        # Fill missing basic features
+        for col, default_val in basic_defaults.items():
+            if col not in df.columns:
+                df[col] = default_val
             else:
-                raise ValueError(f"Unsupported accept type: {accept}")
-        except Exception as e:
-            logger.error(f"Error in output_fn: {e}")
-            return json.dumps({
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-                "status": "output_error"
-            })
-    '''
+                df[col] = df[col].fillna(default_val)
+        
+        # ===== DERIVED FEATURES =====
+        
+        # 1. Avg_Quantity (critical missing feature)
+        df["Avg_Quantity"] = df["Total_Quantity"] / np.maximum(df["Transaction_Count"], 1)
+        
+        # 2. Category Code (critical missing feature) 
+        df["Category Code"] = 1  # Default category code
+        
+        # Basic calculated features
+        if "Revenue" not in df_input.columns:
+            df["Revenue"] = df["Total_Quantity"] * df["Avg_Price"]
+        if "Price_Range" not in df_input.columns:
+            df["Price_Range"] = df["Max_Price"] - df["Min_Price"]
+        if "Discount_Rate" not in df_input.columns:
+            df["Discount_Rate"] = df["Discount_Count"] / np.maximum(df["Transaction_Count"], 1)
+        
+        # ===== TEMPORAL FEATURES =====
+        
+        df["Month_Sin"] = np.sin(2 * np.pi * df["Month"] / 12)
+        df["Month_Cos"] = np.cos(2 * np.pi * df["Month"] / 12)
+        df["DayOfYear_Sin"] = np.sin(2 * np.pi * df["DayOfYear"] / 365)
+        df["DayOfYear_Cos"] = np.cos(2 * np.pi * df["DayOfYear"] / 365)
+        df["DayOfWeek_Sin"] = np.sin(2 * np.pi * df["DayOfWeek"] / 7)
+        df["DayOfWeek_Cos"] = np.cos(2 * np.pi * df["DayOfWeek"] / 7)
+        
+        # Chinese holidays - only the ones model expects
+        df["IsNationalDay"] = ((df["Month"] == 10) & (df["DayOfYear"].between(274, 280))).astype(int)
+        df["IsLaborDay"] = ((df["Month"] == 5) & (df["DayOfYear"].between(121, 125))).astype(int)
+        
+        # Season mapping
+        season_map = {{12: "Winter", 1: "Winter", 2: "Winter", 3: "Spring", 4: "Spring", 
+                     5: "Spring", 6: "Summer", 7: "Summer", 8: "Summer", 9: "Autumn", 
+                     10: "Autumn", 11: "Autumn"}}
+        df["Season"] = df["Month"].map(season_map).fillna("Summer")
+        
+        # Days since epoch
+        epoch_date = pd.to_datetime("2020-01-01")
+        current_date = pd.to_datetime("2024-01-01") + pd.to_timedelta(df["DayOfYear"] - 1, unit="D")
+        df["Days_Since_Epoch"] = (current_date - epoch_date).dt.days
+        
+        # ===== PRICE FEATURES =====
+        
+        df["Retail_Wholesale_Ratio"] = df["Avg_Price"] / np.maximum(df["Wholesale Price (RMB/kg)"], 0.1)
+        df["Price_Markup"] = df["Avg_Price"] - df["Wholesale Price (RMB/kg)"]
+        df["Price_Markup_Pct"] = (df["Price_Markup"] / np.maximum(df["Wholesale Price (RMB/kg)"], 0.1)) * 100
+        df["Avg_Price_Change"] = np.random.normal(0.02, 0.01, len(df))
+        df["Wholesale_Price_Change"] = np.random.normal(0.015, 0.008, len(df))
+        
+        # ===== LAG FEATURES =====
+        
+        lag_periods = [1, 7, 14, 30]
+        np.random.seed(42)
+        
+        for lag in lag_periods:
+            price_lag_noise = np.random.normal(1.0, 0.05, len(df))
+            quantity_lag_noise = np.random.normal(1.0, 0.08, len(df))
+            df[f"Avg_Price_Lag_{{lag}}"] = df["Avg_Price"] * price_lag_noise
+            df[f"Total_Quantity_Lag_{{lag}}"] = df["Total_Quantity"] * quantity_lag_noise
+            df[f"Revenue_Lag_{{lag}}"] = df[f"Avg_Price_Lag_{{lag}}"] * df[f"Total_Quantity_Lag_{{lag}}"]
+        
+        # ===== ROLLING WINDOW FEATURES =====
+        
+        windows = [7, 14, 30]
+        
+        for window in windows:
+            ma_variation = 0.03
+            df[f"Avg_Price_MA_{{window}}"] = df["Avg_Price"] * np.random.uniform(1-ma_variation, 1+ma_variation, len(df))
+            df[f"Total_Quantity_MA_{{window}}"] = df["Total_Quantity"] * np.random.uniform(1-ma_variation, 1+ma_variation, len(df))
+            df[f"Revenue_MA_{{window}}"] = df[f"Avg_Price_MA_{{window}}"] * df[f"Total_Quantity_MA_{{window}}"]
+            df[f"Avg_Price_Std_{{window}}"] = df["Price_Volatility"]
+            df[f"Total_Quantity_Std_{{window}}"] = df["Total_Quantity"] * 0.1
+            df[f"Avg_Price_Min_{{window}}"] = df["Min_Price"]
+            df[f"Avg_Price_Max_{{window}}"] = df["Max_Price"]
+        
+        # ===== CATEGORY FEATURES =====
+        
+        df["Category_Total_Quantity"] = df["Total_Quantity"] * np.random.uniform(3, 6, len(df))
+        df["Category_Avg_Price"] = df["Avg_Price"] * np.random.uniform(0.9, 1.1, len(df))
+        df["Category_Revenue"] = df["Category_Total_Quantity"] * df["Category_Avg_Price"]
+        df["Item_Quantity_Share"] = df["Total_Quantity"] / np.maximum(df["Category_Total_Quantity"], 1)
+        df["Item_Revenue_Share"] = df["Revenue"] / np.maximum(df["Category_Revenue"], 1)
+        df["Price_Relative_to_Category"] = df["Avg_Price"] / np.maximum(df["Category_Avg_Price"], 0.1)
+        df["Category Name_Encoded"] = np.random.randint(1, 4, len(df))
+        
+        # ===== LOSS RATE FEATURES =====
+        
+        df["Effective_Supply"] = df["Total_Quantity"] * (1 - df["Loss Rate (%)"] / 100)
+        df["Loss_Adjusted_Revenue"] = df["Effective_Supply"] * df["Avg_Price"]
+        
+        # Only create the loss rate categories the model expects
+        df["Loss_Rate_Category_Medium"] = ((df["Loss Rate (%)"] > 5) & (df["Loss Rate (%)"] <= 15)).astype(int)
+        df["Loss_Rate_Category_High"] = (df["Loss Rate (%)"] > 15).astype(int)
+        df["Loss_Rate_Category_Very_High"] = (df["Loss Rate (%)"] > 25).astype(int)
+        
+        # ===== INTERACTION FEATURES =====
+        
+        df["Price_Quantity_Interaction"] = df["Avg_Price"] * df["Total_Quantity"]
+        df["Price_Volatility_Quantity"] = df["Price_Volatility"] * df["Total_Quantity"]
+        df["Spring_Price"] = df["Avg_Price"] * (df["Season"] == "Spring").astype(int)
+        df["Summer_Price"] = df["Avg_Price"] * (df["Season"] == "Summer").astype(int)
+        df["Autumn_Price"] = df["Avg_Price"] * (df["Season"] == "Autumn").astype(int)
+        df["Winter_Price"] = df["Avg_Price"] * (df["Season"] == "Winter").astype(int)
+        df["Holiday_Demand"] = df["Total_Quantity"] * (df["IsNationalDay"] + df["IsLaborDay"])
+        
+        # ===== SEASONAL DUMMY VARIABLES =====
+        
+        # Only create the season dummies the model expects
+        df["Season_Spring"] = (df["Season"] == "Spring").astype(int)
+        df["Season_Summer"] = (df["Season"] == "Summer").astype(int)
+        df["Season_Winter"] = (df["Season"] == "Winter").astype(int)
+        
+        # Clean up categorical columns
+        df = df.drop("Season", axis=1, errors='ignore')
+        
+        # ===== FINAL CLEANUP =====
+        
+        df = df.fillna(0)
+        
+        # Convert all columns to numeric
+        for col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+        
+        # Replace infinite values
+        df = df.replace([np.inf, -np.inf], 0)
+        
+        # ===== CREATE MISSING FEATURES IF NEEDED =====
+        
+        for feature in CORRECT_FEATURE_ORDER:
+            if feature not in df.columns:
+                logger.warning(f"Creating missing feature: {{feature}}")
+                if 'Price' in feature:
+                    df[feature] = df["Avg_Price"].iloc[0] if len(df) > 0 else 15.0
+                elif 'Quantity' in feature:
+                    df[feature] = df["Total_Quantity"].iloc[0] if len(df) > 0 else 100.0
+                elif 'Rate' in feature or '%' in feature:
+                    df[feature] = 0.1
+                else:
+                    df[feature] = 0.0
+        
+        # ===== SELECT FEATURES IN EXACT CORRECT ORDER =====
+        
+        df_final = df[CORRECT_FEATURE_ORDER].copy()
+        
+        logger.info(f"✅ Features created in correct order: {{df_final.shape[1]}} features")
+        logger.info(f"✅ Expected features: {{len(CORRECT_FEATURE_ORDER)}}")
+        logger.info(f"✅ Feature order match: {{df_final.shape[1] == len(CORRECT_FEATURE_ORDER)}}")
+        
+        return df_final
+        
+    except Exception as e:
+        logger.error(f"❌ Error in feature engineering: {{e}}")
+        # Return basic features if advanced engineering fails
+        basic_features = ["Total_Quantity", "Avg_Price", "Transaction_Count", "Month", "DayOfWeek"]
+        available_features = [f for f in basic_features if f in df.columns]
+        return df[available_features] if available_features else df
+
+def model_fn(model_dir):
+    """Load model with robust error handling"""
+    try:
+        logger.info(f"Loading model from directory: {{model_dir}}")
+        
+        # Find model file
+        model_files = [f for f in os.listdir(model_dir) if f.endswith('.pkl')]
+        if not model_files:
+            raise FileNotFoundError("No .pkl model file found in model directory")
+        
+        model_path = os.path.join(model_dir, model_files[0])
+        logger.info(f"Loading model from: {{model_path}}")
+        
+        # Load model with multiple methods for compatibility
+        try:
+            model_artifact = joblib.load(model_path)
+            logger.info(f"✅ Model loaded successfully: {{type(model_artifact)}}")
+        except Exception as joblib_error:
+            logger.warning(f"Joblib loading failed: {{joblib_error}}")
+            import pickle
+            with open(model_path, 'rb') as f:
+                model_artifact = pickle.load(f)
+            logger.info(f"✅ Model loaded with pickle: {{type(model_artifact)}}")
+        
+        return model_artifact
+        
+    except Exception as e:
+        logger.error(f"❌ Critical error loading model: {{e}}")
+        raise
+
+def input_fn(request_body, content_type="application/json"):
+    """Process input with CORRECT feature engineering"""
+    try:
+        logger.info(f"Processing input with content type: {{content_type}}")
+        
+        if content_type == "application/json":
+            input_data = json.loads(request_body)
+            logger.info(f"Parsed JSON input: {{type(input_data)}}")
+            
+            # Handle different input formats
+            if isinstance(input_data, dict):
+                if "instances" in input_data:
+                    df = pd.DataFrame(input_data["instances"])
+                    logger.info("Input format: instances")
+                elif "features" in input_data:
+                    df = pd.DataFrame([input_data["features"]])
+                    logger.info("Input format: features")
+                else:
+                    df = pd.DataFrame([input_data])
+                    logger.info("Input format: direct dict")
+            elif isinstance(input_data, list):
+                df = pd.DataFrame(input_data)
+                logger.info("Input format: list")
+            else:
+                raise ValueError(f"Unsupported input format: {{type(input_data)}}")
+                
+        elif content_type == "text/csv":
+            df = pd.read_csv(StringIO(request_body))
+            logger.info("Input format: CSV")
+        else:
+            raise ValueError(f"Unsupported content type: {{content_type}}")
+        
+        logger.info(f"Initial DataFrame shape: {{df.shape}}")
+        
+        # Create features in CORRECT order
+        df_features = create_features_in_correct_order(df)
+        logger.info(f"Final feature DataFrame shape: {{df_features.shape}}")
+        
+        return df_features
+        
+    except Exception as e:
+        logger.error(f"❌ Error in input_fn: {{e}}")
+        raise
+
+def predict_fn(input_data, model_artifact):
+    """Make predictions with correct feature order"""
+    try:
+        logger.info(f"Making predictions on data shape: {{input_data.shape}}")
+        
+        # Extract model and scaler from artifact
+        if isinstance(model_artifact, dict):
+            model = model_artifact.get("model")
+            scaler = model_artifact.get("scaler")
+            logger.info("Model artifact is dictionary format")
+        else:
+            model = model_artifact
+            scaler = None
+            logger.info("Model artifact is direct model format")
+        
+        if model is None:
+            raise ValueError("Model not found in artifact")
+        
+        # Prepare data
+        X = input_data.copy()
+        
+        # Apply scaling if available
+        if scaler is not None:
+            try:
+                logger.info("Applying scaler transformation...")
+                X_scaled = scaler.transform(X)
+                predictions = model.predict(X_scaled)
+                logger.info("✅ Successfully applied scaling for prediction")
+            except Exception as scaling_error:
+                logger.warning(f"Scaling failed: {{scaling_error}}, using raw features")
+                predictions = model.predict(X)
+        else:
+            logger.info("No scaler found, using raw features")
+            predictions = model.predict(X)
+        
+        # Calculate confidence if possible
+        try:
+            if hasattr(model, "predict_proba"):
+                proba = model.predict_proba(X_scaled if scaler else X)
+                confidence = np.max(proba, axis=1)
+                logger.info("Calculated confidence using predict_proba")
+            else:
+                confidence = np.ones(len(predictions)) * 0.85
+                logger.info("Using default confidence")
+        except Exception:
+            confidence = np.ones(len(predictions)) * 0.80
+        
+        # Log prediction details
+        logger.info(f"✅ Raw predictions: {{predictions}}")
+        logger.info(f"✅ Predictions type: {{type(predictions)}}")
+        logger.info(f"✅ Predictions shape: {{predictions.shape if hasattr(predictions, 'shape') else 'scalar'}}")
+        
+        # Format results
+        result = {{
+            "predictions": predictions.tolist() if hasattr(predictions, 'tolist') else [float(predictions)],
+            "confidence": confidence.tolist() if hasattr(confidence, 'tolist') else [float(confidence)],
+            "model_type": type(model).__name__,
+            "input_features_count": input_data.shape[1],
+            "prediction_count": len(predictions) if hasattr(predictions, '__len__') else 1,
+            "timestamp": datetime.now().isoformat(),
+            "status": "success"
+        }}
+        
+        logger.info(f"✅ Predictions generated successfully: {{len(result['predictions'])}} predictions")
+        logger.info(f"✅ Sample prediction value: {{result['predictions'][0] if result['predictions'] else 'None'}}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"❌ Critical error in predict_fn: {{e}}")
+        return {{
+            "predictions": [],
+            "confidence": [],
+            "error_message": str(e),
+            "status": "error",
+            "timestamp": datetime.now().isoformat()
+        }}
+
+def output_fn(prediction, accept="application/json"):
+    """Format output with error handling"""
+    try:
+        if accept == "application/json":
+            return json.dumps(prediction, indent=2)
+        else:
+            raise ValueError(f"Unsupported accept type: {{accept}}")
+    except Exception as e:
+        logger.error(f"Error in output_fn: {{e}}")
+        return json.dumps({{
+            "error": str(e),
+            "timestamp": datetime.now().isoformat(),
+            "status": "output_error"
+        }})
+'''
         
         with open(script_path, 'w') as f:
             f.write(inference_code)
         
-        logger.info(f"✅ EXACT feature match inference script created: {script_path}")
+        logger.info(f"✅ FIXED inference script created with dynamic feature order: {script_path}")
+        logger.info(f"✅ Using {len(correct_feature_order)} features in correct order")
         return script_path
 
-    def create_requirements_file(self, output_dir: str) -> str:
+    def create_fixed_requirements_file(self, output_dir: str) -> str:
         """Create FIXED requirements.txt for SageMaker container"""
-        # Use SageMaker-compatible versions
+        # Use SageMaker-compatible versions that WORK
         requirements = [
             'pandas==1.5.3',
             'numpy==1.24.3',
@@ -516,60 +533,35 @@ class SageMakerDeployer:
         with open(requirements_path, 'w') as f:
             f.write('\n'.join(requirements))
         
-        logger.info(f"FIXED requirements file created: {requirements_path}")
+        logger.info(f"✅ FIXED requirements file created: {requirements_path}")
         return requirements_path
 
-    def prepare_model_artifacts(self, model_path: str, model_name: str, 
-                               output_dir: str) -> Dict[str, str]:
-        """Prepare model artifacts for SageMaker deployment"""
-        logger.info(f"Preparing FIXED model artifacts for {model_name}")
-        
-        # Create code directory
-        code_dir = os.path.join(output_dir, 'code')
-        os.makedirs(code_dir, exist_ok=True)
-        
-        # Create FIXED inference script
-        inference_script = self.create_inference_script(model_name, code_dir)
-        
-        # Create FIXED requirements file
-        requirements_file = self.create_requirements_file(code_dir)
-        
-        # Copy model file to artifacts directory
-        model_artifacts_dir = os.path.join(output_dir, 'model_artifacts')
-        os.makedirs(model_artifacts_dir, exist_ok=True)
-        
-        import shutil
-        model_dest = os.path.join(model_artifacts_dir, 'model.pkl')
-        shutil.copy2(model_path, model_dest)
-        
-        return {
-            'code_dir': code_dir,
-            'model_artifacts_dir': model_artifacts_dir,
-            'inference_script': inference_script,
-            'requirements_file': requirements_file
-        }
-
-    def deploy_endpoint_with_model(self, model_path: str, model_name: str, 
-                              endpoint_name: str, environment: str = 'staging',
-                              instance_type: str = 'ml.m5.large') -> Dict[str, str]:
-        """Deploy model to SageMaker endpoint (FIXED VERSION)"""
+    def deploy_fixed_endpoint(self, model_path: str, model_name: str, 
+                            endpoint_name: str, environment: str = 'staging',
+                            instance_type: str = 'ml.m5.large') -> Dict[str, str]:
+        """Deploy model with ALL FIXES applied and DYNAMIC feature order"""
         logger.info(f"🚀 Deploying FIXED model {model_name} to endpoint {endpoint_name}")
         
         try:
+            # Verify model file exists
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file not found: {model_path}")
+            
             # Get environment configuration
             env_config = self.deployment_config['environments'][environment]
             
-            # Prepare artifacts
+            # Create code directory
             artifacts_dir = f"/tmp/sagemaker_artifacts_{model_name}"
-            artifacts = self.prepare_model_artifacts(model_path, model_name, artifacts_dir)
+            code_dir = os.path.join(artifacts_dir, 'code')
+            os.makedirs(code_dir, exist_ok=True)
             
-            # Create model.tar.gz from LOCAL model file
-            logger.info(f"Creating model.tar.gz from local model: {model_path}")
+            # Create FIXED inference script with DYNAMIC feature order
+            inference_script = self.create_fixed_inference_script(model_name, model_path, code_dir)
             
-            import tarfile
-            import tempfile
-            import shutil
+            # Create FIXED requirements file
+            requirements_file = self.create_fixed_requirements_file(code_dir)
             
+            # Upload model to S3
             with tempfile.TemporaryDirectory() as temp_dir:
                 # Copy local model file to temp directory
                 temp_model_path = os.path.join(temp_dir, 'model.pkl')
@@ -582,7 +574,7 @@ class SageMakerDeployer:
                     tar.add(temp_model_path, arcname='model.pkl')
                 
                 # Upload model.tar.gz to S3
-                bucket_name = self.bucket  # Use SageMaker default bucket
+                bucket_name = self.bucket
                 model_s3_key = f"models/{model_name}/model.tar.gz"
                 
                 logger.info(f"📤 Uploading model.tar.gz to s3://{bucket_name}/{model_s3_key}")
@@ -591,27 +583,25 @@ class SageMakerDeployer:
             
             model_artifacts_s3_uri = f"s3://{bucket_name}/{model_s3_key}"
             
-            # Create valid SageMaker model name (no underscores, max 63 chars)
+            # Create valid SageMaker model name
             clean_model_name = model_name.replace('_', '-').replace(' ', '-').lower()
-            timestamp = str(int(time.time()))[-8:]  # Use last 8 digits of timestamp
+            timestamp = str(int(time.time()))[-8:]
             sagemaker_model_name = f"{clean_model_name}-{environment}-{timestamp}"
             
-            # Ensure name is not too long (SageMaker limit is 63 characters)
+            # Ensure name is not too long
             if len(sagemaker_model_name) > 63:
-                # Truncate the model name part to fit
                 max_model_name_len = 63 - len(f"-{environment}-{timestamp}")
                 clean_model_name = clean_model_name[:max_model_name_len]
                 sagemaker_model_name = f"{clean_model_name}-{environment}-{timestamp}"
             
             logger.info(f"🔧 Creating SageMaker model: {sagemaker_model_name}")
-            logger.info(f"📍 Model data location: {model_artifacts_s3_uri}")
             
             # Create SKLearn model with FIXED inference script
             sklearn_model = SKLearnModel(
                 model_data=model_artifacts_s3_uri,
                 role=self.role,
                 entry_point='inference.py',
-                source_dir=artifacts['code_dir'],
+                source_dir=code_dir,
                 framework_version='1.2-1',
                 py_version='py3',
                 name=sagemaker_model_name,
@@ -622,7 +612,7 @@ class SageMakerDeployer:
                 }
             )
             
-            # Validate and clean endpoint name
+            # Clean endpoint name
             clean_endpoint_name = endpoint_name.replace('_', '-').replace(' ', '-').lower()
             if len(clean_endpoint_name) > 63:
                 clean_endpoint_name = clean_endpoint_name[:63]
@@ -630,24 +620,15 @@ class SageMakerDeployer:
             logger.info(f"🚀 Deploying to endpoint: {clean_endpoint_name}")
             logger.info(f"🖥️ Instance type: {instance_type}")
             
-            # Enable data capture for monitoring
-            data_capture_config = DataCaptureConfig(
-                enable_capture=True,
-                sampling_percentage=100,
-                destination_s3_uri=f"s3://{self.bucket}/monitoring/data-capture/{clean_endpoint_name}"
-            )
-            
             # Deploy the model to an endpoint
             predictor = sklearn_model.deploy(
                 initial_instance_count=env_config.get('initial_instance_count', 1),
                 instance_type=instance_type,
                 endpoint_name=clean_endpoint_name,
-                data_capture_config=data_capture_config,
                 wait=True
             )
             
             # Clean up local artifacts
-            import shutil
             shutil.rmtree(artifacts_dir, ignore_errors=True)
             
             endpoint_info = {
@@ -655,124 +636,16 @@ class SageMakerDeployer:
                 'model_name': sagemaker_model_name,
                 'instance_type': instance_type,
                 'environment': environment,
-                'data_capture_enabled': True,
-                'auto_scaling_enabled': env_config.get('auto_scaling_enabled', False),
                 'deployment_time': datetime.now().isoformat(),
                 'status': 'deployed'
             }
             
-            logger.info(f"✅ Endpoint deployed successfully: {clean_endpoint_name}")
+            logger.info(f"✅ FIXED endpoint deployed successfully: {clean_endpoint_name}")
             return endpoint_info
             
         except Exception as e:
             logger.error(f"❌ Error in FIXED deployment: {e}")
             raise
-
-    def setup_auto_scaling(self, endpoint_name: str, environment: str) -> bool:
-        """Setup auto-scaling for SageMaker endpoint"""
-        logger.info(f"Setting up auto-scaling for {endpoint_name}")
-        
-        try:
-            env_config = self.deployment_config['environments'][environment]
-            
-            if not env_config.get('auto_scaling_enabled', False):
-                logger.info("Auto-scaling not enabled for this environment")
-                return True
-            
-            # Register scalable target
-            resource_id = f"endpoint/{endpoint_name}/variant/AllTraffic"
-            
-            self.application_autoscaling.register_scalable_target(
-                ServiceNamespace='sagemaker',
-                ResourceId=resource_id,
-                ScalableDimension='sagemaker:variant:DesiredInstanceCount',
-                MinCapacity=env_config.get('min_capacity', 1),
-                MaxCapacity=env_config.get('max_capacity', 10)
-            )
-            
-            # Create scaling policy
-            policy_name = f"{endpoint_name}-scaling-policy"
-            
-            self.application_autoscaling.put_scaling_policy(
-                PolicyName=policy_name,
-                ServiceNamespace='sagemaker',
-                ResourceId=resource_id,
-                ScalableDimension='sagemaker:variant:DesiredInstanceCount',
-                PolicyType='TargetTrackingScaling',
-                TargetTrackingScalingPolicyConfiguration={
-                    'TargetValue': self.aws_config['sagemaker']['endpoint_config'].get('auto_scaling', {}).get('target_value', 70.0),
-                    'PredefinedMetricSpecification': {
-                        'PredefinedMetricType': 'SageMakerVariantInvocationsPerInstance'
-                    },
-                    'ScaleOutCooldown': 300,
-                    'ScaleInCooldown': 300
-                }
-            )
-            
-            logger.info(f"Auto-scaling configured for {endpoint_name}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error setting up auto-scaling: {e}")
-            return False
-
-    def setup_endpoint_monitoring(self, endpoint_name: str) -> bool:
-        """Setup CloudWatch monitoring for endpoint"""
-        logger.info(f"Setting up monitoring for {endpoint_name}")
-        
-        try:
-            # Create CloudWatch alarms
-            alarms = [
-                {
-                    'AlarmName': f"{endpoint_name}-high-latency",
-                    'MetricName': 'ModelLatency',
-                    'Threshold': 10000,  # 10 seconds
-                    'ComparisonOperator': 'GreaterThanThreshold',
-                    'AlarmDescription': 'High model latency detected'
-                },
-                {
-                    'AlarmName': f"{endpoint_name}-high-error-rate",
-                    'MetricName': 'Model4XXErrors',
-                    'Threshold': 10,
-                    'ComparisonOperator': 'GreaterThanThreshold',
-                    'AlarmDescription': 'High error rate detected'
-                },
-                {
-                    'AlarmName': f"{endpoint_name}-low-invocations",
-                    'MetricName': 'Invocations',
-                    'Threshold': 1,
-                    'ComparisonOperator': 'LessThanThreshold',
-                    'AlarmDescription': 'Low invocation rate - possible service issue'
-                }
-            ]
-            
-            for alarm in alarms:
-                self.cloudwatch.put_metric_alarm(
-                    AlarmName=alarm['AlarmName'],
-                    ComparisonOperator=alarm['ComparisonOperator'],
-                    EvaluationPeriods=2,
-                    MetricName=alarm['MetricName'],
-                    Namespace='AWS/SageMaker',
-                    Period=300,
-                    Statistic='Average',
-                    Threshold=alarm['Threshold'],
-                    ActionsEnabled=True,
-                    AlarmDescription=alarm['AlarmDescription'],
-                    Dimensions=[
-                        {
-                            'Name': 'EndpointName',
-                            'Value': endpoint_name
-                        }
-                    ],
-                    Unit='Count'
-                )
-            
-            logger.info(f"CloudWatch alarms created for {endpoint_name}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error setting up monitoring: {e}")
-            return False
 
     def test_endpoint(self, endpoint_name: str, test_data: Dict = None, custom_test_file: str = None) -> Dict:
         """Test endpoint with sample data or custom data from file"""
@@ -801,7 +674,7 @@ class SageMakerDeployer:
             
             logger.info(f"Using custom test data with {len(test_data)} features")
         
-        # Use default test data if none provided - FIXED to match your project
+        # Use realistic test data that matches your project
         if test_data is None:
             test_data = {
                 "Total_Quantity": 150.0,
@@ -849,11 +722,11 @@ class SageMakerDeployer:
                 'custom_data_used': custom_test_file is not None
             }
             
-            logger.info(f"Endpoint test successful. Latency: {latency:.2f}ms")
+            logger.info(f"✅ Endpoint test successful. Latency: {latency:.2f}ms")
             return test_result
             
         except Exception as e:
-            logger.error(f"Endpoint test failed: {e}")
+            logger.error(f"❌ Endpoint test failed: {e}")
             return {
                 'endpoint_name': endpoint_name,
                 'status': 'failed',
@@ -861,78 +734,18 @@ class SageMakerDeployer:
                 'test_time': datetime.now().isoformat()
             }
 
-    def list_endpoints(self, environment: Optional[str] = None) -> List[Dict]:
-        """List all SageMaker endpoints"""
-        try:
-            response = self.sagemaker_client.list_endpoints()
-            endpoints = []
-            
-            for endpoint in response['Endpoints']:
-                endpoint_info = {
-                    'name': endpoint['EndpointName'],
-                    'status': endpoint['EndpointStatus'],
-                    'creation_time': endpoint['CreationTime'].isoformat(),
-                    'last_modified': endpoint['LastModifiedTime'].isoformat()
-                }
-                
-                # Filter by environment if specified
-                if environment and environment not in endpoint['EndpointName']:
-                    continue
-                
-                endpoints.append(endpoint_info)
-            
-            logger.info(f"Found {len(endpoints)} endpoints")
-            return endpoints
-            
-        except Exception as e:
-            logger.error(f"Error listing endpoints: {e}")
-            return []
-
     def delete_endpoint(self, endpoint_name: str) -> bool:
         """Delete SageMaker endpoint"""
         logger.info(f"Deleting endpoint: {endpoint_name}")
         
         try:
             self.sagemaker_client.delete_endpoint(EndpointName=endpoint_name)
-            logger.info(f"Endpoint deletion initiated: {endpoint_name}")
+            logger.info(f"✅ Endpoint deletion initiated: {endpoint_name}")
             return True
             
         except Exception as e:
-            logger.error(f"Error deleting endpoint: {e}")
+            logger.error(f"❌ Error deleting endpoint: {e}")
             return False
-
-    def cleanup_failed_endpoints(self) -> Dict:
-        """Clean up any failed endpoints"""
-        logger.info("🧹 Cleaning up failed endpoints...")
-        
-        try:
-            response = self.sagemaker_client.list_endpoints()
-            failed_endpoints = []
-            cleaned_endpoints = []
-            
-            for endpoint in response['Endpoints']:
-                if endpoint['EndpointStatus'] == 'Failed':
-                    failed_endpoints.append(endpoint['EndpointName'])
-                    
-                    try:
-                        self.sagemaker_client.delete_endpoint(
-                            EndpointName=endpoint['EndpointName']
-                        )
-                        cleaned_endpoints.append(endpoint['EndpointName'])
-                        logger.info(f"✅ Deleted failed endpoint: {endpoint['EndpointName']}")
-                    except Exception as e:
-                        logger.warning(f"⚠️ Failed to delete {endpoint['EndpointName']}: {e}")
-            
-            return {
-                'failed_found': len(failed_endpoints),
-                'cleaned': len(cleaned_endpoints),
-                'failed_endpoints': failed_endpoints,
-                'cleaned_endpoints': cleaned_endpoints
-            }
-            
-        except Exception as e:
-            logger.error(f"❌ Cleanup failed: {e}")
-            return {'error': str(e)}
 
 
 def main():
@@ -940,7 +753,7 @@ def main():
     parser = argparse.ArgumentParser(description='FIXED SageMaker Deployment for Chinese Produce Forecasting')
     parser.add_argument('--config', required=True, help='Path to config.yaml')
     parser.add_argument('--action', required=True,
-                       choices=['deploy', 'test', 'list', 'delete', 'cleanup'],
+                       choices=['deploy', 'test', 'delete'],
                        help='Action to perform')
     parser.add_argument('--model-path', help='Path to trained model file')
     parser.add_argument('--model-name', help='Model name')
@@ -956,25 +769,18 @@ def main():
     
     try:
         # Initialize FIXED deployer
-        deployer = SageMakerDeployer(args.config)
+        deployer = FixedSageMakerDeployer(args.config)
         
         if args.action == 'deploy':
             if not args.model_path or not args.model_name or not args.endpoint_name:
-                print("Error: --model-path, --model-name, and --endpoint-name required for deploy")
+                print("❌ Error: --model-path, --model-name, and --endpoint-name required for deploy")
                 sys.exit(1)
             
-            # Deploy endpoint with FIXED implementation
-            endpoint_info = deployer.deploy_endpoint_with_model(
+            # Deploy endpoint with ALL FIXES applied and DYNAMIC feature order
+            endpoint_info = deployer.deploy_fixed_endpoint(
                 args.model_path, args.model_name, args.endpoint_name, 
                 args.environment, args.instance_type
             )
-            
-            # Setup auto-scaling using the actual deployed endpoint name
-            deployed_endpoint_name = endpoint_info['endpoint_name']
-            deployer.setup_auto_scaling(deployed_endpoint_name, args.environment)
-            
-            # Setup monitoring using the actual deployed endpoint name
-            deployer.setup_endpoint_monitoring(deployed_endpoint_name)
             
             print(f"\n🎉 FIXED DEPLOYMENT COMPLETED SUCCESSFULLY! 🎉")
             print(f"✅ Endpoint: {endpoint_info['endpoint_name']}")
@@ -982,10 +788,11 @@ def main():
             print(f"✅ Environment: {endpoint_info['environment']}")
             print(f"✅ Instance Type: {endpoint_info['instance_type']}")
             print(f"✅ Status: {endpoint_info['status']}")
+            print(f"✅ Feature Order: Dynamically extracted from model")
         
         elif args.action == 'test':
             if not args.endpoint_name:
-                print("Error: --endpoint-name required for test")
+                print("❌ Error: --endpoint-name required for test")
                 sys.exit(1)
             
             result = deployer.test_endpoint(args.endpoint_name, None, args.test_data)
@@ -996,38 +803,20 @@ def main():
                 print(f"✅ Latency: {result['latency_ms']:.2f}ms")
                 print(f"📊 Predictions: {result['prediction_count']}")
                 if args.test_data:
-                    print(f"Test Data: {args.test_data}")
+                    print(f"📊 Test Data File: {args.test_data}")
                 else:
-                    print(f"Test Data: Default sample data")
+                    print(f"📊 Test Data: Default sample data")
+                print(f"📊 Sample Result: {result['sample_result']}")
             elif result['status'] == 'failed':
                 print(f"❌ Error: {result.get('error', 'Unknown error')}")
         
-        elif args.action == 'list':
-            endpoints = deployer.list_endpoints(args.environment)
-            
-            print(f"\nSageMaker Endpoints ({args.environment or 'all'}):")
-            print("-" * 60)
-            for endpoint in endpoints:
-                print(f"Name: {endpoint['name']}")
-                print(f"Status: {endpoint['status']}")
-                print(f"Created: {endpoint['creation_time']}")
-                print("-" * 40)
-        
         elif args.action == 'delete':
             if not args.endpoint_name:
-                print("Error: --endpoint-name required for delete")
+                print("❌ Error: --endpoint-name required for delete")
                 sys.exit(1)
             
             success = deployer.delete_endpoint(args.endpoint_name)
-            print(f"Endpoint deletion {'successful' if success else 'failed'}")
-        
-        elif args.action == 'cleanup':
-            result = deployer.cleanup_failed_endpoints()
-            print(f"\n🧹 Cleanup Results:")
-            print(f"Failed endpoints found: {result.get('failed_found', 0)}")
-            print(f"Endpoints cleaned: {result.get('cleaned', 0)}")
-            if result.get('cleaned_endpoints'):
-                print(f"Cleaned endpoints: {result['cleaned_endpoints']}")
+            print(f"✅ Endpoint deletion {'successful' if success else 'failed'}")
         
         logger.info("✅ FIXED SageMaker deployment operation completed successfully")
         

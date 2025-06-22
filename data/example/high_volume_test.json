@@ -1,23 +1,23 @@
 {
   "features": {
-    "Total_Quantity": 500.0,
-    "Avg_Price": 22.0,
-    "Transaction_Count": 75,
+    "Total_Quantity": 450.0,
+    "Avg_Price": 22.3,
+    "Transaction_Count": 68,
     "Price_Volatility": 2.1,
-    "Min_Price": 18.7,
-    "Max_Price": 25.3,
-    "Discount_Count": 8,
-    "Revenue": 11000.0,
-    "Discount_Rate": 0.1,
-    "Price_Range": 6.6,
-    "Wholesale Price (RMB/kg)": 15.4,
-    "Loss Rate (%)": 12.3,
+    "Min_Price": 19.5,
+    "Max_Price": 25.8,
+    "Discount_Count": 12,
+    "Revenue": 10035.0,
+    "Discount_Rate": 0.176,
+    "Price_Range": 6.3,
+    "Wholesale Price (RMB/kg)": 17.8,
+    "Loss Rate (%)": 11.2,
     "Month": 12,
-    "DayOfWeek": 5,
+    "DayOfWeek": 6,
     "IsWeekend": 1,
     "Year": 2024,
     "Quarter": 4,
-    "DayOfYear": 365,
-    "WeekOfYear": 52
+    "DayOfYear": 358,
+    "WeekOfYear": 51
   }
 }
