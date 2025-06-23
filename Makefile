@@ -543,7 +543,7 @@ performance-report: ## Generate comprehensive performance report
 	@echo "$(GREEN) Performance report generated!$(RESET)"
 
 monitoring-logs: ## Show logs from monitoring processes
-	@echo "$(CYAN)📋 Recent Monitoring Logs:$(RESET)"
+	@echo "$(CYAN) Recent Monitoring Logs:$(RESET)"
 	@echo "$(YELLOW)Performance Monitor:$(RESET)"
 	@tail -20 data/monitoring/logs/performance.log 2>/dev/null || echo "  No performance logs found"
 	@echo "$(YELLOW)Drift Detection:$(RESET)"
@@ -803,9 +803,9 @@ git-setup: ## Setup git configuration
 	@echo "$(GREEN) Git setup completed!$(RESET)"
 
 git-status: ## Check git status and suggest workflow
-	@echo "$(CYAN)📋 Git Status Check:$(RESET)"
+	@echo "$(CYAN) Git Status Check:$(RESET)"
 	@git status 2>/dev/null || echo "$(RED) Not a git repository$(RESET)"
-	@echo "$(YELLOW)💡 Suggested workflow:$(RESET)"
+	@echo "$(YELLOW) Suggested workflow:$(RESET)"
 	@echo "  1. make workflow-test       # Test your changes"
 	@echo "  2. git add .                # Stage changes"
 	@echo "  3. git commit -m 'message'  # Commit changes"
