@@ -1,7 +1,7 @@
 ##  Purpose
 Brief description of the changes
 
-## 🔄 Type of Change
+##  Type of Change
 - [ ]  Bug fix
 - [ ]  New feature
 - [ ]  Breaking change
