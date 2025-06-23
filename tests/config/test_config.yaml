@@ -1,0 +1,31 @@
+aws:
+  region: us-east-1
+  s3:
+    bucket_name: test-bucket
+    data_prefix: test-data/
+  sagemaker:
+    execution_role: arn:aws:iam::123456789012:role/test-role
+deployment:
+  environments:
+    dev:
+      initial_instance_count: 1
+      instance_type: ml.t2.medium
+    prod:
+      initial_instance_count: 2
+      instance_type: ml.m5.xlarge
+    staging:
+      initial_instance_count: 1
+      instance_type: ml.m5.large
+models:
+  default_model: random_forest
+  hyperparameters:
+    random_forest:
+      n_estimators: 10
+      random_state: 42
+  model_types:
+  - linear_regression
+  - ridge
+  - random_forest
+project:
+  name: demand-stock-forecasting-mlops
+  version: 1.0.0

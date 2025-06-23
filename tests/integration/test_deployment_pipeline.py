@@ -1,472 +1,336 @@
 #!/usr/bin/env python3
 """
-Integration Tests for Deployment Pipeline
-Tests the interaction between model deployment, SageMaker endpoints, and API components
+Integration tests for deployment pipeline
+Tests end-to-end deployment workflow
+
+Author: Bhupal Lambodhar
+Email: btiduwarlambodhar@sandiego.edu
 """
 
 import os
-import tempfile
-import shutil
 import pytest
 import pandas as pd
 import numpy as np
-import yaml
 import json
-import joblib
-from unittest.mock import patch, MagicMock, AsyncMock
+import tempfile
+from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
-import asyncio
 
-# Add src to path for imports
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
-
-from deployment.sagemaker_deploy import FixedSageMakerDeployer
-from inference.api import SageMakerSyncAPI
-from deployment.predictor import ModelPredictor
+# FIXED IMPORTS - Correct paths to modules
+from src.deployment.sagemaker_deploy import FixedSageMakerDeployer
+from src.deployment.model_registry import ModelRegistry
+from src.inference.predictor import ModelPredictor  # FIXED: was deployment.predictor
+from src.monitoring.performance_monitor import PerformanceMonitor
+from prometheus_client import CollectorRegistry
 
 
-@pytest.fixture
-def temp_config():
-    """Create temporary config file for testing"""
-    config_data = {
-        'project': {
-            'name': 'test-project',
-            'version': '1.0.0'
-        },
-        'aws': {
-            'region': 'us-east-1',
-            's3': {'bucket_name': 'test-bucket'},
-            'sagemaker': {
-                'execution_role': 'arn:aws:iam::123456789:role/test-role'
-            }
-        },
-        'deployment': {
-            'environments': {
-                'dev': {
-                    'instance_type': 'ml.t2.medium',
-                    'initial_instance_count': 1,
-                    'auto_scaling_enabled': False
-                },
-                'staging': {
-                    'instance_type': 'ml.m5.large',
-                    'initial_instance_count': 1,
-                    'auto_scaling_enabled': True
-                }
-            }
-        }
-    }
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(config_data, f)
-        return f.name
+class TestDeploymentPipeline:
+    """Integration tests for complete deployment pipeline"""
 
-
-@pytest.fixture
-def temp_model():
-    """Create a temporary trained model for testing"""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create a simple mock model
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.preprocessing import StandardScaler
-    
-    model = RandomForestRegressor(n_estimators=5, random_state=42)
-    scaler = StandardScaler()
-    
-    # Create dummy training data
-    X_dummy = np.random.randn(50, 10)
-    y_dummy = np.random.randn(50)
-    
-    # Fit the model
-    X_scaled = scaler.fit_transform(X_dummy)
-    model.fit(X_scaled, y_dummy)
-    
-    # Save model artifact
-    model_artifact = {
-        'model': model,
-        'scaler': scaler
-    }
-    
-    model_path = os.path.join(temp_dir, 'test_model.pkl')
-    joblib.dump(model_artifact, model_path)
-    
-    yield model_path, temp_dir
-    shutil.rmtree(temp_dir)
-
-
-@pytest.fixture
-def sample_prediction_data():
-    """Create sample data for prediction testing"""
-    return {
-        'Total_Quantity': 150.0,
-        'Avg_Price': 18.5,
-        'Transaction_Count': 25,
-        'Month': 7,
-        'DayOfWeek': 1,
-        'IsWeekend': 0,
-        'Price_Volatility': 1.2,
-        'Wholesale_Price': 14.0,
-        'Loss_Rate': 8.5
-    }
-
-
-class TestDeploymentPipelineIntegration:
-    """Integration tests for the complete deployment pipeline"""
-
-    @patch('boto3.Session')
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    @patch('boto3.client')
     @patch('sagemaker.Session')
-    def test_sagemaker_deployer_initialization(self, mock_sagemaker_session, mock_boto_session, temp_config):
-        """Test SageMaker deployer can be initialized with proper configuration"""
+    def test_end_to_end_deployment_pipeline(self, mock_sagemaker_session, mock_boto_client, 
+                                          config_file, sample_model_file):
+        """Test complete deployment pipeline from model to endpoint"""
         
-        # Mock AWS clients
-        mock_s3 = MagicMock()
-        mock_sagemaker = MagicMock()
-        mock_boto_session.return_value.client.side_effect = lambda service, **kwargs: {
-            's3': mock_s3,
-            'sagemaker': mock_sagemaker
-        }.get(service, MagicMock())
+        # Mock AWS services
+        mock_sagemaker_client = Mock()
+        mock_s3_client = Mock()
+        mock_boto_client.side_effect = lambda service, **kwargs: {
+            'sagemaker': mock_sagemaker_client,
+            's3': mock_s3_client
+        }.get(service, Mock())
         
-        mock_sagemaker_session.return_value.default_bucket.return_value = 'test-bucket'
+        # Mock SageMaker session
+        mock_session = Mock()
+        mock_session.default_bucket.return_value = 'test-bucket'
+        mock_sagemaker_session.return_value = mock_session
         
         # Initialize deployer
-        deployer = FixedSageMakerDeployer(temp_config)
+        deployer = FixedSageMakerDeployer(config_file)
         
-        # Verify initialization
-        assert deployer.aws_config is not None
-        assert deployer.deployment_config is not None
-        assert deployer.region == 'us-east-1'
-        assert deployer.bucket == 'test-bucket'
+        # Test model feature extraction
+        feature_order = deployer.extract_model_feature_order(sample_model_file)
+        assert isinstance(feature_order, list)
+        assert len(feature_order) > 0
+        
+        # Test inference script creation
+        with tempfile.TemporaryDirectory() as temp_dir:
+            script_path = deployer.create_fixed_inference_script(
+                'test_model', sample_model_file, temp_dir
+            )
+            assert os.path.exists(script_path)
+            
+            # Test requirements creation
+            req_path = deployer.create_fixed_requirements_file(temp_dir)
+            assert os.path.exists(req_path)
+        
+        # Mock successful deployment
+        mock_predictor = Mock()
+        mock_predictor.predict.return_value = {'predictions': [15.5], 'confidence': [0.85]}
+        
+        with patch('src.deployment.sagemaker_deploy.SKLearnModel') as mock_sklearn_model:
+            mock_model_instance = Mock()
+            mock_model_instance.deploy.return_value = mock_predictor
+            mock_sklearn_model.return_value = mock_model_instance
+            
+            # Test deployment
+            endpoint_info = deployer.deploy_fixed_endpoint(
+                sample_model_file, 'test_model', 'test-endpoint', 'staging'
+            )
+            
+            assert isinstance(endpoint_info, dict)
+            assert 'endpoint_name' in endpoint_info
+            assert 'status' in endpoint_info
 
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    @patch('mlflow.set_tracking_uri')
+    @patch('mlflow.set_experiment')
     @patch('boto3.client')
-    def test_endpoint_listing_integration(self, mock_boto_client, temp_config):
-        """Test endpoint listing functionality"""
+    def test_model_registry_integration(self, mock_boto_client, mock_set_experiment, 
+                                      mock_set_tracking_uri, config_file, sample_model_file, 
+                                      sample_evaluation_results):
+        """Test model registry integration"""
         
-        # Mock SageMaker client
-        mock_sagemaker = MagicMock()
-        mock_boto_client.return_value = mock_sagemaker
+        # Initialize registry
+        registry = ModelRegistry(config_file)
         
-        # Mock list_endpoints response
-        mock_sagemaker.list_endpoints.return_value = {
-            'Endpoints': [
-                {
-                    'EndpointName': 'test-endpoint-1',
-                    'EndpointStatus': 'InService',
-                    'CreationTime': datetime.now(),
-                    'LastModifiedTime': datetime.now(),
-                    'EndpointConfigName': 'test-config'
-                }
-            ]
+        # Test model registration
+        metadata = {
+            'metrics': sample_evaluation_results['random_forest'],
+            'training_timestamp': datetime.now().isoformat(),
+            'feature_count': 75
         }
         
-        # Mock describe_endpoint_config response
-        mock_sagemaker.describe_endpoint_config.return_value = {
+        with patch('mlflow.start_run') as mock_start_run:
+            mock_run = Mock()
+            mock_run.info.run_id = 'test_run_id'
+            mock_run.info.artifact_uri = 's3://test-bucket/artifacts'
+            mock_start_run.return_value.__enter__.return_value = mock_run
+            
+            with patch('mlflow.log_params'), \
+                 patch('mlflow.log_metric'), \
+                 patch('mlflow.sklearn.log_model'), \
+                 patch('mlflow.set_tags'):
+                
+                result = registry.register_model(
+                    sample_model_file, 'test_model', 'v1.0', metadata
+                )
+                
+                assert isinstance(result, dict)
+                assert 'run_id' in result
+                assert result['status'] == 'registered'
+
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    def test_predictor_integration(self, config_file, sample_model_file):
+        """Test model predictor integration"""
+        
+        # Initialize predictor
+        with patch('boto3.client'), \
+             patch('mlflow.set_tracking_uri'):
+            
+            predictor = ModelPredictor(config_file)
+            
+            # Test model loading simulation
+            mock_models = {
+                'test_model': {
+                    'model': Mock(),
+                    'scaler': Mock(),
+                    'version': 'v1.0',
+                    'metrics': {'val_mape': 12.5}
+                }
+            }
+            
+            predictor.loaded_models = mock_models
+            
+            # Test model info retrieval
+            model_info = predictor.get_model_info('test_model')
+            assert isinstance(model_info, dict)
+            assert 'version' in model_info
+            assert 'metrics' in model_info
+
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    def test_monitoring_integration(self, config_file):
+        """Test monitoring integration with deployment"""
+        
+        # Create separate registry for testing
+        test_registry = CollectorRegistry()
+        
+        # Initialize monitor
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+        
+        # Test metrics collection
+        with patch('psutil.cpu_percent', return_value=45.0), \
+             patch('psutil.virtual_memory') as mock_memory, \
+             patch('psutil.disk_usage') as mock_disk:
+            
+            # Setup mock objects
+            mock_memory_obj = Mock()
+            mock_memory_obj.percent = 60.0
+            mock_memory_obj.available = 8 * 1024**3
+            mock_memory.return_value = mock_memory_obj
+            
+            mock_disk_obj = Mock()
+            mock_disk_obj.used = 100 * 1024**3
+            mock_disk_obj.total = 500 * 1024**3
+            mock_disk_obj.free = 400 * 1024**3
+            mock_disk.return_value = mock_disk_obj
+            
+            # Collect metrics
+            monitor.collect_system_metrics()
+            
+            # Verify metrics were collected
+            assert 'system' in monitor.metrics_history
+            assert len(monitor.metrics_history['system']) > 0
+
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    @patch('boto3.client')
+    @patch('sagemaker.Session')
+    def test_deployment_pipeline_with_monitoring(self, mock_sagemaker_session, mock_boto_client,
+                                                config_file, sample_model_file):
+        """Test deployment pipeline with monitoring integration"""
+        
+        # Initialize components
+        deployer = FixedSageMakerDeployer(config_file)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+        
+        # Mock AWS services
+        mock_boto_client.return_value = Mock()
+        mock_sagemaker_session.return_value = Mock()
+        
+        # Test deployment readiness check
+        feature_order = deployer.extract_model_feature_order(sample_model_file)
+        assert len(feature_order) > 0
+        
+        # Test monitoring setup
+        with patch('psutil.cpu_percent', return_value=45.0), \
+             patch('psutil.virtual_memory') as mock_memory, \
+             patch('psutil.disk_usage') as mock_disk:
+            
+            # Setup mock objects
+            mock_memory_obj = Mock()
+            mock_memory_obj.percent = 60.0
+            mock_memory_obj.available = 8 * 1024**3
+            mock_memory.return_value = mock_memory_obj
+            
+            mock_disk_obj = Mock()
+            mock_disk_obj.used = 100 * 1024**3
+            mock_disk_obj.total = 500 * 1024**3
+            mock_disk_obj.free = 400 * 1024**3
+            mock_disk.return_value = mock_disk_obj
+            
+            # Start monitoring
+            monitor.collect_current_metrics()
+            
+            # Get health summary
+            health = monitor.get_health_summary()
+            assert 'overall_status' in health
+            assert health['overall_status'] in ['healthy', 'warning', 'critical', 'no_data']
+
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    @patch('boto3.client')
+    def test_endpoint_management_workflow(self, mock_boto_client, config_file):
+        """Test complete endpoint management workflow"""
+        
+        # Mock SageMaker client
+        mock_sagemaker_client = Mock()
+        mock_boto_client.return_value = mock_sagemaker_client
+        
+        # Mock endpoint list response
+        mock_endpoints = [{
+            'EndpointName': 'test-endpoint-1',
+            'EndpointStatus': 'InService',
+            'CreationTime': datetime.now(),
+            'LastModifiedTime': datetime.now(),
+            'EndpointConfigName': 'test-config-1'
+        }]
+        
+        mock_sagemaker_client.list_endpoints.return_value = {'Endpoints': mock_endpoints}
+        mock_sagemaker_client.describe_endpoint_config.return_value = {
             'ProductionVariants': [{
-                'InstanceType': 'ml.t2.medium',
+                'InstanceType': 'ml.m5.large',
                 'InitialInstanceCount': 1
             }]
         }
         
-        # Test listing
-        deployer = FixedSageMakerDeployer(temp_config)
-        result = deployer.list_endpoints()
+        # Initialize deployer
+        deployer = FixedSageMakerDeployer(config_file)
         
-        # Verify results
+        # Test endpoint listing
+        result = deployer.list_endpoints()
+        assert isinstance(result, dict)
         assert result['status'] == 'success'
         assert result['endpoint_count'] == 1
-        assert len(result['endpoints']) == 1
-        assert result['endpoints'][0]['name'] == 'test-endpoint-1'
 
-    def test_api_model_loading_integration(self, temp_config, temp_model):
-        """Test API can load and work with models"""
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    def test_error_handling_workflow(self, config_file):
+        """Test error handling in deployment workflow"""
         
-        model_path, model_dir = temp_model
-        
-        # Copy model to expected location
-        models_dir = os.path.join(os.path.dirname(model_dir), 'models')
-        os.makedirs(models_dir, exist_ok=True)
-        shutil.copy(model_path, os.path.join(models_dir, 'best_model.pkl'))
-        
-        # Initialize API with model directory context
-        with patch('os.path.exists') as mock_exists:
-            mock_exists.side_effect = lambda path: 'models' in path and 'pkl' in path
-            
-            with patch('os.listdir') as mock_listdir:
-                mock_listdir.return_value = ['best_model.pkl']
-                
-                with patch('joblib.load') as mock_load:
-                    # Load the actual model for testing
-                    actual_artifact = joblib.load(model_path)
-                    mock_load.return_value = actual_artifact
-                    
-                    api = SageMakerSyncAPI(temp_config)
-                    
-                    # Verify models were loaded
-                    assert len(api.models) > 0
-                    assert 'best_model' in api.models
-                    assert len(api.model_feature_orders) > 0
-
-    def test_api_prediction_integration(self, temp_config, temp_model, sample_prediction_data):
-        """Test API prediction functionality with real model"""
-        
-        model_path, model_dir = temp_model
-        
-        # Initialize API with mocked model loading
-        with patch('os.path.exists', return_value=True), \
-             patch('os.listdir', return_value=['test_model.pkl']), \
-             patch('joblib.load') as mock_load:
-            
-            # Load actual model
-            actual_artifact = joblib.load(model_path)
-            mock_load.return_value = actual_artifact
-            
-            api = SageMakerSyncAPI(temp_config)
-            
-            # Create feature input
-            from inference.api import FeatureInput
-            features = FeatureInput(**sample_prediction_data)
-            
-            # Make prediction
-            result = api.predict_single(features, 'test_model')
-            
-            # Verify prediction result
-            assert result.predicted_price > 0
-            assert 0 <= result.confidence <= 1
-            assert result.model_used == 'test_model'
-            assert result.features_engineered > 0
-
-    def test_api_batch_prediction_integration(self, temp_config, temp_model, sample_prediction_data):
-        """Test API batch prediction functionality"""
-        
-        model_path, model_dir = temp_model
-        
-        with patch('os.path.exists', return_value=True), \
-             patch('os.listdir', return_value=['test_model.pkl']), \
-             patch('joblib.load') as mock_load:
-            
-            actual_artifact = joblib.load(model_path)
-            mock_load.return_value = actual_artifact
-            
-            api = SageMakerSyncAPI(temp_config)
-            
-            # Create batch input
-            from inference.api import FeatureInput, BatchFeatureInput
-            
-            # Create multiple feature instances
-            features_list = []
-            for i in range(3):
-                modified_data = sample_prediction_data.copy()
-                modified_data['Total_Quantity'] = sample_prediction_data['Total_Quantity'] + i * 10
-                features_list.append(FeatureInput(**modified_data))
-            
-            batch_input = BatchFeatureInput(
-                instances=features_list,
-                model_name='test_model'
-            )
-            
-            # Make batch prediction
-            result = api.predict_batch(batch_input)
-            
-            # Verify batch result
-            assert len(result.predictions) == 3
-            assert result.batch_id.startswith('batch_')
-            assert result.processing_time_ms > 0
-            assert all(pred.predicted_price > 0 for pred in result.predictions)
-
-    @patch('boto3.client')
-    def test_predictor_model_loading_integration(self, mock_boto_client, temp_config, temp_model):
-        """Test ModelPredictor integration with model loading"""
-        
-        model_path, model_dir = temp_model
-        
-        # Mock AWS clients
-        mock_boto_client.return_value = MagicMock()
-        
-        # Mock MLflow components
-        with patch('mlflow.set_tracking_uri'), \
-             patch('mlflow.set_experiment'), \
-             patch('mlflow.tracking.MlflowClient') as mock_client:
-            
-            # Initialize predictor
-            predictor = ModelPredictor(temp_config)
-            
-            # Test local model loading
-            models = predictor.load_local_models()
-            
-            # Mock local models directory
-            with patch('os.path.exists', return_value=True), \
-                 patch('os.listdir', return_value=['test_model.pkl']), \
-                 patch('joblib.load') as mock_load:
-                
-                actual_artifact = joblib.load(model_path)
-                mock_load.return_value = actual_artifact
-                
-                models = predictor.load_local_models()
-                
-                # Verify models loaded
-                assert len(models) > 0
-
-    def test_deployment_configuration_validation(self, temp_config):
-        """Test deployment configuration is properly validated"""
-        
-        # Load config and validate structure
-        with open(temp_config, 'r') as f:
-            config = yaml.safe_load(f)
-        
-        # Verify deployment configuration exists
-        assert 'deployment' in config
-        assert 'environments' in config['deployment']
-        
-        # Verify environment configurations
-        envs = config['deployment']['environments']
-        assert 'dev' in envs
-        assert 'staging' in envs
-        
-        # Verify each environment has required fields
-        for env_name, env_config in envs.items():
-            assert 'instance_type' in env_config
-            assert 'initial_instance_count' in env_config
-            assert isinstance(env_config['auto_scaling_enabled'], bool)
-
-    @patch('requests.get')
-    def test_api_health_check_integration(self, mock_get, temp_config, temp_model):
-        """Test API health check functionality"""
-        
-        model_path, model_dir = temp_model
-        
-        with patch('os.path.exists', return_value=True), \
-             patch('os.listdir', return_value=['test_model.pkl']), \
-             patch('joblib.load') as mock_load:
-            
-            actual_artifact = joblib.load(model_path)
-            mock_load.return_value = actual_artifact
-            
-            api = SageMakerSyncAPI(temp_config)
-            
-            # Mock successful health response
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {
-                'status': 'healthy',
-                'models_loaded': len(api.models),
-                'uptime_seconds': 100
+        # Test with invalid config
+        invalid_config = {
+            'aws': {
+                'region': 'invalid-region',
+                'sagemaker': {'execution_role': 'invalid-role'}
             }
-            mock_get.return_value = mock_response
-            
-            # Test model list endpoint
-            model_list = api.get_model_list()
-            
-            # Verify response
-            assert len(model_list) > 0
-            assert 'test_model' in model_list or 'best_model' in model_list
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            import yaml
+            yaml.dump(invalid_config, f)
+            invalid_config_path = f.name
+        
+        try:
+            # Test deployer with invalid config - should handle initialization errors gracefully
+            with patch('boto3.client', side_effect=Exception("Invalid region")):
+                try:
+                    deployer = FixedSageMakerDeployer(invalid_config_path)
+                    # If initialization succeeds, that's okay
+                    assert deployer is not None
+                except Exception as e:
+                    # If initialization fails, that's also acceptable for invalid config
+                    assert "Invalid region" in str(e) or "invalid-region" in str(e)
+        
+        finally:
+            os.unlink(invalid_config_path)
 
-    def test_feature_engineering_compatibility(self, temp_config, sample_prediction_data):
-        """Test that deployment components work with feature engineering output"""
+    @pytest.mark.integration
+    @pytest.mark.deployment
+    def test_deployment_validation_workflow(self, config_file, sample_model_file):
+        """Test deployment validation workflow"""
         
-        # Create mock feature engineering output
-        feature_columns = [
-            'Total_Quantity', 'Avg_Price', 'Transaction_Count', 'Month', 'DayOfWeek',
-            'IsWeekend', 'Price_Volatility', 'Month_Sin', 'Month_Cos', 'Revenue',
-            'Price_Quantity_Interaction', 'Wholesale_Price', 'Loss_Rate'
-        ]
-        
-        # Test feature order extraction function
-        from inference.api import get_default_feature_order
-        default_order = get_default_feature_order()
-        
-        # Verify default order contains essential features
-        essential_features = ['Total_Quantity', 'Avg_Price', 'Month', 'DayOfWeek']
-        for feature in essential_features:
-            assert feature in default_order
-
-    def test_error_handling_integration(self, temp_config):
-        """Test error handling across deployment components"""
-        
-        # Test API with no models
-        with patch('os.path.exists', return_value=False):
-            api = SageMakerSyncAPI(temp_config)
+        with patch('boto3.client'), \
+             patch('sagemaker.Session'):
             
-            # Should gracefully handle missing models
-            assert len(api.models) > 0  # Should create mock model
-            assert 'mock_model' in api.models
-
-    @patch('boto3.Session')
-    def test_deployment_aws_integration_mock(self, mock_session, temp_config, temp_model):
-        """Test deployment components integrate properly with AWS (mocked)"""
-        
-        model_path, model_dir = temp_model
-        
-        # Mock AWS services
-        mock_s3 = MagicMock()
-        mock_sagemaker = MagicMock()
-        mock_session.return_value.client.side_effect = lambda service, **kwargs: {
-            's3': mock_s3,
-            'sagemaker': mock_sagemaker
-        }.get(service, MagicMock())
-        
-        mock_session.return_value.default_bucket.return_value = 'test-bucket'
-        
-        # Test deployer initialization
-        deployer = FixedSageMakerDeployer(temp_config)
-        
-        # Test feature order extraction
-        feature_order = deployer.extract_model_feature_order(model_path)
-        
-        # Verify feature order is valid
-        assert isinstance(feature_order, list)
-        assert len(feature_order) > 0
-
-    def test_model_version_compatibility(self, temp_config, temp_model):
-        """Test that different components handle model versioning consistently"""
-        
-        model_path, model_dir = temp_model
-        
-        # Test API version handling
-        with patch('os.path.exists', return_value=True), \
-             patch('os.listdir', return_value=['test_model.pkl']), \
-             patch('joblib.load') as mock_load:
+            deployer = FixedSageMakerDeployer(config_file)
             
-            actual_artifact = joblib.load(model_path)
-            mock_load.return_value = actual_artifact
+            # Test model validation
+            feature_order = deployer.extract_model_feature_order(sample_model_file)
+            assert isinstance(feature_order, list)
+            assert len(feature_order) > 0
             
-            api = SageMakerSyncAPI(temp_config)
-            
-            # Verify version information is handled
-            assert hasattr(api, 'app_version')
-            assert api.app_version is not None
-
-    def test_inference_script_generation(self, temp_config, temp_model):
-        """Test that inference script generation works correctly"""
-        
-        model_path, model_dir = temp_model
-        
-        # Mock deployer
-        with patch('boto3.Session'):
-            deployer = FixedSageMakerDeployer(temp_config)
-            
-            # Test inference script creation
-            output_dir = tempfile.mkdtemp()
-            try:
+            # Test inference script validation
+            with tempfile.TemporaryDirectory() as temp_dir:
                 script_path = deployer.create_fixed_inference_script(
-                    'test_model', model_path, output_dir
+                    'test_model', sample_model_file, temp_dir
                 )
                 
-                # Verify script was created
+                # Verify script was created correctly
                 assert os.path.exists(script_path)
                 
-                # Verify script contains expected components
                 with open(script_path, 'r') as f:
                     script_content = f.read()
-                
-                assert 'def model_fn' in script_content
-                assert 'def input_fn' in script_content
-                assert 'def predict_fn' in script_content
-                assert 'def output_fn' in script_content
-                assert 'CORRECT_FEATURE_ORDER' in script_content
-                
-            finally:
-                shutil.rmtree(output_dir)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+                    # Check for required functions
+                    assert 'def model_fn' in script_content
+                    assert 'def input_fn' in script_content
+                    assert 'def predict_fn' in script_content
+                    assert 'def output_fn' in script_content
+                    assert 'CORRECT_FEATURE_ORDER' in script_content

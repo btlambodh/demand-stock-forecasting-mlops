@@ -303,10 +303,9 @@ class TestSageMakerSyncAPI:
         """Test single prediction with mock model"""
         api = SageMakerSyncAPI(config_file)
         
-        # Ensure mock model is loaded
-        if not api.models:
-            api.models = {"mock_model": api.create_mock_model()}
-            api.model_feature_orders = {"mock_model": ['feature_1', 'feature_2']}
+        # API should automatically have both mock_model and best_model available
+        assert 'mock_model' in api.models, "mock_model should be available"
+        assert 'best_model' in api.models, "best_model should be available"
         
         feature_input = FeatureInput(
             Total_Quantity=150.0,
@@ -317,6 +316,7 @@ class TestSageMakerSyncAPI:
             IsWeekend=0
         )
         
+        # Test with mock_model specifically
         result = api.predict_single(feature_input, "mock_model")
         
         assert hasattr(result, 'predicted_price')
@@ -331,10 +331,9 @@ class TestSageMakerSyncAPI:
         """Test batch prediction with mock model"""
         api = SageMakerSyncAPI(config_file)
         
-        # Ensure mock model is loaded
-        if not api.models:
-            api.models = {"mock_model": api.create_mock_model()}
-            api.model_feature_orders = {"mock_model": ['feature_1', 'feature_2']}
+        # API should automatically have both mock_model and best_model available
+        assert 'mock_model' in api.models, "mock_model should be available"
+        assert 'best_model' in api.models, "best_model should be available"
         
         batch_input = BatchFeatureInput(
             instances=[

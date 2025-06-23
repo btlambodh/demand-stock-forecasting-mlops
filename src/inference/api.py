@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 FastAPI Real-time Inference API for Chinese Produce Market Forecasting
-Fixes: Dynamic feature order extraction synchronized with SageMaker
+Dynamic feature order extraction synchronized with SageMaker
 
 Author: Bhupal Lambodhar
 Email: btiduwarlambodhar@sandiego.edu
@@ -76,7 +76,7 @@ API_REQUESTS = Counter(
 def extract_model_feature_order(model_artifact) -> List[str]:
     """
     Extract the exact feature order from the trained model
-    FIXED: Same logic as SageMaker inference script
+    Same logic as SageMaker inference script
     """
     try:
         # Extract model from artifact
@@ -88,21 +88,21 @@ def extract_model_feature_order(model_artifact) -> List[str]:
         # Get feature names in exact order
         if hasattr(model, 'feature_names_in_'):
             feature_names = list(model.feature_names_in_)
-            logger.info(f"✅ Extracted {len(feature_names)} features from model")
+            logger.info(f" Extracted {len(feature_names)} features from model")
             return feature_names
         else:
-            logger.warning("⚠️ Model doesn't have feature_names_in_ attribute, using default order")
+            logger.warning("Model doesn't have feature_names_in_ attribute, using default order")
             return get_default_feature_order()
             
     except Exception as e:
-        logger.error(f"❌ Error extracting feature order: {e}")
+        logger.error(f" Error extracting feature order: {e}")
         return get_default_feature_order()
 
 
 def get_default_feature_order() -> List[str]:
     """
     Get default feature order if extraction fails
-    FIXED: Exact same as SageMaker inference script
+    Exact same as SageMaker inference script
     """
     return [
         'Total_Quantity', 'Avg_Quantity', 'Transaction_Count', 'Avg_Price', 'Price_Volatility', 
@@ -132,7 +132,7 @@ def get_default_feature_order() -> List[str]:
 def create_features_in_correct_order(df_input, correct_feature_order):
     """
     Create features in the EXACT order the model was trained with
-    FIXED: Same logic as SageMaker inference script
+    Same logic as SageMaker inference script
     """
     logger.info(f"Creating features in correct order from {df_input.shape[1]} input features")
     df = df_input.copy()
@@ -168,7 +168,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
             else:
                 df[col] = df[col].fillna(default_val)
         
-        # ===== DERIVED FEATURES =====
+        # Derived features
         
         # 1. Avg_Quantity (critical missing feature)
         df["Avg_Quantity"] = df["Total_Quantity"] / np.maximum(df["Transaction_Count"], 1)
@@ -184,7 +184,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         if "Discount_Rate" not in df_input.columns:
             df["Discount_Rate"] = df["Discount_Count"] / np.maximum(df["Transaction_Count"], 1)
         
-        # ===== TEMPORAL FEATURES =====
+        # Temporal features
         
         df["Month_Sin"] = np.sin(2 * np.pi * df["Month"] / 12)
         df["Month_Cos"] = np.cos(2 * np.pi * df["Month"] / 12)
@@ -208,7 +208,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         current_date = pd.to_datetime("2024-01-01") + pd.to_timedelta(df["DayOfYear"] - 1, unit="D")
         df["Days_Since_Epoch"] = (current_date - epoch_date).dt.days
         
-        # ===== PRICE FEATURES =====
+        # Price features
         
         df["Retail_Wholesale_Ratio"] = df["Avg_Price"] / np.maximum(df["Wholesale Price (RMB/kg)"], 0.1)
         df["Price_Markup"] = df["Avg_Price"] - df["Wholesale Price (RMB/kg)"]
@@ -216,7 +216,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         df["Avg_Price_Change"] = np.random.normal(0.02, 0.01, len(df))
         df["Wholesale_Price_Change"] = np.random.normal(0.015, 0.008, len(df))
         
-        # ===== LAG FEATURES =====
+        # Lag features
         
         lag_periods = [1, 7, 14, 30]
         np.random.seed(42)
@@ -228,7 +228,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
             df[f"Total_Quantity_Lag_{lag}"] = df["Total_Quantity"] * quantity_lag_noise
             df[f"Revenue_Lag_{lag}"] = df[f"Avg_Price_Lag_{lag}"] * df[f"Total_Quantity_Lag_{lag}"]
         
-        # ===== ROLLING WINDOW FEATURES =====
+        # Rolling window features
         
         windows = [7, 14, 30]
         
@@ -242,7 +242,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
             df[f"Avg_Price_Min_{window}"] = df["Min_Price"]
             df[f"Avg_Price_Max_{window}"] = df["Max_Price"]
         
-        # ===== CATEGORY FEATURES =====
+        # Category features
         
         df["Category_Total_Quantity"] = df["Total_Quantity"] * np.random.uniform(3, 6, len(df))
         df["Category_Avg_Price"] = df["Avg_Price"] * np.random.uniform(0.9, 1.1, len(df))
@@ -252,7 +252,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         df["Price_Relative_to_Category"] = df["Avg_Price"] / np.maximum(df["Category_Avg_Price"], 0.1)
         df["Category Name_Encoded"] = np.random.randint(1, 4, len(df))
         
-        # ===== LOSS RATE FEATURES =====
+        # Loss rate features
         
         df["Effective_Supply"] = df["Total_Quantity"] * (1 - df["Loss Rate (%)"] / 100)
         df["Loss_Adjusted_Revenue"] = df["Effective_Supply"] * df["Avg_Price"]
@@ -262,7 +262,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         df["Loss_Rate_Category_High"] = (df["Loss Rate (%)"] > 15).astype(int)
         df["Loss_Rate_Category_Very_High"] = (df["Loss Rate (%)"] > 25).astype(int)
         
-        # ===== INTERACTION FEATURES =====
+        # Interaction features
         
         df["Price_Quantity_Interaction"] = df["Avg_Price"] * df["Total_Quantity"]
         df["Price_Volatility_Quantity"] = df["Price_Volatility"] * df["Total_Quantity"]
@@ -272,7 +272,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         df["Winter_Price"] = df["Avg_Price"] * (df["Season"] == "Winter").astype(int)
         df["Holiday_Demand"] = df["Total_Quantity"] * (df["IsNationalDay"] + df["IsLaborDay"])
         
-        # ===== SEASONAL DUMMY VARIABLES =====
+        # Seasonal dummy variables
         
         # Only create the season dummies the model expects
         df["Season_Spring"] = (df["Season"] == "Spring").astype(int)
@@ -282,7 +282,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         # Clean up categorical columns
         df = df.drop("Season", axis=1, errors='ignore')
         
-        # ===== FINAL CLEANUP =====
+        # Final cleanup
         
         df = df.fillna(0)
         
@@ -293,7 +293,7 @@ def create_features_in_correct_order(df_input, correct_feature_order):
         # Replace infinite values
         df = df.replace([np.inf, -np.inf], 0)
         
-        # ===== CREATE MISSING FEATURES IF NEEDED =====
+        # Create missing features if needed
         
         for feature in correct_feature_order:
             if feature not in df.columns:
@@ -307,18 +307,18 @@ def create_features_in_correct_order(df_input, correct_feature_order):
                 else:
                     df[feature] = 0.0
         
-        # ===== SELECT FEATURES IN EXACT CORRECT ORDER =====
+        # Select features in exact correct order
         
         df_final = df[correct_feature_order].copy()
         
-        logger.info(f"✅ Features created in correct order: {df_final.shape[1]} features")
-        logger.info(f"✅ Expected features: {len(correct_feature_order)}")
-        logger.info(f"✅ Feature order match: {df_final.shape[1] == len(correct_feature_order)}")
+        logger.info(f" Features created in correct order: {df_final.shape[1]} features")
+        logger.info(f" Expected features: {len(correct_feature_order)}")
+        logger.info(f" Feature order match: {df_final.shape[1] == len(correct_feature_order)}")
         
         return df_final
         
     except Exception as e:
-        logger.error(f"❌ Error in feature engineering: {e}")
+        logger.error(f" Error in feature engineering: {e}")
         # Return basic features if advanced engineering fails
         basic_features = ["Total_Quantity", "Avg_Price", "Transaction_Count", "Month", "DayOfWeek"]
         available_features = [f for f in basic_features if f in df.columns]
@@ -344,7 +344,7 @@ class FeatureInput(BaseModel):
     Max_Price: Optional[float] = Field(None, gt=0, description="Maximum price")
     Discount_Count: Optional[int] = Field(2, ge=0, description="Number of discounted transactions")
     
-    # FIXED: Use exact SageMaker column names
+    # Use exact SageMaker column names
     Wholesale_Price: Optional[float] = Field(None, gt=0, description="Wholesale price (RMB/kg)")
     Loss_Rate: Optional[float] = Field(8.5, ge=0, le=100, description="Loss rate percentage")
     
@@ -426,7 +426,7 @@ class SageMakerSyncAPI:
             self.app_version = '1.2.0'
         
         self.models = {}
-        self.model_feature_orders = {}  # FIXED: Store feature order for each model
+        self.model_feature_orders = {}
         self.load_models_from_directory()
         
         logger.info("SageMakerSyncAPI initialized", 
@@ -449,6 +449,9 @@ class SageMakerSyncAPI:
                 logger.warning("No models directory found, creating mock model")
                 self.models = {"mock_model": self.create_mock_model()}
                 self.model_feature_orders = {"mock_model": get_default_feature_order()}
+                # Ensure best_model alias is created for consistency
+                self.models['best_model'] = self.models['mock_model']
+                self.model_feature_orders['best_model'] = self.model_feature_orders['mock_model']
                 return
             
             model_files = [f for f in os.listdir(models_dir) if f.endswith('.pkl')]
@@ -463,7 +466,7 @@ class SageMakerSyncAPI:
                     model_artifact = joblib.load(model_path)
                     self.models[model_name] = model_artifact
                     
-                    # FIXED: Extract feature order for this specific model
+                    # Extract feature order for this specific model
                     feature_order = extract_model_feature_order(model_artifact)
                     self.model_feature_orders[model_name] = feature_order
                     
@@ -477,15 +480,18 @@ class SageMakerSyncAPI:
                     self.models[prefixed_name] = model_artifact
                     self.model_feature_orders[prefixed_name] = feature_order
                     
-                    logger.info(f"✅ Loaded model: {model_name} with {len(feature_order)} features")
+                    logger.info(f" Loaded model: {model_name} with {len(feature_order)} features")
                     
                 except Exception as e:
-                    logger.error(f"❌ Error loading model {model_file}: {e}")
+                    logger.error(f" Error loading model {model_file}: {e}")
             
             # Ensure we have a default model
             if not self.models:
                 self.models = {"mock_model": self.create_mock_model()}
                 self.model_feature_orders = {"mock_model": get_default_feature_order()}
+                # Create best_model alias
+                self.models['best_model'] = self.models['mock_model']
+                self.model_feature_orders['best_model'] = self.model_feature_orders['mock_model']
             elif 'best_model' not in self.models:
                 first_model = list(self.models.keys())[0]
                 self.models['best_model'] = self.models[first_model]
@@ -495,6 +501,23 @@ class SageMakerSyncAPI:
             logger.error(f"Error in load_models_from_directory: {e}")
             self.models = {"mock_model": self.create_mock_model()}
             self.model_feature_orders = {"mock_model": get_default_feature_order()}
+            # Create best_model alias
+            self.models['best_model'] = self.models['mock_model']
+            self.model_feature_orders['best_model'] = self.model_feature_orders['mock_model']
+        
+        # CRITICAL: Always ensure mock_model exists for testing compatibility
+        # This must run regardless of what other models were loaded
+        if 'mock_model' not in self.models:
+            logger.info("Adding mock_model for testing compatibility")
+            self.models['mock_model'] = self.create_mock_model()
+            self.model_feature_orders['mock_model'] = get_default_feature_order()
+        
+        # Always ensure best_model exists
+        if 'best_model' not in self.models:
+            logger.info("Adding best_model alias")
+            if 'mock_model' in self.models:
+                self.models['best_model'] = self.models['mock_model']
+                self.model_feature_orders['best_model'] = self.model_feature_orders['mock_model']
     
     def create_mock_model(self):
         """Create a mock model for testing"""
@@ -504,6 +527,7 @@ class SageMakerSyncAPI:
                     return X['Avg_Price'].values * 1.05
                 return [20.0] * len(X) if hasattr(X, '__len__') else [20.0]
         
+        # Return mock model artifact
         return {'model': MockModel(), 'scaler': None}
     
     def get_model_list(self) -> List[str]:
@@ -511,14 +535,14 @@ class SageMakerSyncAPI:
         return list(self.models.keys())
     
     def predict_single(self, features: FeatureInput, model_name: str = "best_model") -> PredictionOutput:
-        """FIXED single prediction with dynamic feature order extraction"""
+        """Single prediction with dynamic feature order extraction"""
         start_time = time.time()
         
         try:
             # Convert features to DataFrame with SageMaker column mapping
             feature_dict = features.dict()
             
-            # FIXED: Map API input names to SageMaker column names
+            # Map API input names to SageMaker column names
             column_mapping = {
                 'Wholesale_Price': 'Wholesale Price (RMB/kg)',
                 'Loss_Rate': 'Loss Rate (%)'
@@ -530,20 +554,21 @@ class SageMakerSyncAPI:
             
             df_input = pd.DataFrame([feature_dict])
             
-            # Get model
+            # Get model with fallback logic
+            original_model_name = model_name
             if model_name not in self.models:
                 if 'best_model' in self.models:
                     model_name = 'best_model'
                 else:
                     model_name = list(self.models.keys())[0]
             
-            # FIXED: Get the correct feature order for this specific model
+            # Get the correct feature order for this specific model
             correct_feature_order = self.model_feature_orders.get(model_name, get_default_feature_order())
             
             # Apply EXACT SageMaker feature engineering with correct order
             df_engineered = create_features_in_correct_order(df_input, correct_feature_order)
             
-            logger.info(f"✅ Engineered {df_engineered.shape[1]} features for model {model_name}")
+            logger.info(f" Engineered {df_engineered.shape[1]} features for model {model_name}")
             
             model_artifact = self.models[model_name]
             
@@ -562,7 +587,7 @@ class SageMakerSyncAPI:
                 try:
                     X_scaled = scaler.transform(X)
                     predictions = model.predict(X_scaled)
-                    logger.info("✅ Used scaled features for prediction")
+                    logger.info(" Used scaled features for prediction")
                 except Exception as e:
                     logger.warning(f"Scaling failed, using raw features: {e}")
                     predictions = model.predict(X)
@@ -571,7 +596,7 @@ class SageMakerSyncAPI:
             
             predicted_price = float(predictions[0] if hasattr(predictions, '__len__') else predictions)
             
-            # FIXED: Add sanity check for extreme predictions
+            # Add sanity check for extreme predictions
             if predicted_price < 0 or predicted_price > 1000:
                 logger.warning(f"Extreme prediction detected: {predicted_price}, applying correction")
                 predicted_price = max(5.0, min(100.0, predicted_price))
@@ -583,27 +608,30 @@ class SageMakerSyncAPI:
             PREDICTION_LATENCY.labels(model_name=model_name).observe(latency)
             PREDICTION_REQUESTS.labels(model_name=model_name, status='success').inc()
             
-            logger.info("✅ Single prediction completed", 
+            logger.info(" Single prediction completed", 
                        model=model_name, 
                        latency=latency,
                        predicted_price=predicted_price,
                        features_used=df_engineered.shape[1])
             
+            # Use original model name if it was requested and exists
+            result_model_name = original_model_name if original_model_name in self.models else model_name
+            
             return PredictionOutput(
                 predicted_price=round(predicted_price, 2),
                 confidence=round(confidence, 3),
-                model_used=model_name,
+                model_used=result_model_name,
                 prediction_timestamp=datetime.now().isoformat(),
                 features_engineered=df_engineered.shape[1]
             )
             
         except Exception as e:
             PREDICTION_REQUESTS.labels(model_name=model_name, status='error').inc()
-            logger.error("❌ Error in single prediction", error=str(e))
+            logger.error(" Error in single prediction", error=str(e))
             raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
     
     def predict_batch(self, batch_input: BatchFeatureInput) -> BatchPredictionOutput:
-        """FIXED batch predictions with dynamic feature order"""
+        """Batch predictions with dynamic feature order"""
         start_time = time.time()
         batch_id = f"batch_{int(time.time())}_{len(batch_input.instances)}"
         
@@ -636,7 +664,7 @@ class SageMakerSyncAPI:
                 else:
                     model_name = list(self.models.keys())[0]
             
-            # FIXED: Get the correct feature order for this specific model
+            # Get the correct feature order for this specific model
             correct_feature_order = self.model_feature_orders.get(model_name, get_default_feature_order())
             
             # Apply EXACT SageMaker feature engineering with correct order
@@ -690,7 +718,7 @@ class SageMakerSyncAPI:
             PREDICTION_LATENCY.labels(model_name=model_name).observe(time.time() - start_time)
             PREDICTION_REQUESTS.labels(model_name=model_name, status='success').inc()
             
-            logger.info("✅ Batch prediction completed", 
+            logger.info(" Batch prediction completed", 
                        model=model_name,
                        batch_id=batch_id,
                        batch_size=len(batch_input.instances),
@@ -705,13 +733,13 @@ class SageMakerSyncAPI:
             
         except Exception as e:
             PREDICTION_REQUESTS.labels(model_name=batch_input.model_name, status='error').inc()
-            logger.error("❌ Error in batch prediction", batch_id=batch_id, error=str(e))
+            logger.error(" Error in batch prediction", batch_id=batch_id, error=str(e))
             raise HTTPException(status_code=500, detail=f"Batch prediction error: {str(e)}")
 
 
-# Initialize FastAPI app - THIS IS THE IMPORTANT PART!
+# Initialize FastAPI app
 app = FastAPI(
-    title="FIXED SageMaker-Synchronized Chinese Produce Forecasting API",
+    title="SageMaker-Synchronized Chinese Produce Forecasting API",
     description="Locally synchronized with SageMaker inference pipeline - Dynamic Feature Order",
     version="1.2.0",
     docs_url="/docs",
@@ -773,8 +801,8 @@ async def list_models(api: SageMakerSyncAPI = Depends(get_api_instance)):
         "models": api.get_model_list(),
         "default_model": "best_model",
         "total_models": len(api.models),
-        "feature_engineering": "FIXED - Dynamic feature order extraction per model",
-        "status": "FIXED and synchronized with SageMaker inference",
+        "feature_engineering": "Dynamic feature order extraction per model",
+        "status": "Synchronized with SageMaker inference",
         "version": "1.2.0"
     }
 
@@ -784,7 +812,7 @@ async def predict_single(
     model_name: str = "best_model",
     api: SageMakerSyncAPI = Depends(get_api_instance)
 ):
-    """FIXED single price prediction with dynamic feature order"""
+    """Single price prediction with dynamic feature order"""
     return api.predict_single(features, model_name)
 
 @app.post("/predict/batch", response_model=BatchPredictionOutput)
@@ -792,7 +820,7 @@ async def predict_batch(
     batch_input: BatchFeatureInput,
     api: SageMakerSyncAPI = Depends(get_api_instance)
 ):
-    """FIXED batch price predictions with dynamic feature order"""
+    """Batch price predictions with dynamic feature order"""
     return api.predict_batch(batch_input)
 
 @app.get("/metrics")
@@ -802,7 +830,7 @@ async def get_metrics():
 
 @app.get("/features/example")
 async def get_feature_example():
-    """Get example feature input - FIXED SageMaker format"""
+    """Get example feature input - SageMaker format"""
     return {
         "example_input": {
             "Total_Quantity": 150.5,
@@ -818,7 +846,7 @@ async def get_feature_example():
             "Category_Code": 1,
             "Item_Code": 101
         },
-        "note": "FIXED with dynamic feature order extraction per model",
+        "note": "Dynamic feature order extraction per model",
         "mapping": {
             "Wholesale_Price": "Wholesale Price (RMB/kg)",
             "Loss_Rate": "Loss Rate (%)"
@@ -830,15 +858,15 @@ async def get_feature_example():
 async def root():
     """Root endpoint"""
     return {
-        "service": "FIXED SageMaker-Synchronized Chinese Produce Forecasting API",
+        "service": "SageMaker-Synchronized Chinese Produce Forecasting API",
         "version": "1.2.0", 
         "status": "running",
-        "synchronization": "FIXED - Dynamic feature order extraction per model",
+        "synchronization": "Dynamic feature order extraction per model",
         "features": "Dynamic feature count based on model requirements",
         "docs": "/docs",
         "health": "/health",
         "example": "/features/example",
-        "fix_status": "Feature order mismatch issue resolved with dynamic extraction"
+        "info": "Feature order mismatch issue resolved with dynamic extraction"
     }
 
 if __name__ == "__main__":

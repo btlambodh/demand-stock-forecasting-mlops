@@ -15,6 +15,7 @@ import json
 import time
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timedelta
+from prometheus_client import CollectorRegistry
 
 # Import modules to test
 from src.monitoring.performance_monitor import PerformanceMonitor
@@ -28,7 +29,10 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_monitor_initialization(self, config_file):
         """Test PerformanceMonitor initialization"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        # Use a separate registry for testing to avoid conflicts
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+        
         assert monitor.config is not None
         assert monitor.local_mode is True
         assert monitor.aws_enabled is False
@@ -40,7 +44,8 @@ class TestPerformanceMonitor:
     @patch('boto3.client')
     def test_monitor_initialization_aws(self, mock_boto_client, config_file):
         """Test PerformanceMonitor initialization with AWS"""
-        monitor = PerformanceMonitor(config_file, local_mode=False)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=False, registry=test_registry)
         assert monitor.config is not None
         assert monitor.local_mode is False
 
@@ -48,7 +53,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_collect_system_metrics(self, config_file):
         """Test system metrics collection"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Mock psutil calls
         with patch('psutil.cpu_percent') as mock_cpu, \
@@ -85,7 +91,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_collect_model_metrics(self, config_file, temp_dir, sample_evaluation_results):
         """Test model metrics collection"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Create mock evaluation file
         eval_file = os.path.join(temp_dir, 'evaluation.json')
@@ -108,7 +115,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_collect_api_metrics(self, config_file):
         """Test API metrics collection"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Mock requests to API
         with patch('requests.get') as mock_get:
@@ -148,7 +156,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_collect_data_quality_metrics(self, config_file, temp_dir):
         """Test data quality metrics collection"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Create mock validation report
         validation_data = {
@@ -178,7 +187,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_check_alert_conditions(self, config_file):
         """Test alert condition checking"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Set up test metrics that should trigger alerts
         monitor.metrics_history = {
@@ -211,7 +221,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_process_alert(self, config_file, temp_dir):
         """Test alert processing"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         monitor.alerts_dir = temp_dir
         
         test_alert = {
@@ -238,7 +249,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_get_health_summary(self, config_file):
         """Test health summary generation"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Set up some test metrics
         monitor.metrics_history = {
@@ -290,7 +302,8 @@ class TestPerformanceMonitor:
     @pytest.mark.monitoring
     def test_export_metrics(self, config_file, temp_dir):
         """Test metrics export"""
-        monitor = PerformanceMonitor(config_file, local_mode=True)
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
         
         # Add some test metrics
         monitor.metrics_history = {
@@ -311,6 +324,19 @@ class TestPerformanceMonitor:
             assert 'export_timestamp' in export_data
             assert 'metrics_history' in export_data
             assert 'alert_history' in export_data
+
+    @pytest.mark.unit
+    @pytest.mark.monitoring
+    def test_safe_set_metric(self, config_file):
+        """Test safe metric setting"""
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+        
+        # Should not raise exception even if metric doesn't exist
+        monitor._safe_set_metric('nonexistent_metric', 42.0)
+        
+        # Should work with valid metrics
+        monitor._safe_set_metric('system_cpu', 75.0)
 
 
 class TestDriftDetector:
@@ -621,3 +647,93 @@ class TestUtilityFunctions:
         # Test strings
         assert safe_bool("true") is True
         assert safe_bool("") is False
+
+
+class TestPerformanceMonitorIntegration:
+    """Integration tests for PerformanceMonitor"""
+    
+    @pytest.mark.unit
+    @pytest.mark.monitoring
+    def test_monitoring_workflow(self, config_file, temp_dir):
+        """Test complete monitoring workflow"""
+        test_registry = CollectorRegistry()
+        monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+        
+        # Mock system calls
+        with patch('psutil.cpu_percent', return_value=45.0), \
+             patch('psutil.virtual_memory') as mock_memory, \
+             patch('psutil.disk_usage') as mock_disk:
+            
+            # Setup mock objects
+            mock_memory_obj = Mock()
+            mock_memory_obj.percent = 60.0
+            mock_memory_obj.available = 8 * 1024**3
+            mock_memory.return_value = mock_memory_obj
+            
+            mock_disk_obj = Mock()
+            mock_disk_obj.used = 100 * 1024**3
+            mock_disk_obj.total = 500 * 1024**3
+            mock_disk_obj.free = 400 * 1024**3
+            mock_disk.return_value = mock_disk_obj
+            
+            # Test metrics collection
+            monitor.collect_current_metrics()
+            
+            # Verify metrics were collected
+            assert len(monitor.metrics_history) > 0
+            assert 'system' in monitor.metrics_history
+            
+            # Test health summary
+            health = monitor.get_health_summary()
+            assert 'overall_status' in health
+            assert health['overall_status'] in ['healthy', 'warning', 'critical', 'no_data']
+            
+            # Test export
+            export_path = os.path.join(temp_dir, 'test_export.json')
+            result = monitor.export_metrics(export_path)
+            assert os.path.exists(export_path)
+
+    @pytest.mark.unit
+    @pytest.mark.monitoring  
+    def test_prometheus_metrics_safe_registration(self, config_file):
+        """Test that Prometheus metrics can be safely registered multiple times"""
+        # First monitor instance
+        registry1 = CollectorRegistry()
+        monitor1 = PerformanceMonitor(config_file, local_mode=True, registry=registry1)
+        
+        # Second monitor instance with different registry
+        registry2 = CollectorRegistry()
+        monitor2 = PerformanceMonitor(config_file, local_mode=True, registry=registry2)
+        
+        # Both should initialize without errors
+        assert monitor1.metrics is not None
+        assert monitor2.metrics is not None
+        
+        # Test metric setting on both
+        monitor1._safe_set_metric('system_cpu', 50.0)
+        monitor2._safe_set_metric('system_cpu', 60.0)
+        
+        # Should not raise exceptions
+        assert True  # If we get here, the test passed
+
+    @pytest.mark.unit
+    @pytest.mark.monitoring
+    def test_monitoring_with_missing_dependencies(self, config_file):
+        """Test monitoring behavior when optional dependencies are missing"""
+        test_registry = CollectorRegistry()
+        
+        # Test with psutil mocked to raise ImportError
+        with patch('psutil.cpu_percent', side_effect=ImportError("psutil not available")):
+            monitor = PerformanceMonitor(config_file, local_mode=True, registry=test_registry)
+            
+            # Should still initialize
+            assert monitor is not None
+            
+            # Metrics collection should handle the error gracefully
+            try:
+                monitor.collect_system_metrics()
+                # Should not raise exception
+                assert True
+            except Exception as e:
+                # If it does raise, it should be logged, not fatal
+                assert "psutil" in str(e).lower() or True

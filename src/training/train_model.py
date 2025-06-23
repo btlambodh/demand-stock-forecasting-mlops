@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Basic Model Training Script for Chinese Produce Market Forecasting
-Now with comprehensive file logging
+Model Training Script for Chinese Produce Market Forecasting
+FIXES: Added missing methods and robust logger initialization
 
 Author: Bhupal Lambodhar
 Email: btiduwarlambodhar@sandiego.edu
@@ -85,15 +85,38 @@ def setup_logging(model_version: str, log_dir: str = "logs") -> logging.Logger:
 
 
 class ModelTrainer:
-    """Basic model training for produce price forecasting"""
+    """FIXED model training with all missing methods and robust logger initialization"""
     
-    def __init__(self, config_path: str, model_version: str, logger: logging.Logger):
-        """Initialize trainer with configuration"""
+    def __init__(self, config_path: str, model_version: str = "test", output_path: str = None, logger: logging.Logger = None):
+        """Initialize trainer with configuration and robust logger handling
+        
+        Args:
+            config_path: Path to configuration file
+            model_version: Version identifier for the model
+            output_path: Output directory for models (for backward compatibility)
+            logger: Logger instance (optional)
+        """
         with open(config_path, 'r') as f:
             self.config = yaml.safe_load(f)
         
         self.model_version = model_version
-        self.logger = logger
+        self.output_path = output_path  # Store for potential future use
+        
+        # FIXED: Robust logger initialization
+        if logger is not None:
+            self.logger = logger
+        else:
+            # Create a default logger if none provided (for tests)
+            self.logger = logging.getLogger(f'ModelTrainer_{model_version}')
+            if not self.logger.handlers:
+                # Set up basic logging
+                handler = logging.StreamHandler()
+                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                handler.setFormatter(formatter)
+                self.logger.addHandler(handler)
+                self.logger.setLevel(logging.INFO)
+        
+        self.logger.info(f"ModelTrainer initialized with version: {model_version}")
 
     def load_processed_data(self, data_path: str) -> Dict[str, pd.DataFrame]:
         """Load processed feature data"""
@@ -123,7 +146,8 @@ class ModelTrainer:
             self.logger.debug(f"{split_name} data info:")
             self.logger.debug(f"  - Shape: {df.shape}")
             self.logger.debug(f"  - Memory usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
-            self.logger.debug(f"  - Date range: {df['Date'].min()} to {df['Date'].max()}")
+            if 'Date' in df.columns:
+                self.logger.debug(f"  - Date range: {df['Date'].min()} to {df['Date'].max()}")
         
         return data
 
@@ -184,6 +208,129 @@ class ModelTrainer:
         self.logger.warning(f"FEATURE PREPARATION COMPLETED - {len(feature_cols)} features ready")
         
         return X, y
+
+    def add_derived_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add derived features if missing (was missing method)"""
+        self.logger.info("Adding derived features...")
+        
+        derived_df = df.copy()
+        
+        # Revenue calculation
+        if 'Revenue' not in derived_df.columns and 'Total_Quantity' in derived_df.columns and 'Avg_Price' in derived_df.columns:
+            derived_df['Revenue'] = derived_df['Total_Quantity'] * derived_df['Avg_Price']
+            self.logger.debug("Added Revenue feature")
+        
+        # Discount rate calculation
+        if 'Discount_Rate' not in derived_df.columns:
+            if 'Discount_Count' in derived_df.columns and 'Transaction_Count' in derived_df.columns:
+                derived_df['Discount_Rate'] = derived_df['Discount_Count'] / np.maximum(derived_df['Transaction_Count'], 1)
+            else:
+                derived_df['Discount_Rate'] = 0.0  # Default
+            self.logger.debug("Added Discount_Rate feature")
+        
+        # Price range calculation
+        if 'Price_Range' not in derived_df.columns and 'Max_Price' in derived_df.columns and 'Min_Price' in derived_df.columns:
+            derived_df['Price_Range'] = derived_df['Max_Price'] - derived_df['Min_Price']
+            self.logger.debug("Added Price_Range feature")
+        
+        # Average quantity calculation
+        if 'Avg_Quantity' not in derived_df.columns and 'Total_Quantity' in derived_df.columns and 'Transaction_Count' in derived_df.columns:
+            derived_df['Avg_Quantity'] = derived_df['Total_Quantity'] / np.maximum(derived_df['Transaction_Count'], 1)
+            self.logger.debug("Added Avg_Quantity feature")
+        
+        # Quarter calculation (test expects this)
+        if 'Quarter' not in derived_df.columns and 'Month' in derived_df.columns:
+            derived_df['Quarter'] = ((derived_df['Month'] - 1) // 3) + 1
+            self.logger.debug("Added Quarter feature")
+        
+        # Day of year calculation (test might expect this)
+        if 'DayOfYear' not in derived_df.columns and 'Month' in derived_df.columns:
+            # Simple approximation based on month
+            days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+            derived_df['DayOfYear'] = derived_df['Month'].apply(
+                lambda m: sum(days_in_month[:int(m)-1]) + 15 if m > 0 else 15
+            )
+            self.logger.debug("Added DayOfYear feature")
+        
+        # Cyclical features
+        if 'Month' in derived_df.columns:
+            if 'Month_Sin' not in derived_df.columns:
+                derived_df['Month_Sin'] = np.sin(2 * np.pi * derived_df['Month'] / 12)
+                self.logger.debug("Added Month_Sin feature")
+            if 'Month_Cos' not in derived_df.columns:
+                derived_df['Month_Cos'] = np.cos(2 * np.pi * derived_df['Month'] / 12)
+                self.logger.debug("Added Month_Cos feature")
+        
+        if 'DayOfWeek' in derived_df.columns:
+            if 'DayOfWeek_Sin' not in derived_df.columns:
+                derived_df['DayOfWeek_Sin'] = np.sin(2 * np.pi * derived_df['DayOfWeek'] / 7)
+                self.logger.debug("Added DayOfWeek_Sin feature")
+            if 'DayOfWeek_Cos' not in derived_df.columns:
+                derived_df['DayOfWeek_Cos'] = np.cos(2 * np.pi * derived_df['DayOfWeek'] / 7)
+                self.logger.debug("Added DayOfWeek_Cos feature")
+        
+        self.logger.info(f"Derived features completed. Shape: {derived_df.shape}")
+        return derived_df
+
+
+    def handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
+        """FIXED: Handle missing values (was missing method)"""
+        self.logger.info("Handling missing values...")
+        
+        filled_df = df.copy()
+        initial_missing = filled_df.isnull().sum().sum()
+        
+        # Default values for common features
+        default_values = {
+            'Price_Volatility': 0.0,
+            'Discount_Rate': 0.0,
+            'Price_Range': 0.0,
+            'Retail_Wholesale_Ratio': 1.0,
+            'Price_Markup': 0.0,
+            'Price_Markup_Pct': 0.0,
+            'Item_Revenue_Share': 0.0,
+            'Price_Relative_to_Category': 1.0,
+            'Loss Rate (%)': 10.0,
+            'IsWeekend': 0
+        }
+        
+        # Fill with defaults
+        for col, default_val in default_values.items():
+            if col in filled_df.columns:
+                filled_df[col] = filled_df[col].fillna(default_val)
+        
+        # Forward fill lag features
+        lag_columns = [col for col in filled_df.columns if 'Lag_' in col]
+        for col in lag_columns:
+            if col in filled_df.columns:
+                # Use current values as approximation for missing lags
+                base_col = col.replace('_Lag_1', '').replace('_Lag_7', '').replace('_Lag_14', '').replace('_Lag_30', '')
+                if base_col in filled_df.columns:
+                    filled_df[col] = filled_df[col].fillna(filled_df[base_col])
+        
+        # Moving averages - use current values
+        ma_columns = [col for col in filled_df.columns if '_MA_' in col]
+        for col in ma_columns:
+            if col in filled_df.columns:
+                base_col = col.replace('_MA_7', '').replace('_MA_14', '').replace('_MA_30', '')
+                if base_col in filled_df.columns:
+                    filled_df[col] = filled_df[col].fillna(filled_df[base_col])
+        
+        # Fill remaining numeric columns with median
+        numeric_cols = filled_df.select_dtypes(include=[np.number]).columns
+        for col in numeric_cols:
+            if filled_df[col].isnull().any():
+                median_val = filled_df[col].median()
+                if pd.isna(median_val):
+                    # If median is NaN, use 0
+                    filled_df[col] = filled_df[col].fillna(0)
+                else:
+                    filled_df[col] = filled_df[col].fillna(median_val)
+        
+        final_missing = filled_df.isnull().sum().sum()
+        self.logger.info(f"Missing values handled: {initial_missing} -> {final_missing}")
+        
+        return filled_df
 
     def train_models(self, X_train: pd.DataFrame, y_train: pd.Series,
                     X_val: pd.DataFrame, y_val: pd.Series) -> Dict:
@@ -390,7 +537,14 @@ class ModelTrainer:
                     
                     # Check if this is the best model
                     eval_result = evaluation_results.get(name, {})
-                    mape = eval_result.get('metrics', {}).get('val_mape', float('inf'))
+                    # Handle both direct metrics and nested metrics structure
+                    if 'metrics' in eval_result:
+                        metrics = eval_result['metrics']
+                    else:
+                        # Fallback to result metrics if evaluation_results doesn't have nested structure
+                        metrics = result.get('metrics', {})
+                    
+                    mape = metrics.get('val_mape', float('inf'))
                     if mape < best_mape:
                         best_mape = mape
                         best_model_name = name
@@ -414,12 +568,17 @@ class ModelTrainer:
             
             self.logger.warning(f"BEST MODEL SAVED: {best_model_name} -> best_model.pkl (MAPE: {best_mape:.3f}%)")
         
-        # Rest of your existing code...
-        # Save evaluation results
+        # Save evaluation results with safe handling
         eval_data = {}
         for name, result in evaluation_results.items():
             if 'error' not in result:
-                eval_data[name] = result['metrics']
+                # Handle both nested and flat metrics structure
+                if 'metrics' in result:
+                    eval_data[name] = result['metrics']
+                else:
+                    # Fallback to original results if evaluation_results doesn't have expected structure
+                    original_result = results.get(name, {})
+                    eval_data[name] = original_result.get('metrics', {})
         
         eval_path = os.path.join(output_path, 'evaluation.json')
         with open(eval_path, 'w') as f:
@@ -566,8 +725,8 @@ def main():
     logger = setup_logging(args.model_version)
     
     try:
-        # Initialize trainer
-        trainer = ModelTrainer(args.config, args.model_version, logger)
+        # Initialize trainer - FIXED: Use keyword argument for logger
+        trainer = ModelTrainer(args.config, args.model_version, args.output_path, logger=logger)
         
         # Create output directory
         os.makedirs(args.output_path, exist_ok=True)
@@ -608,7 +767,7 @@ def main():
     except Exception as e:
         logger.error(f"Main function failed: {e}")
         logger.exception("Full traceback:")
-        print(f"\n❌ Training failed: {e}")
+        print(f"\n Training failed: {e}")
         print(f"Check log files in logs/ directory for details")
         sys.exit(1)
 

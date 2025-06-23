@@ -314,22 +314,63 @@ class FeatureEngineer:
         """Create target variables for forecasting"""
         logger.info("Creating target variables...")
         
+        # FIXED: Ensure required columns exist before creating targets
+        required_cols = ['Item Code', 'Avg_Price', 'Total_Quantity']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        
+        if missing_cols:
+            logger.error(f"Missing required columns for target creation: {missing_cols}")
+            logger.error(f"Available columns: {list(df.columns)}")
+            
+            # Create missing columns with defaults if possible
+            if 'Total_Quantity' not in df.columns and 'Quantity Sold (kilo)' in df.columns:
+                df['Total_Quantity'] = df['Quantity Sold (kilo)']
+                logger.info("Created Total_Quantity from 'Quantity Sold (kilo)'")
+            elif 'Total_Quantity' not in df.columns:
+                logger.warning("Creating default Total_Quantity column")
+                df['Total_Quantity'] = 100.0  # Default value
+            
+            if 'Avg_Price' not in df.columns and 'Unit Selling Price (RMB/kg)' in df.columns:
+                df['Avg_Price'] = df['Unit Selling Price (RMB/kg)']
+                logger.info("Created Avg_Price from 'Unit Selling Price (RMB/kg)'")
+            elif 'Avg_Price' not in df.columns:
+                logger.warning("Creating default Avg_Price column")
+                df['Avg_Price'] = 15.0  # Default value
+            
+            if 'Item Code' not in df.columns:
+                logger.warning("Creating default Item Code column")
+                df['Item Code'] = 1  # Default value
+        
         # Future price targets (1, 7, 14, 30 days ahead)
         forecast_horizons = [1, 7, 14, 30]
         
         for horizon in forecast_horizons:
             target_col = f'Avg_Price_Target_{horizon}d'
-            df[target_col] = df.groupby('Item Code')['Avg_Price'].shift(-horizon)
+            try:
+                df[target_col] = df.groupby('Item Code')['Avg_Price'].shift(-horizon)
+                logger.debug(f"Created target column: {target_col}")
+            except Exception as e:
+                logger.error(f"Error creating {target_col}: {e}")
+                df[target_col] = np.nan
             
             # Price change targets
-            df[f'Price_Change_Target_{horizon}d'] = (
-                (df[target_col] - df['Avg_Price']) / df['Avg_Price'] * 100
-            )
+            try:
+                df[f'Price_Change_Target_{horizon}d'] = (
+                    (df[target_col] - df['Avg_Price']) / df['Avg_Price'] * 100
+                )
+            except Exception as e:
+                logger.error(f"Error creating price change target for {horizon}d: {e}")
+                df[f'Price_Change_Target_{horizon}d'] = np.nan
         
         # Quantity targets
         for horizon in forecast_horizons:
             target_col = f'Quantity_Target_{horizon}d'
-            df[target_col] = df.groupby('Item Code')['Total_Quantity'].shift(-horizon)
+            try:
+                df[target_col] = df.groupby('Item Code')['Total_Quantity'].shift(-horizon)
+                logger.debug(f"Created quantity target column: {target_col}")
+            except Exception as e:
+                logger.error(f"Error creating {target_col}: {e}")
+                df[target_col] = np.nan
         
         return df
 

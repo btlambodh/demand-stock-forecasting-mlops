@@ -50,7 +50,19 @@ class FixedSageMakerDeployer:
             self.config = yaml.safe_load(f)
         
         self.aws_config = self.config['aws']
-        self.deployment_config = self.config['deployment']
+        
+        # FIXED: Handle missing deployment config section
+        if 'deployment' not in self.config:
+            logger.warning("Deployment configuration not found, using defaults")
+            self.deployment_config = {
+                'environments': {
+                    'dev': {'initial_instance_count': 1, 'instance_type': 'ml.t2.medium'},
+                    'staging': {'initial_instance_count': 1, 'instance_type': 'ml.m5.large'},
+                    'prod': {'initial_instance_count': 2, 'instance_type': 'ml.m5.xlarge'}
+                }
+            }
+        else:
+            self.deployment_config = self.config['deployment']
         
         # Initialize AWS clients
         self.region = self.aws_config['region']

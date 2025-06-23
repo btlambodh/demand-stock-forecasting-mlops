@@ -234,50 +234,58 @@ class TestEndToEndMLOpsPipeline:
         # Mock AWS for API
         mock_session.return_value.client.return_value = MagicMock()
         
-        # Step 4: API Integration
+        # Step 4: API Integration with improved mocking
         models_dir = os.path.join(temp_workspace, 'models')
         
-        with patch('os.path.exists') as mock_exists:
-            mock_exists.side_effect = lambda path: (
-                'models' in path and 
-                any(fname in path for fname in ['best_model.pkl', 'evaluation.json'])
+        # Create a more comprehensive mock that allows the API to find the models directory
+        def mock_exists_side_effect(path):
+            # Allow the models directory to be found
+            if path in ['models', '../models', '../../models']:
+                return False  # No actual models directory in standard locations
+            if models_dir in path or 'best_model.pkl' in path:
+                return True
+            return 'models' in path
+        
+        def mock_listdir_side_effect(path):
+            if path == models_dir or 'models' in path:
+                return ['best_model.pkl']
+            return []
+        
+        with patch('os.path.exists', side_effect=mock_exists_side_effect), \
+             patch('os.listdir', side_effect=mock_listdir_side_effect), \
+             patch('joblib.load') as mock_load:
+            
+            # Load the actual trained model
+            best_model_path = training_results['saved_files']['best_model']
+            actual_model = joblib.load(best_model_path)
+            mock_load.return_value = actual_model
+            
+            # Initialize API
+            api = SageMakerSyncAPI(temp_config)
+            
+            # The API should have loaded the model or created best_model alias
+            assert len(api.models) > 0, "API should load models"
+            assert 'best_model' in api.models, "Best model should be available in API"
+            
+            # Test prediction
+            from inference.api import FeatureInput
+            test_features = FeatureInput(
+                Total_Quantity=150.0,
+                Avg_Price=18.5,
+                Transaction_Count=25,
+                Month=7,
+                DayOfWeek=1,
+                IsWeekend=0,
+                Price_Volatility=1.2,
+                Wholesale_Price=14.0,
+                Loss_Rate=8.5
             )
             
-            with patch('os.listdir') as mock_listdir:
-                mock_listdir.return_value = ['best_model.pkl']
-                
-                with patch('joblib.load') as mock_load:
-                    # Load the actual trained model
-                    best_model_path = training_results['saved_files']['best_model']
-                    actual_model = joblib.load(best_model_path)
-                    mock_load.return_value = actual_model
-                    
-                    # Initialize API
-                    api = SageMakerSyncAPI(temp_config)
-                    
-                    # Verify API loaded models
-                    assert len(api.models) > 0, "API should load models"
-                    assert 'best_model' in api.models, "Best model should be available in API"
-                    
-                    # Test prediction
-                    from inference.api import FeatureInput
-                    test_features = FeatureInput(
-                        Total_Quantity=150.0,
-                        Avg_Price=18.5,
-                        Transaction_Count=25,
-                        Month=7,
-                        DayOfWeek=1,
-                        IsWeekend=0,
-                        Price_Volatility=1.2,
-                        Wholesale_Price=14.0,
-                        Loss_Rate=8.5
-                    )
-                    
-                    prediction_result = api.predict_single(test_features, 'best_model')
-                    
-                    # Verify prediction
-                    assert prediction_result.predicted_price > 0, "Prediction should be positive"
-                    assert 0 <= prediction_result.confidence <= 1, "Confidence should be valid"
+            prediction_result = api.predict_single(test_features, 'best_model')
+            
+            # Verify prediction
+            assert prediction_result.predicted_price > 0, "Prediction should be positive"
+            assert 0 <= prediction_result.confidence <= 1, "Confidence should be valid"
 
     def test_monitoring_integration_pipeline(self, temp_config, comprehensive_test_data, temp_workspace):
         """Test monitoring integration with trained models"""
@@ -371,8 +379,19 @@ class TestEndToEndMLOpsPipeline:
         # Step 3: Deployment Pipeline (API Setup)
         start_time = time.time()
         
-        with patch('os.path.exists', return_value=True), \
-             patch('os.listdir', return_value=['best_model.pkl']), \
+        # Use better mocking for the API
+        def mock_exists_side_effect(path):
+            if path in ['models', '../models', '../../models']:
+                return False  # No models in standard locations
+            return models_dir in path or 'best_model.pkl' in path
+        
+        def mock_listdir_side_effect(path):
+            if models_dir in path or path == models_dir:
+                return ['best_model.pkl']
+            return []
+        
+        with patch('os.path.exists', side_effect=mock_exists_side_effect), \
+             patch('os.listdir', side_effect=mock_listdir_side_effect), \
              patch('joblib.load') as mock_load:
             
             best_model_path = training_results['saved_files']['best_model']

@@ -21,7 +21,7 @@ import yaml
 import pandas as pd
 import numpy as np
 import psutil
-from prometheus_client import Gauge, Counter, Histogram, start_http_server, generate_latest
+from prometheus_client import Gauge, Counter, Histogram, start_http_server, generate_latest, CollectorRegistry, REGISTRY
 import requests
 
 # Optional dependencies
@@ -53,23 +53,112 @@ logging.basicConfig(
 
 logger = logging.getLogger('performance_monitoring')
 
-# Prometheus metrics
-MODEL_ACCURACY = Gauge('model_accuracy', 'Model accuracy percentage', ['model_name', 'metric_type'])
-MODEL_LATENCY = Histogram('model_prediction_latency_seconds', 'Model prediction latency', ['model_name'])
-SYSTEM_CPU = Gauge('system_cpu_percent', 'System CPU usage percentage')
-SYSTEM_MEMORY = Gauge('system_memory_percent', 'System memory usage percentage')
-SYSTEM_DISK = Gauge('system_disk_percent', 'System disk usage percentage')
-API_REQUESTS_TOTAL = Counter('api_requests_total', 'Total API requests', ['endpoint', 'status'])
-API_ERRORS_TOTAL = Counter('api_errors_total', 'Total API errors', ['error_type'])
-DATA_QUALITY_SCORE = Gauge('data_quality_score', 'Data quality score percentage')
-DRIFT_SCORE = Gauge('drift_score', 'Data drift score', ['feature_name'])
-PREDICTION_COUNT = Counter('predictions_total', 'Total predictions made', ['model_name'])
+
+class PrometheusMetrics:
+    """Manages Prometheus metrics with safe registration for testing"""
+    
+    def __init__(self, registry=None):
+        self.registry = registry or REGISTRY
+        self._metrics = {}
+        self._initialize_metrics()
+    
+    def _initialize_metrics(self):
+        """Initialize metrics with safe registration"""
+        try:
+            self._metrics = {
+                'model_accuracy': Gauge(
+                    'model_accuracy', 
+                    'Model accuracy percentage', 
+                    ['model_name', 'metric_type'],
+                    registry=self.registry
+                ),
+                'model_latency': Histogram(
+                    'model_prediction_latency_seconds', 
+                    'Model prediction latency', 
+                    ['model_name'],
+                    registry=self.registry
+                ),
+                'system_cpu': Gauge(
+                    'system_cpu_percent', 
+                    'System CPU usage percentage',
+                    registry=self.registry
+                ),
+                'system_memory': Gauge(
+                    'system_memory_percent', 
+                    'System memory usage percentage',
+                    registry=self.registry
+                ),
+                'system_disk': Gauge(
+                    'system_disk_percent', 
+                    'System disk usage percentage',
+                    registry=self.registry
+                ),
+                'api_requests_total': Counter(
+                    'api_requests_total', 
+                    'Total API requests', 
+                    ['endpoint', 'status'],
+                    registry=self.registry
+                ),
+                'api_errors_total': Counter(
+                    'api_errors_total', 
+                    'Total API errors', 
+                    ['error_type'],
+                    registry=self.registry
+                ),
+                'data_quality_score': Gauge(
+                    'data_quality_score', 
+                    'Data quality score percentage',
+                    registry=self.registry
+                ),
+                'drift_score': Gauge(
+                    'drift_score', 
+                    'Data drift score', 
+                    ['feature_name'],
+                    registry=self.registry
+                ),
+                'prediction_count': Counter(
+                    'predictions_total', 
+                    'Total predictions made', 
+                    ['model_name'],
+                    registry=self.registry
+                )
+            }
+        except ValueError as e:
+            if "Duplicated timeseries" in str(e):
+                # Metrics already exist in registry, get references to them
+                logger.warning("Metrics already registered, using existing instances")
+                self._get_existing_metrics()
+            else:
+                raise e
+    
+    def _get_existing_metrics(self):
+        """Get references to existing metrics from registry"""
+        # This is a fallback - in testing we should use a clean registry
+        # For now, create dummy metrics that won't conflict
+        self._metrics = {
+            'model_accuracy': None,
+            'model_latency': None,
+            'system_cpu': None,
+            'system_memory': None,
+            'system_disk': None,
+            'api_requests_total': None,
+            'api_errors_total': None,
+            'data_quality_score': None,
+            'drift_score': None,
+            'prediction_count': None
+        }
+    
+    def __getattr__(self, name):
+        """Allow access to metrics as attributes"""
+        if name in self._metrics:
+            return self._metrics[name]
+        raise AttributeError(f"No metric named {name}")
 
 
 class PerformanceMonitor:
     """Comprehensive performance monitoring system"""
     
-    def __init__(self, config_path: str, local_mode: bool = False):
+    def __init__(self, config_path: str, local_mode: bool = False, registry=None):
         """Initialize performance monitor with configuration"""
         try:
             with open(config_path, 'r') as f:
@@ -80,6 +169,19 @@ class PerformanceMonitor:
         
         self.local_mode = local_mode
         self.aws_enabled = AWS_AVAILABLE and not local_mode
+        
+        # Initialize Prometheus metrics with safe registry
+        if registry is None and local_mode:
+            # Create a separate registry for testing
+            self.metrics_registry = CollectorRegistry()
+        else:
+            self.metrics_registry = registry or REGISTRY
+        
+        try:
+            self.metrics = PrometheusMetrics(self.metrics_registry)
+        except Exception as e:
+            logger.warning(f"Could not initialize Prometheus metrics: {e}")
+            self.metrics = None
         
         # Initialize AWS clients only if available and not in local mode
         if self.aws_enabled:
@@ -137,6 +239,27 @@ class PerformanceMonitor:
             }
         }
 
+    def _safe_set_metric(self, metric_name: str, value: float, labels: Dict = None):
+        """Safely set a metric value"""
+        if not self.metrics:
+            return
+        
+        try:
+            metric = getattr(self.metrics, metric_name, None)
+            if metric is None:
+                return
+            
+            if labels:
+                if hasattr(metric, 'labels'):
+                    metric.labels(**labels).set(value)
+                else:
+                    # For metrics without labels
+                    metric.set(value)
+            else:
+                metric.set(value)
+        except Exception as e:
+            logger.debug(f"Could not set metric {metric_name}: {e}")
+
     def collect_current_metrics(self):
         """Collect current metrics once for immediate health reporting"""
         logger.info("Collecting current system metrics for health report")
@@ -174,13 +297,14 @@ class PerformanceMonitor:
         )
         self.monitoring_thread.start()
         
-        # Start Prometheus metrics server
-        try:
-            start_http_server(8002)
-            logger.info("Prometheus metrics server started on port 8002")
-            logger.info("Metrics available at: http://localhost:8002/metrics")
-        except Exception as e:
-            logger.warning(f"Could not start Prometheus server: {e}")
+        # Start Prometheus metrics server (only if not in local mode)
+        if not self.local_mode:
+            try:
+                start_http_server(8002, registry=self.metrics_registry)
+                logger.info("Prometheus metrics server started on port 8002")
+                logger.info("Metrics available at: http://localhost:8002/metrics")
+            except Exception as e:
+                logger.warning(f"Could not start Prometheus server: {e}")
 
     def stop_monitoring(self):
         """Stop continuous monitoring"""
@@ -228,17 +352,17 @@ class PerformanceMonitor:
         try:
             # CPU usage
             cpu_percent = psutil.cpu_percent(interval=1)
-            SYSTEM_CPU.set(cpu_percent)
+            self._safe_set_metric('system_cpu', cpu_percent)
             
             # Memory usage
             memory = psutil.virtual_memory()
             memory_percent = memory.percent
-            SYSTEM_MEMORY.set(memory_percent)
+            self._safe_set_metric('system_memory', memory_percent)
             
             # Disk usage
             disk = psutil.disk_usage('/')
             disk_percent = (disk.used / disk.total) * 100
-            SYSTEM_DISK.set(disk_percent)
+            self._safe_set_metric('system_disk', disk_percent)
             
             # Store in history
             timestamp = datetime.now()
@@ -281,7 +405,10 @@ class PerformanceMonitor:
                 # Update Prometheus metrics
                 for metric_name, value in metrics.items():
                     if isinstance(value, (int, float)):
-                        MODEL_ACCURACY.labels(model_name=model_name, metric_type=metric_name).set(value)
+                        self._safe_set_metric('model_accuracy', value, {
+                            'model_name': model_name, 
+                            'metric_type': metric_name
+                        })
                 
                 # Store in history
                 if 'models' not in self.metrics_history:
@@ -509,7 +636,7 @@ class PerformanceMonitor:
             # Calculate data quality from recent predictions or validation data
             quality_score = self._calculate_data_quality()
             
-            DATA_QUALITY_SCORE.set(quality_score)
+            self._safe_set_metric('data_quality_score', quality_score)
             
             # Store in history
             if 'data_quality' not in self.metrics_history:

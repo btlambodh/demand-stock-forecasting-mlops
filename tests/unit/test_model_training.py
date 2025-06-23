@@ -26,6 +26,35 @@ from src.deployment.model_registry import ModelRegistry
 from src.inference.predictor import ModelPredictor
 
 
+def create_temp_model_file(models_dir, model_name):
+    """Create a temporary model file for testing"""
+    # Create a simple model
+    model = RandomForestRegressor(n_estimators=5, random_state=42)
+    scaler = StandardScaler()
+    
+    # Create dummy training data
+    X_dummy = np.random.randn(20, 10)
+    y_dummy = np.random.randn(20)
+    
+    # Fit the model
+    X_scaled = scaler.fit_transform(X_dummy)
+    model.fit(X_scaled, y_dummy)
+    
+    # Create model artifact
+    model_artifact = {
+        'model': model,
+        'scaler': scaler,
+        'version': 'test',
+        'feature_names': [f'feature_{i}' for i in range(10)]
+    }
+    
+    # Save to file
+    model_path = os.path.join(models_dir, f'{model_name}.pkl')
+    joblib.dump(model_artifact, model_path)
+    
+    return model_path
+
+
 class TestModelTrainer:
     """Unit tests for ModelTrainer class"""
 
@@ -431,7 +460,7 @@ class TestModelPredictor:
         models_dir = os.path.join(temp_dir, 'models')
         os.makedirs(models_dir, exist_ok=True)
         
-        # Create sample model file
+        # Create sample model file using the helper function
         model_path = create_temp_model_file(models_dir, 'test_model')
         
         # Create evaluation file

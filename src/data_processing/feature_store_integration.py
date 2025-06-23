@@ -339,7 +339,15 @@ TBLPROPERTIES (
             local_file_path = os.path.join(local_data_path, filename)
             
             if os.path.exists(local_file_path):
-                s3_key = f"{self.config['aws']['s3']['data_prefix']}processed/{filename}"
+                # FIXED: Handle missing data_prefix in config
+                try:
+                    data_prefix = self.config['aws']['s3']['data_prefix']
+                except KeyError:
+                    # Default data prefix if not in config
+                    data_prefix = "data/"
+                    logger.warning(f"data_prefix not found in config, using default: {data_prefix}")
+                
+                s3_key = f"{data_prefix}processed/{filename}"
                 
                 try:
                     self.s3_client.upload_file(local_file_path, self.bucket_name, s3_key)

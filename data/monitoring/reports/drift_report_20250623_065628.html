@@ -1,0 +1,1007 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Data Drift Detection Report - Chinese Produce Forecasting</title>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    margin: 0; 
+                    padding: 20px; 
+                    background-color: #f8f9fa;
+                }
+                .container { 
+                    max-width: 1200px; 
+                    margin: 0 auto; 
+                    background-color: white; 
+                    border-radius: 10px; 
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                .header { 
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    color: white; 
+                    padding: 30px; 
+                    text-align: center;
+                }
+                .header h1 { margin: 0; font-size: 2.5em; }
+                .header p { margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9; }
+                .status { 
+                    background-color: #e74c3c; 
+                    color: white; 
+                    padding: 20px; 
+                    text-align: center; 
+                    font-size: 1.5em; 
+                    font-weight: bold;
+                }
+                .content { padding: 30px; }
+                .summary { 
+                    background-color: #f8f9fa; 
+                    padding: 25px; 
+                    margin: 20px 0; 
+                    border-radius: 8px; 
+                    border-left: 5px solid #667eea;
+                }
+                .summary h2 { margin-top: 0; color: #2c3e50; }
+                .metrics-grid { 
+                    display: grid; 
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                    gap: 20px; 
+                    margin: 20px 0; 
+                }
+                .metric { 
+                    background-color: white; 
+                    padding: 20px; 
+                    border-radius: 8px; 
+                    text-align: center; 
+                    border: 1px solid #e9ecef;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .metric-value { 
+                    font-size: 2em; 
+                    font-weight: bold; 
+                    margin-bottom: 5px; 
+                }
+                .metric-label { 
+                    color: #6c757d; 
+                    font-size: 0.9em; 
+                }
+                .drift-high { color: #dc3545; }
+                .drift-medium { color: #fd7e14; }
+                .drift-low { color: #ffc107; }
+                .drift-none { color: #28a745; }
+                table { 
+                    border-collapse: collapse; 
+                    width: 100%; 
+                    margin: 20px 0; 
+                    background-color: white;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                th, td { 
+                    padding: 12px 15px; 
+                    text-align: left; 
+                    border-bottom: 1px solid #e9ecef;
+                }
+                th { 
+                    background-color: #495057; 
+                    color: white; 
+                    font-weight: 600;
+                }
+                tr:hover { background-color: #f8f9fa; }
+                .footer {
+                    background-color: #495057;
+                    color: white;
+                    text-align: center;
+                    padding: 20px;
+                    margin-top: 30px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Data Drift Detection Report</h1>
+                    <p>Chinese Produce Market Forecasting System</p>
+                </div>
+                
+                <div class="status">
+                    DRIFT DETECTED
+                </div>
+                
+                <div class="content">
+                    <div class="summary">
+                        <h2>Executive Summary</h2>
+                        <p><strong>Analysis Timestamp:</strong> 2025-06-23T06:56:28.150060</p>
+                        <p><strong>Detection Method:</strong> Statistical</p>
+                        <p><strong>Reference Data:</strong> (32616, 105) rows × columns</p>
+                        <p><strong>Current Data:</strong> (6989, 105) rows × columns</p>
+                        <p><strong>Overall Drift Score:</strong> 0.292</p>
+                        <p><strong>Drift Threshold:</strong> 0.25</p>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-value">104</div>
+                            <div class="metric-label">Total Features Analyzed</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-high">10</div>
+                            <div class="metric-label">High Drift (>0.5)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-medium">51</div>
+                            <div class="metric-label">Medium Drift (0.2-0.5)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-low">10</div>
+                            <div class="metric-label">Low Drift (0.1-0.2)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value drift-none">33</div>
+                            <div class="metric-label">No Drift (<0.1)</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">54.8%</div>
+                            <div class="metric-label">Features with Drift</div>
+                        </div>
+                    </div>
+                    
+                    <h2>Feature-Level Drift Analysis</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature Name</th>
+                                <th>Drift Score</th>
+                                <th>Drift Detected</th>
+                                <th>Risk Level</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                <tr>
+                    <td><strong>Item Code</strong></td>
+                    <td class="drift-high"><strong>1.5360</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Date</strong></td>
+                    <td class="drift-high"><strong>1.0265</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Days_Since_Epoch</strong></td>
+                    <td class="drift-high"><strong>1.0265</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Quantity</strong></td>
+                    <td class="drift-high"><strong>0.9766</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Year</strong></td>
+                    <td class="drift-high"><strong>0.8873</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Discount_Rate</strong></td>
+                    <td class="drift-high"><strong>0.8791</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Volatility</strong></td>
+                    <td class="drift-high"><strong>0.7497</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Wholesale_Price_Change</strong></td>
+                    <td class="drift-high"><strong>0.7148</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category Name_Encoded</strong></td>
+                    <td class="drift-high"><strong>0.6505</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Range</strong></td>
+                    <td class="drift-high"><strong>0.5987</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-high">High Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Min_7</strong></td>
+                    <td class="drift-medium"><strong>0.4689</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Min_14</strong></td>
+                    <td class="drift-medium"><strong>0.4643</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Min_Price</strong></td>
+                    <td class="drift-medium"><strong>0.4447</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Min_30</strong></td>
+                    <td class="drift-medium"><strong>0.4372</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Loss_Rate_Category_Medium</strong></td>
+                    <td class="drift-medium"><strong>0.4326</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Volatility_Quantity</strong></td>
+                    <td class="drift-medium"><strong>0.4240</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Max_14</strong></td>
+                    <td class="drift-medium"><strong>0.4218</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Item_Revenue_Share</strong></td>
+                    <td class="drift-medium"><strong>0.4145</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_MA_30</strong></td>
+                    <td class="drift-medium"><strong>0.4092</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Max_30</strong></td>
+                    <td class="drift-medium"><strong>0.4078</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_MA_14</strong></td>
+                    <td class="drift-medium"><strong>0.4001</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Target_30d</strong></td>
+                    <td class="drift-medium"><strong>0.3939</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_MA_7</strong></td>
+                    <td class="drift-medium"><strong>0.3935</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Target_14d</strong></td>
+                    <td class="drift-medium"><strong>0.3910</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Loss_Rate_Category_High</strong></td>
+                    <td class="drift-medium"><strong>0.3876</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_MA_30</strong></td>
+                    <td class="drift-medium"><strong>0.3875</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Target_7d</strong></td>
+                    <td class="drift-medium"><strong>0.3863</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Target_1d</strong></td>
+                    <td class="drift-medium"><strong>0.3810</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Max_7</strong></td>
+                    <td class="drift-medium"><strong>0.3792</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price</strong></td>
+                    <td class="drift-medium"><strong>0.3788</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Transaction_Count</strong></td>
+                    <td class="drift-medium"><strong>0.3778</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Lag_1</strong></td>
+                    <td class="drift-medium"><strong>0.3777</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Retail_Wholesale_Ratio</strong></td>
+                    <td class="drift-medium"><strong>0.3770</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Markup_Pct</strong></td>
+                    <td class="drift-medium"><strong>0.3770</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Lag_30</strong></td>
+                    <td class="drift-medium"><strong>0.3765</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Lag_14</strong></td>
+                    <td class="drift-medium"><strong>0.3737</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Lag_7</strong></td>
+                    <td class="drift-medium"><strong>0.3713</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_MA_14</strong></td>
+                    <td class="drift-medium"><strong>0.3661</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Wholesale Price (RMB/kg)</strong></td>
+                    <td class="drift-medium"><strong>0.3621</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Loss Rate (%)</strong></td>
+                    <td class="drift-medium"><strong>0.3580</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_MA_7</strong></td>
+                    <td class="drift-medium"><strong>0.3574</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Item_Quantity_Share</strong></td>
+                    <td class="drift-medium"><strong>0.3556</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Relative_to_Category</strong></td>
+                    <td class="drift-medium"><strong>0.3511</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Quarter</strong></td>
+                    <td class="drift-medium"><strong>0.3458</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_Lag_30</strong></td>
+                    <td class="drift-medium"><strong>0.3411</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Max_Price</strong></td>
+                    <td class="drift-medium"><strong>0.3368</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Markup</strong></td>
+                    <td class="drift-medium"><strong>0.3352</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_Lag_14</strong></td>
+                    <td class="drift-medium"><strong>0.3332</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_Lag_7</strong></td>
+                    <td class="drift-medium"><strong>0.3257</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue_Lag_1</strong></td>
+                    <td class="drift-medium"><strong>0.3222</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Revenue</strong></td>
+                    <td class="drift-medium"><strong>0.3216</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Quantity_Interaction</strong></td>
+                    <td class="drift-medium"><strong>0.3216</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Loss_Adjusted_Revenue</strong></td>
+                    <td class="drift-medium"><strong>0.3182</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Loss_Rate_Category_Very_High</strong></td>
+                    <td class="drift-medium"><strong>0.2980</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Std_30</strong></td>
+                    <td class="drift-medium"><strong>0.2924</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category_Avg_Price</strong></td>
+                    <td class="drift-medium"><strong>0.2637</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category_Total_Quantity</strong></td>
+                    <td class="drift-medium"><strong>0.2601</strong></td>
+                    <td>Yes</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category Code</strong></td>
+                    <td class="drift-medium"><strong>0.2267</strong></td>
+                    <td>No</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Spring_Price</strong></td>
+                    <td class="drift-medium"><strong>0.2179</strong></td>
+                    <td>No</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Std_14</strong></td>
+                    <td class="drift-medium"><strong>0.2022</strong></td>
+                    <td>No</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Discount_Count</strong></td>
+                    <td class="drift-medium"><strong>0.2010</strong></td>
+                    <td>No</td>
+                    <td class="drift-medium">Medium Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Autumn_Price</strong></td>
+                    <td class="drift-low"><strong>0.1812</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Month</strong></td>
+                    <td class="drift-low"><strong>0.1418</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Change_Target_1d</strong></td>
+                    <td class="drift-low"><strong>0.1259</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfYear_Cos</strong></td>
+                    <td class="drift-low"><strong>0.1208</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Change</strong></td>
+                    <td class="drift-low"><strong>0.1202</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Avg_Price_Std_7</strong></td>
+                    <td class="drift-low"><strong>0.1128</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Change_Target_14d</strong></td>
+                    <td class="drift-low"><strong>0.1113</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Category_Revenue</strong></td>
+                    <td class="drift-low"><strong>0.1084</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Change_Target_30d</strong></td>
+                    <td class="drift-low"><strong>0.1064</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>IsLaborDay</strong></td>
+                    <td class="drift-low"><strong>0.1018</strong></td>
+                    <td>No</td>
+                    <td class="drift-low">Low Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Winter_Price</strong></td>
+                    <td class="drift-none"><strong>0.0972</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfYear_Sin</strong></td>
+                    <td class="drift-none"><strong>0.0931</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfYear</strong></td>
+                    <td class="drift-none"><strong>0.0921</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_MA_30</strong></td>
+                    <td class="drift-none"><strong>0.0886</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Lag_30</strong></td>
+                    <td class="drift-none"><strong>0.0884</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>WeekOfYear</strong></td>
+                    <td class="drift-none"><strong>0.0883</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Std_30</strong></td>
+                    <td class="drift-none"><strong>0.0862</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Std_14</strong></td>
+                    <td class="drift-none"><strong>0.0846</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Std_7</strong></td>
+                    <td class="drift-none"><strong>0.0799</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Price_Change_Target_7d</strong></td>
+                    <td class="drift-none"><strong>0.0755</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Summer_Price</strong></td>
+                    <td class="drift-none"><strong>0.0727</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_MA_14</strong></td>
+                    <td class="drift-none"><strong>0.0708</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Quantity_Target_30d</strong></td>
+                    <td class="drift-none"><strong>0.0685</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Lag_14</strong></td>
+                    <td class="drift-none"><strong>0.0669</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Lag_1</strong></td>
+                    <td class="drift-none"><strong>0.0646</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity</strong></td>
+                    <td class="drift-none"><strong>0.0641</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Month_Cos</strong></td>
+                    <td class="drift-none"><strong>0.0638</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Quantity_Target_1d</strong></td>
+                    <td class="drift-none"><strong>0.0636</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_MA_7</strong></td>
+                    <td class="drift-none"><strong>0.0619</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Quantity_Target_14d</strong></td>
+                    <td class="drift-none"><strong>0.0610</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Month_Sin</strong></td>
+                    <td class="drift-none"><strong>0.0604</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Total_Quantity_Lag_7</strong></td>
+                    <td class="drift-none"><strong>0.0597</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Effective_Supply</strong></td>
+                    <td class="drift-none"><strong>0.0590</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Quantity_Target_7d</strong></td>
+                    <td class="drift-none"><strong>0.0580</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Season_Summer</strong></td>
+                    <td class="drift-none"><strong>0.0430</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>IsNationalDay</strong></td>
+                    <td class="drift-none"><strong>0.0280</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Season_Spring</strong></td>
+                    <td class="drift-none"><strong>0.0192</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Holiday_Demand</strong></td>
+                    <td class="drift-none"><strong>0.0063</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfWeek_Cos</strong></td>
+                    <td class="drift-none"><strong>0.0048</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfWeek</strong></td>
+                    <td class="drift-none"><strong>0.0029</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>IsWeekend</strong></td>
+                    <td class="drift-none"><strong>0.0017</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>DayOfWeek_Sin</strong></td>
+                    <td class="drift-none"><strong>0.0015</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                <tr>
+                    <td><strong>Season_Winter</strong></td>
+                    <td class="drift-none"><strong>0.0010</strong></td>
+                    <td>No</td>
+                    <td class="drift-none">No Risk</td>
+                    <td></td>
+                </tr>
+            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="footer">
+                    <p>Generated by Chinese Produce Forecasting ML Monitoring System</p>
+                    <p>Report Time: 2025-06-23 06:56:28 UTC</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        

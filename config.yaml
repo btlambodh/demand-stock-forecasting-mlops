@@ -126,6 +126,57 @@ features:
 # Model Configuration
 # =============================================================================
 models:
+  # Default Model Configuration
+  default_model: random_forest
+  model_types:
+    - linear_regression
+    - ridge
+    - random_forest
+    - gradient_boosting
+  
+  # Model Training Parameters
+  hyperparameters:
+    linear_regression:
+      fit_intercept: true
+      normalize: false
+    
+    ridge:
+      alpha: 1.0
+      fit_intercept: true
+      normalize: false
+      random_state: 42
+    
+    random_forest:
+      n_estimators: 100
+      max_depth: 10
+      min_samples_split: 2
+      min_samples_leaf: 1
+      random_state: 42
+      n_jobs: -1
+    
+    gradient_boosting:
+      n_estimators: 100
+      max_depth: 6
+      learning_rate: 0.1
+      min_samples_split: 2
+      min_samples_leaf: 1
+      random_state: 42
+  
+  # Evaluation Metrics
+  evaluation_metrics:
+    - mae
+    - mse
+    - rmse
+    - mape
+    - smape
+    - r2
+  
+  # Performance Thresholds
+  performance_thresholds:
+    mape_max: 15.0
+    rmse_max: 5.0
+    r2_min: 0.7
+  
   # Statistical Models
   statistical:
     arima:
@@ -221,19 +272,31 @@ deployment:
   environments:
     dev:
       instance_type: ml.t2.medium
+      initial_instance_count: 1
       auto_scaling_enabled: false
+      endpoint_config:
+        variant_weight: 1.0
+        initial_instance_count: 1
     
     staging:
       instance_type: ml.m5.large
+      initial_instance_count: 1
       auto_scaling_enabled: true
       min_capacity: 1
       max_capacity: 3
+      endpoint_config:
+        variant_weight: 1.0
+        initial_instance_count: 1
     
     prod:
       instance_type: ml.m5.xlarge
+      initial_instance_count: 2
       auto_scaling_enabled: true
       min_capacity: 2
       max_capacity: 10
+      endpoint_config:
+        variant_weight: 1.0
+        initial_instance_count: 2
   
   # Blue-Green Deployment
   blue_green:

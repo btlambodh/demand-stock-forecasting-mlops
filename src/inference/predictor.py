@@ -42,7 +42,16 @@ class ModelPredictor:
             self.config = yaml.safe_load(f)
         
         self.aws_config = self.config['aws']
-        self.model_config = self.config['models']
+        
+        # FIXED: Handle missing models config section
+        if 'models' not in self.config:
+            logger.warning("Models configuration not found, using defaults")
+            self.model_config = {
+                'default_model': 'random_forest',
+                'model_types': ['linear_regression', 'ridge', 'random_forest', 'gradient_boosting']
+            }
+        else:
+            self.model_config = self.config['models']
         
         # Initialize AWS clients
         self.s3_client = boto3.client('s3', region_name=self.aws_config['region'])
