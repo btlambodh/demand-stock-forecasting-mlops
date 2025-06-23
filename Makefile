@@ -20,10 +20,6 @@ SRC_PATH := src/
 REPORTS_PATH := reports/
 DATA_PATH := data/
 
-# Configuration variables
-CONFIG_FILE := config.yaml
-TEST_CONFIG_FILE := tests/config/test_config.yaml
-
 # Model variables
 MODEL_VERSION = v$(shell date +%Y%m%d_%H%M%S)
 FORECAST_HORIZON = 1
@@ -145,56 +141,6 @@ setup-dev: ## Setup development environment
 	$(PIP) install pytest pytest-cov black flake8 mypy bandit safety
 	pre-commit install || echo "$(YELLOW)pre-commit not available, skipping...$(RESET)"
 	@echo "$(GREEN)Development environment setup complete!$(RESET)"
-
-setup-test-env: ## Setup test environment with test data and configuration
-	@echo "$(BLUE)Setting up test environment...$(RESET)"
-	@mkdir -p tests/config tests/data/processed tests/data/raw models
-	@if [ ! -f $(TEST_CONFIG_FILE) ]; then \
-		echo "$(YELLOW)Creating test configuration...$(RESET)"; \
-		cp $(CONFIG_FILE) $(TEST_CONFIG_FILE) 2>/dev/null || \
-		echo "$(YELLOW)Main config not found, using minimal test config$(RESET)"; \
-	fi
-	$(PYTHON) scripts/setup_test_env.py
-	@echo "$(GREEN)Test environment setup complete!$(RESET)"
-
-test: ## Run all tests (unit + integration)
-	@echo "$(BLUE)Running comprehensive test suite...$(RESET)"
-	$(PYTHON) -m pytest $(TEST_PATH) -v --tb=short
-	@echo "$(GREEN) All tests completed!$(RESET)"
-
-test-unit: setup-test-env ## Run unit tests with proper environment setup
-	@echo "$(BLUE)Running unit tests with test environment...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
-	$(PYTHON) -m pytest $(TEST_PATH) -v -m "unit or not integration" --tb=short
-	@echo "$(GREEN) Unit tests completed!$(RESET)"
-
-test-integration: ## Run integration tests only
-	@echo "$(BLUE)Running integration tests...$(RESET)"
-	$(PYTHON) -m pytest $(TEST_PATH) -v -m "integration" --tb=short
-	@echo "$(GREEN) Integration tests completed!$(RESET)"
-
-test-coverage: setup-test-env ## Run tests with coverage analysis
-	@echo "$(BLUE)Running tests with coverage analysis...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
-	$(PYTHON) -m pytest $(TEST_PATH) \
-		--cov=$(SRC_PATH) \
-		--cov-report=html \
-		--cov-report=term-missing \
-		--cov-report=xml
-	@echo "$(GREEN) Coverage report generated in htmlcov/$(RESET)"
-
-test-fast: setup-test-env ## Run fast tests only (exclude slow tests)
-	@echo "$(BLUE)Running fast test suite...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
-	$(PYTHON) -m pytest $(TEST_PATH) -v -m "not slow" --tb=short
-	@echo "$(GREEN) Fast tests completed!$(RESET)"
-
-test-with-config: setup-test-env ## Run tests with test configuration
-	@echo "$(BLUE)Running tests with test configuration...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
-	$(PYTHON) -m pytest $(TEST_PATH) -v --tb=short \
-		--config-file=$(TEST_CONFIG_FILE)
-	@echo "$(GREEN) Tests with configuration completed!$(RESET)"
 
 health-check: ## Check system health and dependencies
 	@echo "$(BLUE)Running system health checks...$(RESET)"
@@ -597,7 +543,7 @@ performance-report: ## Generate comprehensive performance report
 	@echo "$(GREEN) Performance report generated!$(RESET)"
 
 monitoring-logs: ## Show logs from monitoring processes
-	@echo "$(CYAN) Recent Monitoring Logs:$(RESET)"
+	@echo "$(CYAN)📋 Recent Monitoring Logs:$(RESET)"
 	@echo "$(YELLOW)Performance Monitor:$(RESET)"
 	@tail -20 data/monitoring/logs/performance.log 2>/dev/null || echo "  No performance logs found"
 	@echo "$(YELLOW)Drift Detection:$(RESET)"
@@ -660,7 +606,7 @@ monitoring-drift-only: ## Start only drift detection monitoring
 
 # Helper targets for debugging
 monitoring-debug: ## Debug monitoring system issues
-	@echo "$(CYAN) Monitoring System Debug Information:$(RESET)"
+	@echo "$(CYAN)🐛 Monitoring System Debug Information:$(RESET)"
 	@echo "$(YELLOW)Python Path:$(RESET) $(shell which python3)"
 	@echo "$(YELLOW)Current Directory:$(RESET) $(shell pwd)"
 	@echo "$(YELLOW)Config File:$(RESET)"
@@ -688,12 +634,9 @@ test: ## Run all tests (unit + integration)
 	$(PYTHON) -m pytest $(TEST_PATH) -v --tb=short
 	@echo "$(GREEN) All tests completed!$(RESET)"
 
-test-unit: setup-test-env ## Run unit tests with proper environment setup
-	@echo "$(BLUE)Running unit tests with test environment...$(RESET)"
-	@if [ -f $(TEST_CONFIG_FILE) ]; then \
-		export TEST_CONFIG=$(TEST_CONFIG_FILE); \
-	fi && \
-	$(PYTHON) -m pytest $(TEST_PATH) -v -m "unit or not integration" --tb=short
+test-unit: ## Run unit tests only
+	@echo "$(BLUE)Running unit tests...$(RESET)"
+	$(PYTHON) -m pytest $(TEST_PATH) -v -m "unit" --tb=short
 	@echo "$(GREEN) Unit tests completed!$(RESET)"
 
 test-integration: ## Run integration tests only
@@ -701,11 +644,8 @@ test-integration: ## Run integration tests only
 	$(PYTHON) -m pytest $(TEST_PATH) -v -m "integration" --tb=short
 	@echo "$(GREEN) Integration tests completed!$(RESET)"
 
-test-coverage: setup-test-env ## Run tests with coverage analysis
+test-coverage: ## Run tests with coverage analysis
 	@echo "$(BLUE)Running tests with coverage analysis...$(RESET)"
-	@if [ -f $(TEST_CONFIG_FILE) ]; then \
-		export TEST_CONFIG=$(TEST_CONFIG_FILE); \
-	fi && \
 	$(PYTHON) -m pytest $(TEST_PATH) \
 		--cov=$(SRC_PATH) \
 		--cov-report=html \
@@ -713,20 +653,10 @@ test-coverage: setup-test-env ## Run tests with coverage analysis
 		--cov-report=xml
 	@echo "$(GREEN) Coverage report generated in htmlcov/$(RESET)"
 
-test-fast: setup-test-env ## Run fast tests only (exclude slow tests)
+test-fast: ## Run fast tests only (exclude slow tests)
 	@echo "$(BLUE)Running fast test suite...$(RESET)"
-	@if [ -f $(TEST_CONFIG_FILE) ]; then \
-		export TEST_CONFIG=$(TEST_CONFIG_FILE); \
-	fi && \
 	$(PYTHON) -m pytest $(TEST_PATH) -v -m "not slow" --tb=short
 	@echo "$(GREEN) Fast tests completed!$(RESET)"
-
-test-with-config: setup-test-env ## Run tests with test configuration
-	@echo "$(BLUE)Running tests with test configuration...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
-	$(PYTHON) -m pytest $(TEST_PATH) -v --tb=short \
-		--config-file=$(TEST_CONFIG_FILE)
-	@echo "$(GREEN) Tests with configuration completed!$(RESET)"
 
 # Code Quality
 format: ## Format code with black and isort
@@ -769,9 +699,8 @@ ci-install: ## Simulate CI dependency installation
 	$(PIP) install pytest pytest-cov black flake8 mypy bandit safety isort
 	@echo "$(GREEN) CI install simulation completed!$(RESET)"
 
-ci-test: setup-test-env ## Simulate CI testing phase with test environment
+ci-test: ## Simulate CI testing phase
 	@echo "$(BLUE) Simulating CI test step...$(RESET)"
-	@export TEST_CONFIG=$(TEST_CONFIG_FILE) && \
 	$(PYTHON) -m pytest $(TEST_PATH) -v --tb=short --junitxml=test-results.xml
 	@echo "$(GREEN) CI test simulation completed!$(RESET)"
 
@@ -793,7 +722,7 @@ ci-full: ci-install ci-quality ci-test ## Complete CI/CD pipeline simulation
 workflow-dev: setup-dev pipeline-data-full train-models register-models test-fast ## Complete development workflow
 	@echo "$(GREEN) Development workflow completed!$(RESET)"
 
-workflow-test: setup-test-env pipeline-data-basic test-full ## Testing-focused workflow with environment setup
+workflow-test: pipeline-data-basic test-full ## Testing-focused workflow
 	@echo "$(GREEN) Testing workflow completed!$(RESET)"
 
 # Deployment Workflows
@@ -830,11 +759,6 @@ clean-data: ## Clean processed data files (use with caution)
 	rm -rf $(DATA_PATH)/processed/* $(DATA_PATH)/validation/* models/*.pkl
 	@echo "$(GREEN) Data cleanup completed!$(RESET)"
 
-clean-test-env: ## Clean test environment files
-	@echo "$(BLUE)Cleaning test environment...$(RESET)"
-	rm -rf tests/data/ tests/config/ 2>/dev/null || true
-	@echo "$(GREEN) Test environment cleaned!$(RESET)"
-
 clean-athena: ## Clean up Athena tables (use with caution)
 	@echo "$(YELLOW)  This will drop all Athena tables. Continue? (Ctrl+C to cancel)$(RESET)"
 	@read -p "Press Enter to continue..."
@@ -859,6 +783,18 @@ for table in tables: \
 print(' Athena cleanup completed!')"
 	@echo "$(GREEN)Athena tables cleaned up!$(RESET)"
 
+# Emergency Operations
+emergency-stop: ## Emergency stop of all running services
+	@echo "$(RED) EMERGENCY STOP - Stopping all services...$(RESET)"
+	@make api-stop
+	@make monitoring-stop
+	@pkill -f "uvicorn" > /dev/null 2>&1 || true
+	@pkill -f "streamlit" > /dev/null 2>&1 || true
+	@echo "$(GREEN) Emergency stop completed!$(RESET)"
+
+system-restart: clean emergency-stop health-check ## Emergency system restart
+	@echo "$(BLUE) System restart completed!$(RESET)"
+
 # Git Workflow
 git-setup: ## Setup git configuration
 	@echo "$(BLUE)Setting up git configuration...$(RESET)"
@@ -867,9 +803,9 @@ git-setup: ## Setup git configuration
 	@echo "$(GREEN) Git setup completed!$(RESET)"
 
 git-status: ## Check git status and suggest workflow
-	@echo "$(CYAN) Git Status Check:$(RESET)"
+	@echo "$(CYAN)📋 Git Status Check:$(RESET)"
 	@git status 2>/dev/null || echo "$(RED) Not a git repository$(RESET)"
-	@echo "$(YELLOW) Suggested workflow:$(RESET)"
+	@echo "$(YELLOW)💡 Suggested workflow:$(RESET)"
 	@echo "  1. make workflow-test       # Test your changes"
 	@echo "  2. git add .                # Stage changes"
 	@echo "  3. git commit -m 'message'  # Commit changes"
