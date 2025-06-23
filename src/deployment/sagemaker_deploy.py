@@ -30,16 +30,19 @@ from sagemaker.predictor import Predictor
 from sagemaker.serializers import JSONSerializer
 from sagemaker.deserializers import JSONDeserializer
 
+# Suppress SageMaker config messages
+logging.getLogger('sagemaker.config').setLevel(logging.WARNING)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('model_deployment')
 
 
 class FixedSageMakerDeployer:
-    """FIXED SageMaker deployment with dynamic feature order extraction"""
+    """SageMaker deployment with dynamic feature order extraction"""
     
     def __init__(self, config_path: str):
         """Initialize SageMaker deployer with configuration"""
@@ -59,7 +62,97 @@ class FixedSageMakerDeployer:
         self.role = self.aws_config['sagemaker']['execution_role']
         self.bucket = self.sagemaker_session.default_bucket()
         
-        logger.info("FIXED SageMaker Deployer initialized successfully")
+        logger.info("SageMaker Deployer initialized successfully")
+
+    def list_endpoints(self) -> Dict:
+        """List all SageMaker endpoints"""
+        logger.info("Listing SageMaker endpoints...")
+        
+        try:
+            # Get all endpoints
+            response = self.sagemaker_client.list_endpoints(
+                SortBy='Name',
+                SortOrder='Ascending',
+                MaxResults=100
+            )
+            
+            endpoints = response.get('Endpoints', [])
+            
+            if not endpoints:
+                print("  No endpoints found in region", self.region)
+                return {
+                    'status': 'success',
+                    'endpoint_count': 0,
+                    'endpoints': [],
+                    'region': self.region
+                }
+            
+            print(f"✓ Active endpoints in {self.region}:")
+            
+            endpoint_details = []
+            for endpoint in endpoints:
+                endpoint_name = endpoint['EndpointName']
+                status = endpoint['EndpointStatus']
+                creation_time = endpoint['CreationTime']
+                last_modified = endpoint['LastModifiedTime']
+                
+                # Get additional details
+                try:
+                    endpoint_config = self.sagemaker_client.describe_endpoint_config(
+                        EndpointConfigName=endpoint.get('EndpointConfigName', endpoint_name)
+                    )
+                    instance_type = endpoint_config['ProductionVariants'][0]['InstanceType']
+                    instance_count = endpoint_config['ProductionVariants'][0]['InitialInstanceCount']
+                except Exception:
+                    instance_type = "Unknown"
+                    instance_count = "Unknown"
+                
+                # Format output
+                status_emoji = {
+                    'InService': '',
+                    'Creating': '🔄',
+                    'Updating': '🔄',
+                    'SystemUpdating': '🔧',
+                    'RollingBack': '↩️',
+                    'OutOfService': '',
+                    'Deleting': '🗑️',
+                    'Failed': '💥'
+                }.get(status, '❓')
+                
+                print(f"  {status_emoji} {endpoint_name} ({status})")
+                print(f"    Instance: {instance_type} (Count: {instance_count})")
+                print(f"    Created: {creation_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                
+                endpoint_details.append({
+                    'name': endpoint_name,
+                    'status': status,
+                    'instance_type': instance_type,
+                    'instance_count': instance_count,
+                    'creation_time': creation_time.isoformat(),
+                    'last_modified': last_modified.isoformat()
+                })
+            
+            result = {
+                'status': 'success',
+                'endpoint_count': len(endpoints),
+                'endpoints': endpoint_details,
+                'region': self.region,
+                'list_time': datetime.now().isoformat()
+            }
+            
+            logger.info(f" Found {len(endpoints)} endpoints")
+            return result
+            
+        except Exception as e:
+            logger.error(f" Error listing endpoints: {e}")
+            print(f" Error listing endpoints: {e}")
+            return {
+                'status': 'error',
+                'error': str(e),
+                'endpoint_count': 0,
+                'endpoints': [],
+                'region': self.region
+            }
 
     def extract_model_feature_order(self, model_path: str) -> List[str]:
         """Extract the exact feature order from the trained model"""
@@ -78,17 +171,17 @@ class FixedSageMakerDeployer:
             # Get feature names in exact order
             if hasattr(model, 'feature_names_in_'):
                 feature_names = list(model.feature_names_in_)
-                logger.info(f"✅ Extracted {len(feature_names)} features from model")
+                logger.info(f" Extracted {len(feature_names)} features from model")
                 logger.info(f"   First 5: {feature_names[:5]}")
                 logger.info(f"   Last 5: {feature_names[-5:]}")
                 return feature_names
             else:
-                logger.warning("⚠️ Model doesn't have feature_names_in_ attribute, using default order")
+                logger.warning(" Model doesn't have feature_names_in_ attribute, using default order")
                 # Return the default feature list if we can't extract from model
                 return self._get_default_feature_order()
                 
         except Exception as e:
-            logger.error(f"❌ Error extracting feature order: {e}")
+            logger.error(f" Error extracting feature order: {e}")
             logger.warning("Using default feature order as fallback")
             return self._get_default_feature_order()
     
@@ -119,8 +212,8 @@ class FixedSageMakerDeployer:
         ]
 
     def create_fixed_inference_script(self, model_name: str, model_path: str, output_dir: str) -> str:
-        """Create FIXED inference script with DYNAMIC feature order extraction"""
-        logger.info(f"Creating FIXED inference script for {model_name}")
+        """Create inference script with DYNAMIC feature order extraction"""
+        logger.info(f"Creating inference script for {model_name}")
         
         os.makedirs(output_dir, exist_ok=True)
         script_path = os.path.join(output_dir, 'inference.py')
@@ -128,7 +221,7 @@ class FixedSageMakerDeployer:
         # Extract the correct feature order from the model
         correct_feature_order = self.extract_model_feature_order(model_path)
         
-        # FIXED inference script with DYNAMIC feature order
+        # inference script with DYNAMIC feature order
         inference_code = f'''#!/usr/bin/env python3
 import os
 import json
@@ -330,14 +423,14 @@ def create_features_in_correct_order(df_input):
         
         df_final = df[CORRECT_FEATURE_ORDER].copy()
         
-        logger.info(f"✅ Features created in correct order: {{df_final.shape[1]}} features")
-        logger.info(f"✅ Expected features: {{len(CORRECT_FEATURE_ORDER)}}")
-        logger.info(f"✅ Feature order match: {{df_final.shape[1] == len(CORRECT_FEATURE_ORDER)}}")
+        logger.info(f" Features created in correct order: {{df_final.shape[1]}} features")
+        logger.info(f"   Expected features: {{len(CORRECT_FEATURE_ORDER)}}")
+        logger.info(f"   Feature order match: {{df_final.shape[1] == len(CORRECT_FEATURE_ORDER)}}")
         
         return df_final
         
     except Exception as e:
-        logger.error(f"❌ Error in feature engineering: {{e}}")
+        logger.error(f" Error in feature engineering: {{e}}")
         # Return basic features if advanced engineering fails
         basic_features = ["Total_Quantity", "Avg_Price", "Transaction_Count", "Month", "DayOfWeek"]
         available_features = [f for f in basic_features if f in df.columns]
@@ -359,18 +452,18 @@ def model_fn(model_dir):
         # Load model with multiple methods for compatibility
         try:
             model_artifact = joblib.load(model_path)
-            logger.info(f"✅ Model loaded successfully: {{type(model_artifact)}}")
+            logger.info(f" Model loaded successfully: {{type(model_artifact)}}")
         except Exception as joblib_error:
             logger.warning(f"Joblib loading failed: {{joblib_error}}")
             import pickle
             with open(model_path, 'rb') as f:
                 model_artifact = pickle.load(f)
-            logger.info(f"✅ Model loaded with pickle: {{type(model_artifact)}}")
+            logger.info(f" Model loaded with pickle: {{type(model_artifact)}}")
         
         return model_artifact
         
     except Exception as e:
-        logger.error(f"❌ Critical error loading model: {{e}}")
+        logger.error(f" Critical error loading model: {{e}}")
         raise
 
 def input_fn(request_body, content_type="application/json"):
@@ -414,7 +507,7 @@ def input_fn(request_body, content_type="application/json"):
         return df_features
         
     except Exception as e:
-        logger.error(f"❌ Error in input_fn: {{e}}")
+        logger.error(f" Error in input_fn: {{e}}")
         raise
 
 def predict_fn(input_data, model_artifact):
@@ -444,7 +537,7 @@ def predict_fn(input_data, model_artifact):
                 logger.info("Applying scaler transformation...")
                 X_scaled = scaler.transform(X)
                 predictions = model.predict(X_scaled)
-                logger.info("✅ Successfully applied scaling for prediction")
+                logger.info(" Successfully applied scaling for prediction")
             except Exception as scaling_error:
                 logger.warning(f"Scaling failed: {{scaling_error}}, using raw features")
                 predictions = model.predict(X)
@@ -465,9 +558,9 @@ def predict_fn(input_data, model_artifact):
             confidence = np.ones(len(predictions)) * 0.80
         
         # Log prediction details
-        logger.info(f"✅ Raw predictions: {{predictions}}")
-        logger.info(f"✅ Predictions type: {{type(predictions)}}")
-        logger.info(f"✅ Predictions shape: {{predictions.shape if hasattr(predictions, 'shape') else 'scalar'}}")
+        logger.info(f" Raw predictions: {{predictions}}")
+        logger.info(f"   Predictions type: {{type(predictions)}}")
+        logger.info(f"   Predictions shape: {{predictions.shape if hasattr(predictions, 'shape') else 'scalar'}}")
         
         # Format results
         result = {{
@@ -480,13 +573,13 @@ def predict_fn(input_data, model_artifact):
             "status": "success"
         }}
         
-        logger.info(f"✅ Predictions generated successfully: {{len(result['predictions'])}} predictions")
-        logger.info(f"✅ Sample prediction value: {{result['predictions'][0] if result['predictions'] else 'None'}}")
+        logger.info(f" Predictions generated successfully: {{len(result['predictions'])}} predictions")
+        logger.info(f"   Sample prediction value: {{result['predictions'][0] if result['predictions'] else 'None'}}")
         
         return result
         
     except Exception as e:
-        logger.error(f"❌ Critical error in predict_fn: {{e}}")
+        logger.error(f" Critical error in predict_fn: {{e}}")
         return {{
             "predictions": [],
             "confidence": [],
@@ -514,12 +607,12 @@ def output_fn(prediction, accept="application/json"):
         with open(script_path, 'w') as f:
             f.write(inference_code)
         
-        logger.info(f"✅ FIXED inference script created with dynamic feature order: {script_path}")
-        logger.info(f"✅ Using {len(correct_feature_order)} features in correct order")
+        logger.info(f" Inference script created with dynamic feature order: {script_path}")
+        logger.info(f"   Using {len(correct_feature_order)} features in correct order")
         return script_path
 
     def create_fixed_requirements_file(self, output_dir: str) -> str:
-        """Create FIXED requirements.txt for SageMaker container"""
+        """Create requirements.txt for SageMaker container"""
         # Use SageMaker-compatible versions that WORK
         requirements = [
             'pandas==1.5.3',
@@ -533,14 +626,14 @@ def output_fn(prediction, accept="application/json"):
         with open(requirements_path, 'w') as f:
             f.write('\n'.join(requirements))
         
-        logger.info(f"✅ FIXED requirements file created: {requirements_path}")
+        logger.info(f" Requirements file created: {requirements_path}")
         return requirements_path
 
     def deploy_fixed_endpoint(self, model_path: str, model_name: str, 
                             endpoint_name: str, environment: str = 'staging',
                             instance_type: str = 'ml.m5.large') -> Dict[str, str]:
         """Deploy model with ALL FIXES applied and DYNAMIC feature order"""
-        logger.info(f"🚀 Deploying FIXED model {model_name} to endpoint {endpoint_name}")
+        logger.info(f" Deploying model {model_name} to endpoint {endpoint_name}")
         
         try:
             # Verify model file exists
@@ -555,10 +648,10 @@ def output_fn(prediction, accept="application/json"):
             code_dir = os.path.join(artifacts_dir, 'code')
             os.makedirs(code_dir, exist_ok=True)
             
-            # Create FIXED inference script with DYNAMIC feature order
+            # Create inference script with DYNAMIC feature order
             inference_script = self.create_fixed_inference_script(model_name, model_path, code_dir)
             
-            # Create FIXED requirements file
+            # Create requirements file
             requirements_file = self.create_fixed_requirements_file(code_dir)
             
             # Upload model to S3
@@ -566,7 +659,7 @@ def output_fn(prediction, accept="application/json"):
                 # Copy local model file to temp directory
                 temp_model_path = os.path.join(temp_dir, 'model.pkl')
                 shutil.copy2(model_path, temp_model_path)
-                logger.info(f"✅ Copied local model to: {temp_model_path}")
+                logger.info(f" Copied local model to: {temp_model_path}")
                 
                 # Create model.tar.gz
                 tar_path = os.path.join(temp_dir, 'model.tar.gz')
@@ -577,9 +670,9 @@ def output_fn(prediction, accept="application/json"):
                 bucket_name = self.bucket
                 model_s3_key = f"models/{model_name}/model.tar.gz"
                 
-                logger.info(f"📤 Uploading model.tar.gz to s3://{bucket_name}/{model_s3_key}")
+                logger.info(f"Uploading model.tar.gz to s3://{bucket_name}/{model_s3_key}")
                 self.s3_client.upload_file(tar_path, bucket_name, model_s3_key)
-                logger.info(f"✅ Model uploaded successfully")
+                logger.info(f" Model uploaded successfully")
             
             model_artifacts_s3_uri = f"s3://{bucket_name}/{model_s3_key}"
             
@@ -594,9 +687,9 @@ def output_fn(prediction, accept="application/json"):
                 clean_model_name = clean_model_name[:max_model_name_len]
                 sagemaker_model_name = f"{clean_model_name}-{environment}-{timestamp}"
             
-            logger.info(f"🔧 Creating SageMaker model: {sagemaker_model_name}")
+            logger.info(f"Creating SageMaker model: {sagemaker_model_name}")
             
-            # Create SKLearn model with FIXED inference script
+            # Create SKLearn model with inference script
             sklearn_model = SKLearnModel(
                 model_data=model_artifacts_s3_uri,
                 role=self.role,
@@ -617,8 +710,8 @@ def output_fn(prediction, accept="application/json"):
             if len(clean_endpoint_name) > 63:
                 clean_endpoint_name = clean_endpoint_name[:63]
             
-            logger.info(f"🚀 Deploying to endpoint: {clean_endpoint_name}")
-            logger.info(f"🖥️ Instance type: {instance_type}")
+            logger.info(f" Deploying to endpoint: {clean_endpoint_name}")
+            logger.info(f"Instance type: {instance_type}")
             
             # Deploy the model to an endpoint
             predictor = sklearn_model.deploy(
@@ -640,11 +733,11 @@ def output_fn(prediction, accept="application/json"):
                 'status': 'deployed'
             }
             
-            logger.info(f"✅ FIXED endpoint deployed successfully: {clean_endpoint_name}")
+            logger.info(f" Endpoint deployed successfully: {clean_endpoint_name}")
             return endpoint_info
             
         except Exception as e:
-            logger.error(f"❌ Error in FIXED deployment: {e}")
+            logger.error(f" Error in deployment: {e}")
             raise
 
     def test_endpoint(self, endpoint_name: str, test_data: Dict = None, custom_test_file: str = None) -> Dict:
@@ -696,7 +789,7 @@ def output_fn(prediction, accept="application/json"):
                 "DayOfYear": 202,
                 "WeekOfYear": 29
             }
-            logger.info("Using FIXED default test data")
+            logger.info("Using default test data")
         
         try:
             # Create predictor
@@ -722,11 +815,11 @@ def output_fn(prediction, accept="application/json"):
                 'custom_data_used': custom_test_file is not None
             }
             
-            logger.info(f"✅ Endpoint test successful. Latency: {latency:.2f}ms")
+            logger.info(f" Endpoint test successful. Latency: {latency:.2f}ms")
             return test_result
             
         except Exception as e:
-            logger.error(f"❌ Endpoint test failed: {e}")
+            logger.error(f" Endpoint test failed: {e}")
             return {
                 'endpoint_name': endpoint_name,
                 'status': 'failed',
@@ -740,20 +833,20 @@ def output_fn(prediction, accept="application/json"):
         
         try:
             self.sagemaker_client.delete_endpoint(EndpointName=endpoint_name)
-            logger.info(f"✅ Endpoint deletion initiated: {endpoint_name}")
+            logger.info(f" Endpoint deletion initiated: {endpoint_name}")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Error deleting endpoint: {e}")
+            logger.error(f" Error deleting endpoint: {e}")
             return False
 
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description='FIXED SageMaker Deployment for Chinese Produce Forecasting')
+    parser = argparse.ArgumentParser(description='SageMaker Deployment for Chinese Produce Forecasting')
     parser.add_argument('--config', required=True, help='Path to config.yaml')
     parser.add_argument('--action', required=True,
-                       choices=['deploy', 'test', 'delete'],
+                       choices=['deploy', 'test', 'delete', 'list'],
                        help='Action to perform')
     parser.add_argument('--model-path', help='Path to trained model file')
     parser.add_argument('--model-name', help='Model name')
@@ -768,12 +861,16 @@ def main():
     args = parser.parse_args()
     
     try:
-        # Initialize FIXED deployer
+        # Initialize deployer
         deployer = FixedSageMakerDeployer(args.config)
         
-        if args.action == 'deploy':
+        if args.action == 'list':
+            # List all endpoints
+            result = deployer.list_endpoints()
+            
+        elif args.action == 'deploy':
             if not args.model_path or not args.model_name or not args.endpoint_name:
-                print("❌ Error: --model-path, --model-name, and --endpoint-name required for deploy")
+                print(" Error: --model-path, --model-name, and --endpoint-name required for deploy")
                 sys.exit(1)
             
             # Deploy endpoint with ALL FIXES applied and DYNAMIC feature order
@@ -782,47 +879,47 @@ def main():
                 args.environment, args.instance_type
             )
             
-            print(f"\n🎉 FIXED DEPLOYMENT COMPLETED SUCCESSFULLY! 🎉")
-            print(f"✅ Endpoint: {endpoint_info['endpoint_name']}")
-            print(f"✅ Model: {endpoint_info['model_name']}")
-            print(f"✅ Environment: {endpoint_info['environment']}")
-            print(f"✅ Instance Type: {endpoint_info['instance_type']}")
-            print(f"✅ Status: {endpoint_info['status']}")
-            print(f"✅ Feature Order: Dynamically extracted from model")
+            print(f"\n DEPLOYMENT COMPLETED SUCCESSFULLY! ")
+            print(f" Endpoint: {endpoint_info['endpoint_name']}")
+            print(f" Model: {endpoint_info['model_name']}")
+            print(f" Environment: {endpoint_info['environment']}")
+            print(f" Instance Type: {endpoint_info['instance_type']}")
+            print(f" Status: {endpoint_info['status']}")
+            print(f" Feature Order: Dynamically extracted from model")
         
         elif args.action == 'test':
             if not args.endpoint_name:
-                print("❌ Error: --endpoint-name required for test")
+                print(" Error: --endpoint-name required for test")
                 sys.exit(1)
             
             result = deployer.test_endpoint(args.endpoint_name, None, args.test_data)
             
-            print(f"\n🧪 Endpoint Test Results:")
+            print(f"\n Endpoint Test Results:")
             print(f"Status: {result['status']}")
             if result['status'] == 'success':
-                print(f"✅ Latency: {result['latency_ms']:.2f}ms")
-                print(f"📊 Predictions: {result['prediction_count']}")
+                print(f" Latency: {result['latency_ms']:.2f}ms")
+                print(f" Predictions: {result['prediction_count']}")
                 if args.test_data:
-                    print(f"📊 Test Data File: {args.test_data}")
+                    print(f" Test Data File: {args.test_data}")
                 else:
-                    print(f"📊 Test Data: Default sample data")
-                print(f"📊 Sample Result: {result['sample_result']}")
+                    print(f" Test Data: Default sample data")
+                print(f" Sample Result: {result['sample_result']}")
             elif result['status'] == 'failed':
-                print(f"❌ Error: {result.get('error', 'Unknown error')}")
+                print(f" Error: {result.get('error', 'Unknown error')}")
         
         elif args.action == 'delete':
             if not args.endpoint_name:
-                print("❌ Error: --endpoint-name required for delete")
+                print(" Error: --endpoint-name required for delete")
                 sys.exit(1)
             
             success = deployer.delete_endpoint(args.endpoint_name)
-            print(f"✅ Endpoint deletion {'successful' if success else 'failed'}")
+            print(f" Endpoint deletion {'successful' if success else 'failed'}")
         
-        logger.info("✅ FIXED SageMaker deployment operation completed successfully")
+        logger.info(" SageMaker deployment operation completed successfully")
         
     except Exception as e:
-        logger.error(f"❌ FIXED SageMaker deployment operation failed: {e}")
-        print(f"\n❌ Operation failed: {e}")
+        logger.error(f" SageMaker deployment operation failed: {e}")
+        print(f"\n Operation failed: {e}")
         sys.exit(1)
 
 

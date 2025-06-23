@@ -1,0 +1,87 @@
+{
+  "system": [
+    {
+      "timestamp": "2025-06-23T01:55:07.979904",
+      "cpu_percent": 1.0,
+      "memory_percent": 19.2,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 12.253028869628906,
+      "disk_free_gb": 36.9951057434082
+    }
+  ],
+  "models": {
+    "linear_regression": [
+      {
+        "timestamp": "2025-06-23T01:55:07.984719",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      }
+    ],
+    "ridge": [
+      {
+        "timestamp": "2025-06-23T01:55:07.984784",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      }
+    ],
+    "random_forest": [
+      {
+        "timestamp": "2025-06-23T01:55:07.984843",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      }
+    ],
+    "gradient_boosting": [
+      {
+        "timestamp": "2025-06-23T01:55:07.984942",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      }
+    ],
+    "api_health": [
+      {
+        "timestamp": "2025-06-23T01:55:07.984984",
+        "models_loaded": 11,
+        "uptime_seconds": 3459.6,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      }
+    ]
+  },
+  "api": [
+    {
+      "timestamp": "2025-06-23T01:55:07.992317",
+      "total_requests": 641.0,
+      "prediction_count": 6.0,
+      "average_latency_ms": 67.27683544158936,
+      "error_count": 0,
+      "monitoring_timestamp": 1750643707.9849954,
+      "api_response_time_ms": 3.0107498168945312,
+      "api_available": 1
+    }
+  ],
+  "data_quality": [
+    {
+      "timestamp": "2025-06-23T01:55:07.992408",
+      "quality_score": 98.91914946562714,
+      "data_freshness_hours": 1.0808505437771478,
+      "validation_status": "api_healthy"
+    }
+  ]
+}

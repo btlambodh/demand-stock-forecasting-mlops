@@ -1,0 +1,9 @@
+{
+  "type": "system_cpu",
+  "severity": "critical",
+  "message": "High CPU usage: 100.0%",
+  "metric": "cpu_percent",
+  "value": 100.0,
+  "threshold": 80,
+  "timestamp": "2025-06-23T00:25:00.897007"
+}

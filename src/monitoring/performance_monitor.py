@@ -50,7 +50,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger('performance_monitoring')
 
 # Prometheus metrics
 MODEL_ACCURACY = Gauge('model_accuracy', 'Model accuracy percentage', ['model_name', 'metric_type'])
@@ -66,7 +67,7 @@ PREDICTION_COUNT = Counter('predictions_total', 'Total predictions made', ['mode
 
 
 class PerformanceMonitor:
-    """FIXED comprehensive performance monitoring system"""
+    """Comprehensive performance monitoring system"""
     
     def __init__(self, config_path: str, local_mode: bool = False):
         """Initialize performance monitor with configuration"""
@@ -136,13 +137,29 @@ class PerformanceMonitor:
             }
         }
 
+    def collect_current_metrics(self):
+        """Collect current metrics once for immediate health reporting"""
+        logger.info("Collecting current system metrics for health report")
+        
+        try:
+            # Collect all current metrics
+            self.collect_system_metrics()
+            self.collect_model_metrics()
+            self.collect_api_metrics()
+            self.collect_data_quality_metrics()
+            
+            logger.info("Current metrics collection completed")
+            
+        except Exception as e:
+            logger.error(f"Error collecting current metrics: {e}")
+
     def start_monitoring(self, interval_seconds: int = 60):
         """Start continuous monitoring"""
         if self.is_monitoring:
             logger.warning("Monitoring already running")
             return
         
-        logger.info(f"🚀 Starting performance monitoring")
+        logger.info(f"Starting performance monitoring")
         logger.info(f"   Interval: {interval_seconds} seconds")
         logger.info(f"   Local mode: {self.local_mode}")
         logger.info(f"   AWS enabled: {self.aws_enabled}")
@@ -160,14 +177,14 @@ class PerformanceMonitor:
         # Start Prometheus metrics server
         try:
             start_http_server(8002)
-            logger.info("✅ Prometheus metrics server started on port 8002")
-            logger.info("📊 Metrics available at: http://localhost:8002/metrics")
+            logger.info("Prometheus metrics server started on port 8002")
+            logger.info("Metrics available at: http://localhost:8002/metrics")
         except Exception as e:
             logger.warning(f"Could not start Prometheus server: {e}")
 
     def stop_monitoring(self):
         """Stop continuous monitoring"""
-        logger.info("🛑 Stopping performance monitoring")
+        logger.info("Stopping performance monitoring")
         self.is_monitoring = False
         
         if self.monitoring_thread and self.monitoring_thread.is_alive():
@@ -175,7 +192,7 @@ class PerformanceMonitor:
 
     def _monitoring_loop(self, interval_seconds: int):
         """Main monitoring loop"""
-        logger.info("🔄 Performance monitoring loop started")
+        logger.info("Performance monitoring loop started")
         
         while self.is_monitoring:
             try:
@@ -289,7 +306,6 @@ class PerformanceMonitor:
                 for model_name, metrics in model_metrics.items():
                     for metric_name, value in metrics.items():
                         if isinstance(value, (int, float)):
-                            # FIXED: Use valid CloudWatch units
                             unit = self._get_valid_cloudwatch_unit(metric_name)
                             cloudwatch_metrics.append({
                                 'MetricName': f'Model_{metric_name}',
@@ -738,7 +754,7 @@ class PerformanceMonitor:
                 self._process_alert(alert)
             
             if alerts_triggered:
-                logger.warning(f"🚨 Triggered {len(alerts_triggered)} alerts")
+                logger.warning(f"Triggered {len(alerts_triggered)} alerts")
             
         except Exception as e:
             logger.error(f"Error checking alert conditions: {e}")
@@ -777,8 +793,8 @@ class PerformanceMonitor:
                     logger.warning(f"Could not send alert to CloudWatch: {e}")
             
             # Log alert
-            severity_emoji = {"critical": "🔴", "warning": "🟠", "info": "🔵"}.get(alert['severity'], "⚪")
-            logger.warning(f"{severity_emoji} ALERT [{alert['severity'].upper()}] {alert['type']}: {alert['message']}")
+            severity_emoji = {"critical": "CRITICAL", "warning": "WARNING", "info": "INFO"}.get(alert['severity'], "UNKNOWN")
+            logger.warning(f"ALERT [{severity_emoji}] {alert['type']}: {alert['message']}")
             
         except Exception as e:
             logger.error(f"Error processing alert: {e}")
@@ -847,30 +863,30 @@ class PerformanceMonitor:
             logger.error("Dashboard dependencies not available. Install: pip install plotly dash")
             return "Dashboard dependencies missing"
         
-        logger.info(f"🚀 Creating monitoring dashboard on port {port}")
+        logger.info(f"Creating monitoring dashboard on port {port}")
         
         # Initialize Dash app
         self.dash_app = dash.Dash(__name__)
         
         # Define dashboard layout
         self.dash_app.layout = html.Div([
-            html.H1("🎯 Chinese Produce Forecasting - Monitoring Dashboard", 
+            html.H1("Chinese Produce Forecasting - Monitoring Dashboard", 
                    style={'textAlign': 'center', 'marginBottom': 30, 'color': '#2c3e50'}),
             
             # Status indicators row
             html.Div([
                 html.Div([
-                    html.H3("🖥️ System Status", style={'textAlign': 'center', 'color': '#34495e'}),
+                    html.H3("System Status", style={'textAlign': 'center', 'color': '#34495e'}),
                     html.Div(id='system-status', style={'textAlign': 'center', 'fontSize': 24, 'fontWeight': 'bold'})
                 ], className='four columns', style={'backgroundColor': '#f8f9fa', 'padding': 20, 'margin': 10, 'borderRadius': 10}),
                 
                 html.Div([
-                    html.H3("🤖 Model Status", style={'textAlign': 'center', 'color': '#34495e'}),
+                    html.H3("Model Status", style={'textAlign': 'center', 'color': '#34495e'}),
                     html.Div(id='model-status', style={'textAlign': 'center', 'fontSize': 24, 'fontWeight': 'bold'})
                 ], className='four columns', style={'backgroundColor': '#f8f9fa', 'padding': 20, 'margin': 10, 'borderRadius': 10}),
                 
                 html.Div([
-                    html.H3("📊 Data Quality", style={'textAlign': 'center', 'color': '#34495e'}),
+                    html.H3("Data Quality", style={'textAlign': 'center', 'color': '#34495e'}),
                     html.Div(id='data-quality-status', style={'textAlign': 'center', 'fontSize': 24, 'fontWeight': 'bold'})
                 ], className='four columns', style={'backgroundColor': '#f8f9fa', 'padding': 20, 'margin': 10, 'borderRadius': 10}),
             ], className='row', style={'marginBottom': 30}),
@@ -890,7 +906,7 @@ class PerformanceMonitor:
             
             # Recent alerts
             html.Div([
-                html.H3("🚨 Recent Alerts", style={'color': '#34495e'}),
+                html.H3("Recent Alerts", style={'color': '#34495e'}),
                 html.Div(id='alerts-table')
             ], style={'marginBottom': 20, 'backgroundColor': 'white', 'padding': 20, 'borderRadius': 10}),
             
@@ -907,8 +923,8 @@ class PerformanceMonitor:
         
         # Run dashboard
         try:
-            logger.info("✅ Dashboard server starting...")
-            logger.info("🌐 Dashboard will be available at: http://localhost:{port}")
+            logger.info("Dashboard server starting...")
+            logger.info(f"Dashboard will be available at: http://localhost:{port}")
             self.dash_app.run_server(host='0.0.0.0', port=port, debug=False)
         except Exception as e:
             logger.error(f"Error running dashboard: {e}")
@@ -956,7 +972,7 @@ class PerformanceMonitor:
     def _get_system_status_indicator(self) -> html.Div:
         """Get system status indicator"""
         if not self.metrics_history.get('system'):
-            return html.Div("📊 No Data", style={'color': 'gray'})
+            return html.Div("No Data", style={'color': 'gray'})
         
         latest = self.metrics_history['system'][-1]
         
@@ -964,13 +980,13 @@ class PerformanceMonitor:
         mem_pct = latest['memory_percent']
         
         if cpu_pct > 90 or mem_pct > 95:
-            status = "🔴 Critical"
+            status = "Critical"
             color = '#e74c3c'
         elif cpu_pct > 80 or mem_pct > 85:
-            status = "🟠 Warning"
+            status = "Warning"
             color = '#f39c12'
         else:
-            status = "✅ Healthy"
+            status = "Healthy"
             color = '#27ae60'
         
         details = f"CPU: {cpu_pct:.1f}% | Memory: {mem_pct:.1f}%"
@@ -983,7 +999,7 @@ class PerformanceMonitor:
     def _get_model_status_indicator(self) -> html.Div:
         """Get model status indicator"""
         if not self.metrics_history.get('models'):
-            return html.Div("📊 No Data", style={'color': 'gray'})
+            return html.Div("No Data", style={'color': 'gray'})
         
         # Check API health first
         api_health = self.metrics_history['models'].get('api_health', [])
@@ -994,7 +1010,7 @@ class PerformanceMonitor:
             
             if not api_healthy:
                 return html.Div([
-                    html.Div("🔴 API Down", style={'color': '#e74c3c', 'fontWeight': 'bold', 'fontSize': 18}),
+                    html.Div("API Down", style={'color': '#e74c3c', 'fontWeight': 'bold', 'fontSize': 18}),
                     html.Div("API not responding", style={'color': '#7f8c8d', 'fontSize': 14, 'marginTop': 5})
                 ])
         
@@ -1010,15 +1026,15 @@ class PerformanceMonitor:
                     high_mape_models += 1
         
         if total_models == 0:
-            status = "📊 No Models"
+            status = "No Models"
             color = '#95a5a6'
             details = "No model metrics available"
         elif high_mape_models > total_models * 0.5:
-            status = "🟠 Performance Issues"
+            status = "Performance Issues"
             color = '#f39c12'
             details = f"{high_mape_models}/{total_models} models with high MAPE"
         else:
-            status = "✅ Performing Well"
+            status = "Performing Well"
             color = '#27ae60'
             details = f"{total_models} models loaded, {total_models - high_mape_models} healthy"
         
@@ -1030,20 +1046,20 @@ class PerformanceMonitor:
     def _get_data_quality_indicator(self) -> html.Div:
         """Get data quality indicator"""
         if not self.metrics_history.get('data_quality'):
-            return html.Div("📊 No Data", style={'color': 'gray'})
+            return html.Div("No Data", style={'color': 'gray'})
         
         latest = self.metrics_history['data_quality'][-1]
         quality_score = latest['quality_score']
         freshness_hours = latest['data_freshness_hours']
         
         if quality_score >= 85 and freshness_hours < 24:
-            status = "✅ Excellent"
+            status = "Excellent"
             color = '#27ae60'
         elif quality_score >= 70 and freshness_hours < 48:
-            status = "🟠 Good"
+            status = "Good"
             color = '#f39c12'
         else:
-            status = "🔴 Issues"
+            status = "Issues"
             color = '#e74c3c'
         
         details = f"Score: {quality_score:.1f}% | Age: {freshness_hours:.1f}h"
@@ -1090,7 +1106,7 @@ class PerformanceMonitor:
         fig.add_hline(y=85, line_dash="dash", line_color="orange", row=2, col=1)
         fig.add_hline(y=90, line_dash="dash", line_color="red", row=3, col=1)
         
-        fig.update_layout(height=600, title_text="📊 System Performance Metrics", showlegend=False)
+        fig.update_layout(height=600, title_text="System Performance Metrics", showlegend=False)
         return fig
 
     def _create_model_performance_chart(self) -> Dict:
@@ -1124,7 +1140,7 @@ class PerformanceMonitor:
                      annotation_text="MAPE Threshold (20%)")
         
         fig.update_layout(
-            title="📈 Model Performance (MAPE %)", 
+            title="Model Performance (MAPE %)", 
             yaxis_title="MAPE %",
             xaxis_title="Time",
             height=400
@@ -1162,13 +1178,13 @@ class PerformanceMonitor:
         # Add threshold line for response time
         fig.add_hline(y=2000, line_dash="dash", line_color="red", row=2, col=1)
         
-        fig.update_layout(height=400, title_text="🌐 API Performance Metrics", showlegend=False)
+        fig.update_layout(height=400, title_text="API Performance Metrics", showlegend=False)
         return fig
 
     def _create_alerts_table(self) -> html.Table:
         """Create alerts table"""
         if not self.alert_history:
-            return html.Div("✅ No recent alerts", style={'color': '#27ae60', 'fontSize': 16, 'textAlign': 'center', 'padding': 20})
+            return html.Div("No recent alerts", style={'color': '#27ae60', 'fontSize': 16, 'textAlign': 'center', 'padding': 20})
         
         # Get last 10 alerts
         recent_alerts = self.alert_history[-10:]
@@ -1223,7 +1239,7 @@ class PerformanceMonitor:
         with open(output_path, 'w') as f:
             json.dump(export_data, f, indent=2)
         
-        logger.info(f"📁 Metrics exported to: {output_path}")
+        logger.info(f"Metrics exported to: {output_path}")
         return output_path
 
     def get_health_summary(self) -> Dict[str, Any]:
@@ -1271,6 +1287,15 @@ class PerformanceMonitor:
                     'disk_free_gb': latest_system['disk_free_gb'],
                     'status': sys_status
                 }
+            else:
+                summary['system_health'] = {
+                    'cpu_percent': 0.0,
+                    'memory_percent': 0.0,
+                    'disk_percent': 0.0,
+                    'memory_available_gb': 0.0,
+                    'disk_free_gb': 0.0,
+                    'status': 'no_data'
+                }
             
             # API health
             api_health_data = self.metrics_history.get('models', {}).get('api_health', [])
@@ -1282,6 +1307,14 @@ class PerformanceMonitor:
                     'status_healthy': latest_api.get('status_healthy', 0),
                     'response_time_ms': latest_api.get('response_time_ms', 0),
                     'status': 'healthy' if latest_api.get('status_healthy', 0) else 'unhealthy'
+                }
+            else:
+                summary['api_health'] = {
+                    'models_loaded': 0,
+                    'uptime_seconds': 0,
+                    'status_healthy': 0,
+                    'response_time_ms': 0,
+                    'status': 'no_data'
                 }
             
             # Model health
@@ -1323,6 +1356,14 @@ class PerformanceMonitor:
                     'critical_models': sum(1 for s in model_statuses if s == 'critical'),
                     'overall_status': overall_model_status
                 }
+            else:
+                summary['model_health'] = {
+                    'models_count': 0,
+                    'healthy_models': 0,
+                    'warning_models': 0,
+                    'critical_models': 0,
+                    'overall_status': 'no_data'
+                }
             
             # Data health
             if self.metrics_history.get('data_quality'):
@@ -1343,13 +1384,20 @@ class PerformanceMonitor:
                     'validation_status': latest_quality['validation_status'],
                     'status': data_status
                 }
+            else:
+                summary['data_health'] = {
+                    'quality_score': 0.0,
+                    'freshness_hours': 0.0,
+                    'validation_status': 'unknown',
+                    'status': 'no_data'
+                }
             
             # Overall status
             statuses = [
-                summary['system_health'].get('status', 'unknown'),
-                summary.get('api_health', {}).get('status', 'unknown'),
-                summary['model_health'].get('overall_status', 'unknown'),
-                summary['data_health'].get('status', 'unknown')
+                summary['system_health'].get('status', 'no_data'),
+                summary.get('api_health', {}).get('status', 'no_data'),
+                summary['model_health'].get('overall_status', 'no_data'),
+                summary['data_health'].get('status', 'no_data')
             ]
             
             if 'critical' in statuses:
@@ -1358,6 +1406,8 @@ class PerformanceMonitor:
                 summary['overall_status'] = 'warning'
             elif 'unhealthy' in statuses:
                 summary['overall_status'] = 'warning'
+            elif all(s == 'no_data' for s in statuses):
+                summary['overall_status'] = 'no_data'
             else:
                 summary['overall_status'] = 'healthy'
             
@@ -1371,7 +1421,7 @@ class PerformanceMonitor:
 
 def main():
     """Main function for performance monitoring"""
-    parser = argparse.ArgumentParser(description='FIXED Performance Monitor for Chinese Produce Forecasting')
+    parser = argparse.ArgumentParser(description='Performance Monitor for Chinese Produce Forecasting')
     parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
     parser.add_argument('--action', required=True,
                        choices=['start', 'dashboard', 'export', 'health', 'alert-test'],
@@ -1392,7 +1442,7 @@ def main():
         monitor = PerformanceMonitor(args.config, local_mode=local_mode)
         
         if args.action == 'start':
-            print(f"🚀 Starting Performance Monitoring")
+            print(f"Starting Performance Monitoring")
             print(f"   Interval: {args.interval} seconds")
             print(f"   Local mode: {local_mode}")
             print(f"   AWS enabled: {not local_mode and AWS_AVAILABLE}")
@@ -1404,17 +1454,17 @@ def main():
                 while True:
                     time.sleep(1)
             except KeyboardInterrupt:
-                print("\n🛑 Stopping monitoring...")
+                print("\nStopping monitoring...")
                 monitor.stop_monitoring()
         
         elif args.action == 'dashboard':
-            print(f"🚀 Starting Monitoring Dashboard")
+            print(f"Starting Monitoring Dashboard")
             print(f"   Port: {args.port}")
             print(f"   Local mode: {local_mode}")
             print("   Starting background monitoring...")
             
             if not DASHBOARD_AVAILABLE:
-                print("❌ Dashboard dependencies missing. Install:")
+                print("Dashboard dependencies missing. Install:")
                 print("   pip install plotly==5.17.0 dash==2.16.0")
                 return
             
@@ -1423,16 +1473,20 @@ def main():
             
             # Start dashboard (this will block)
             dashboard_url = monitor.create_dashboard(args.port)
-            print(f"🌐 Dashboard: {dashboard_url}")
+            print(f"Dashboard: {dashboard_url}")
         
         elif args.action == 'export':
             output_file = monitor.export_metrics(args.output)
-            print(f"📁 Metrics exported to: {output_file}")
+            print(f"Metrics exported to: {output_file}")
         
         elif args.action == 'health':
+            # COLLECT METRICS FIRST before generating health summary
+            print("Collecting current metrics for health report...")
+            monitor.collect_current_metrics()
+            
             health = monitor.get_health_summary()
             
-            print("\n🏥 System Health Summary")
+            print("\nSystem Health Summary")
             print("="*50)
             print(f"Overall Status: {health['overall_status'].upper()}")
             print(f"Timestamp: {health['timestamp']}")
@@ -1441,7 +1495,7 @@ def main():
             
             if 'system_health' in health:
                 sys_health = health['system_health']
-                print(f"\n🖥️  System Health: {sys_health.get('status', 'unknown').upper()}")
+                print(f"\nSystem Health: {sys_health.get('status', 'unknown').upper()}")
                 print(f"  CPU: {sys_health.get('cpu_percent', 0):.1f}%")
                 print(f"  Memory: {sys_health.get('memory_percent', 0):.1f}%")
                 print(f"  Disk: {sys_health.get('disk_percent', 0):.1f}%")
@@ -1450,14 +1504,14 @@ def main():
             
             if 'api_health' in health:
                 api_health = health['api_health']
-                print(f"\n🌐 API Health: {api_health.get('status', 'unknown').upper()}")
+                print(f"\nAPI Health: {api_health.get('status', 'unknown').upper()}")
                 print(f"  Models Loaded: {api_health.get('models_loaded', 0)}")
                 print(f"  Uptime: {api_health.get('uptime_seconds', 0):.1f} seconds")
                 print(f"  Response Time: {api_health.get('response_time_ms', 0):.1f} ms")
             
             if 'model_health' in health:
                 model_health = health['model_health']
-                print(f"\n🤖 Model Health: {model_health.get('overall_status', 'unknown').upper()}")
+                print(f"\nModel Health: {model_health.get('overall_status', 'unknown').upper()}")
                 print(f"  Total Models: {model_health.get('models_count', 0)}")
                 print(f"  Healthy: {model_health.get('healthy_models', 0)}")
                 print(f"  Warning: {model_health.get('warning_models', 0)}")
@@ -1465,27 +1519,29 @@ def main():
             
             if 'data_health' in health:
                 data_health = health['data_health']
-                print(f"\n📊 Data Health: {data_health.get('status', 'unknown').upper()}")
+                print(f"\nData Health: {data_health.get('status', 'unknown').upper()}")
                 print(f"  Quality Score: {data_health.get('quality_score', 0):.1f}%")
                 print(f"  Freshness: {data_health.get('freshness_hours', 0):.1f} hours")
                 print(f"  Validation: {data_health.get('validation_status', 'unknown')}")
             
-            print(f"\n🚨 Active Alerts: {health.get('alerts_count', 0)}")
-            print(f"⏱️  Monitoring Uptime: {health.get('monitoring_uptime_minutes', 0):.1f} minutes")
+            print(f"\nActive Alerts: {health.get('alerts_count', 0)}")
+            print(f"  Monitoring Uptime: {health.get('monitoring_uptime_minutes', 0):.1f} minutes")
             
             # Status summary
             status = health['overall_status']
             if status == 'healthy':
-                print(f"\n🎉 All systems operating normally!")
+                print(f"\nAll systems operating normally!")
             elif status == 'warning':
-                print(f"\n⚠️  Some issues detected, monitoring recommended")
+                print(f"\nSome issues detected, monitoring recommended")
             elif status == 'critical':
-                print(f"\n🚨 Critical issues detected, immediate attention required")
+                print(f"\nCritical issues detected, immediate attention required")
+            elif status == 'no_data':
+                print(f"\nNo monitoring data available yet")
             else:
-                print(f"\n❓ System status unknown")
+                print(f"\nSystem status unknown")
         
         elif args.action == 'alert-test':
-            print("🧪 Testing alert system...")
+            print("Testing alert system...")
             
             # Create test alert
             test_alert = {
@@ -1499,19 +1555,19 @@ def main():
             }
             
             monitor._process_alert(test_alert)
-            print("✅ Test alert processed successfully")
-            print(f"📁 Alert saved to: {monitor.alerts_dir}")
+            print("Test alert processed successfully")
+            print(f"Alert saved to: {monitor.alerts_dir}")
             
             if monitor.aws_enabled:
-                print("☁️  Test alert sent to CloudWatch")
+                print("  Test alert sent to CloudWatch")
             else:
-                print("🏠 Running in local mode - no CloudWatch integration")
+                print("Running in local mode - no CloudWatch integration")
         
-        logger.info("✅ Performance monitoring operation completed successfully")
+        logger.info("Performance monitoring operation completed successfully")
         
     except Exception as e:
-        logger.error(f"❌ Performance monitoring operation failed: {e}")
-        print(f"\n❌ Operation failed: {e}")
+        logger.error(f"Performance monitoring operation failed: {e}")
+        print(f"\nOperation failed: {e}")
 
 
 if __name__ == "__main__":

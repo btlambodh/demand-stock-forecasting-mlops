@@ -1,0 +1,489 @@
+{
+  "system": [
+    {
+      "timestamp": "2025-06-23T02:23:00.739402",
+      "cpu_percent": 3.8,
+      "memory_percent": 22.0,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.81912612915039,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:24:00.795777",
+      "cpu_percent": 1.5,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.503337860107422,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:25:00.853985",
+      "cpu_percent": 0.5,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.503662109375,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:26:00.912912",
+      "cpu_percent": 0.8,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.503604888916016,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:27:00.966669",
+      "cpu_percent": 0.8,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.506534576416016,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:28:00.971722",
+      "cpu_percent": 1.5,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.5054931640625,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:29:01.027344",
+      "cpu_percent": 1.0,
+      "memory_percent": 24.1,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.504505157470703,
+      "disk_free_gb": 36.9951057434082
+    }
+  ],
+  "models": {
+    "linear_regression": [
+      {
+        "timestamp": "2025-06-23T02:23:00.746573",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:24:00.799860",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:25:00.857824",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:26:00.916720",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:27:00.970546",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:28:00.975570",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:29:01.031380",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      }
+    ],
+    "ridge": [
+      {
+        "timestamp": "2025-06-23T02:23:00.746728",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:24:00.799910",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:25:00.857855",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:26:00.916750",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:27:00.970577",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:28:00.975602",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:29:01.031411",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      }
+    ],
+    "random_forest": [
+      {
+        "timestamp": "2025-06-23T02:23:00.746849",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:24:00.799941",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:25:00.857879",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:26:00.916773",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:27:00.970613",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:28:00.975626",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:29:01.031433",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      }
+    ],
+    "gradient_boosting": [
+      {
+        "timestamp": "2025-06-23T02:23:00.746969",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:24:00.799964",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:25:00.857901",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:26:00.916794",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:27:00.970637",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:28:00.975649",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:29:01.031455",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      }
+    ],
+    "api_health": [
+      {
+        "timestamp": "2025-06-23T02:23:00.747050",
+        "models_loaded": 11,
+        "uptime_seconds": 5132.36,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:24:00.799981",
+        "models_loaded": 11,
+        "uptime_seconds": 5192.41,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:25:00.857917",
+        "models_loaded": 11,
+        "uptime_seconds": 5252.47,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:26:00.916810",
+        "models_loaded": 11,
+        "uptime_seconds": 5312.53,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:27:00.970653",
+        "models_loaded": 11,
+        "uptime_seconds": 5372.58,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:28:00.975666",
+        "models_loaded": 11,
+        "uptime_seconds": 5432.59,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:29:01.031471",
+        "models_loaded": 11,
+        "uptime_seconds": 5492.64,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      }
+    ]
+  },
+  "api": [
+    {
+      "timestamp": "2025-06-23T02:23:00.758006",
+      "total_requests": 896.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645380.7470691,
+      "api_response_time_ms": 4.268407821655273,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:24:00.807182",
+      "total_requests": 908.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645440.799992,
+      "api_response_time_ms": 2.943277359008789,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:25:00.864122",
+      "total_requests": 916.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645500.8579266,
+      "api_response_time_ms": 2.435922622680664,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:26:00.923186",
+      "total_requests": 927.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645560.9168189,
+      "api_response_time_ms": 2.5060176849365234,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:27:00.977136",
+      "total_requests": 935.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645620.9706628,
+      "api_response_time_ms": 2.568960189819336,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:28:00.982427",
+      "total_requests": 943.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645680.9756756,
+      "api_response_time_ms": 2.8133392333984375,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:29:01.038209",
+      "total_requests": 951.0,
+      "prediction_count": 7.0,
+      "average_latency_ms": 67.17831747872489,
+      "error_count": 0,
+      "monitoring_timestamp": 1750645741.03148,
+      "api_response_time_ms": 2.6607513427734375,
+      "api_available": 1
+    }
+  ],
+  "data_quality": [
+    {
+      "timestamp": "2025-06-23T02:23:00.758123",
+      "quality_score": 98.45449232333236,
+      "data_freshness_hours": 1.5455076928271188,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:24:00.807295",
+      "quality_score": 98.43781199759907,
+      "data_freshness_hours": 1.5621880144543119,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:25:00.864200",
+      "quality_score": 98.42112952285342,
+      "data_freshness_hours": 1.5788704858223597,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:26:00.923262",
+      "quality_score": 98.4044464500083,
+      "data_freshness_hours": 1.5955535584688187,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:27:00.977215",
+      "quality_score": 98.38776479648219,
+      "data_freshness_hours": 1.612235212193595,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:28:00.982507",
+      "quality_score": 98.37109666009744,
+      "data_freshness_hours": 1.6289033487770292,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:29:01.038286",
+      "quality_score": 98.354414498806,
+      "data_freshness_hours": 1.645585509604878,
+      "validation_status": "api_healthy"
+    }
+  ]
+}

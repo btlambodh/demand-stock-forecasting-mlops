@@ -1,0 +1,2738 @@
+{
+  "timestamp": "2025-06-23T02:10:51.711619",
+  "alert_type": "data_drift",
+  "drift_results": {
+    "timestamp": "2025-06-23T02:10:51.711619",
+    "method": "statistical",
+    "overall_drift_detected": true,
+    "drift_score": 0.29232576215325007,
+    "feature_drift": {
+      "Total_Quantity_MA_30": {
+        "drift_score": 0.08855366797234819,
+        "mean_drift": 0.049638865007670736,
+        "std_drift": 0.1772568673048152,
+        "median_drift": 0.03876527160455861,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.745368356917625,
+          "std": 9.696331691888863,
+          "median": 5.826086956521739,
+          "skewness": 1.8071705669201077,
+          "kurtosis": 3.614149402202652
+        },
+        "reference_stats": {
+          "mean": 10.330380714719452,
+          "std": 11.785369341370393,
+          "median": 6.2829500000000005,
+          "q25": 2.8,
+          "q75": 13.462558333333334,
+          "min": 0.056,
+          "max": 157.76024999999998,
+          "skewness": 3.0265513793076892,
+          "kurtosis": 16.300671275326412,
+          "missing_rate": 0.0
+        }
+      },
+      "WeekOfYear": {
+        "drift_score": 0.08831685037124877,
+        "mean_drift": 0.1119565996127222,
+        "std_drift": 0.020657788944243773,
+        "median_drift": 0.13233616255678032,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 24.939619401917298,
+          "std": 15.42522873906547,
+          "median": 25.0,
+          "skewness": 0.0,
+          "kurtosis": 0.0
+        },
+        "reference_stats": {
+          "mean": 26.63162251655629,
+          "std": 15.113027016646924,
+          "median": 27.0,
+          "q25": 13.0,
+          "q75": 39.0,
+          "min": 1.0,
+          "max": 53.0,
+          "skewness": 0.0033428046187376566,
+          "kurtosis": -1.1806602107004553,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Max_14": {
+        "drift_score": 0.42180543520277763,
+        "mean_drift": 0.45426316763081986,
+        "std_drift": 0.21873064035018586,
+        "median_drift": 0.5924224976273271,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 7.771581497870381,
+          "std": 6.725729948089428,
+          "median": 4.9,
+          "skewness": 1.951527542168121,
+          "kurtosis": 3.1863276367400086
+        },
+        "reference_stats": {
+          "mean": 11.682206371496576,
+          "std": 8.608721006419707,
+          "median": 10.0,
+          "q25": 6.900000000000001,
+          "q75": 14.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 4.081011115380992,
+          "kurtosis": 30.673368118827007,
+          "missing_rate": 0.0
+        }
+      },
+      "Year": {
+        "drift_score": 0.8872556772419813,
+        "mean_drift": 1.0900575846648004,
+        "std_drift": 0.49880699809685425,
+        "median_drift": 1.072902448964289,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 2022.2685648876807,
+          "std": 0.46713753182963197,
+          "median": 2022.0,
+          "skewness": 0.7202284593969253,
+          "kurtosis": -0.6507889281725419
+        },
+        "reference_stats": {
+          "mean": 2021.2525754231053,
+          "std": 0.9320511859818528,
+          "median": 2021.0,
+          "q25": 2021.0,
+          "q75": 2022.0,
+          "min": 2020.0,
+          "max": 2023.0,
+          "skewness": 0.34791370544162925,
+          "kurtosis": -0.7230654291245222,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Std_14": {
+        "drift_score": 0.20224561766675478,
+        "mean_drift": 0.12652953022100075,
+        "std_drift": 0.35875830061404185,
+        "median_drift": 0.12144902216522174,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.827346731084665,
+          "std": 0.9714749280886852,
+          "median": 0.5152991212352578,
+          "skewness": 3.11504664858241,
+          "kurtosis": 14.01554203594813
+        },
+        "reference_stats": {
+          "mean": 1.0190377368165882,
+          "std": 1.514990258772866,
+          "median": 0.6992932067530586,
+          "q25": 0.20542103640525478,
+          "q75": 1.234817684426244,
+          "min": 0.0,
+          "max": 42.28498551495554,
+          "skewness": 6.925664955062925,
+          "kurtosis": 97.47515338233642,
+          "missing_rate": 0.0
+        }
+      },
+      "IsNationalDay": {
+        "drift_score": 0.02798194163741341,
+        "mean_drift": 0.01840911627289182,
+        "std_drift": 0.0655367086393484,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.019888396050937188,
+          "std": 0.13962677833406717,
+          "median": 0.0,
+          "skewness": 6.877562614064032,
+          "kurtosis": 45.30086751037129
+        },
+        "reference_stats": {
+          "mean": 0.01747608535688006,
+          "std": 0.13103891888658203,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 7.364702272520274,
+          "kurtosis": 52.23883956286521,
+          "missing_rate": 0.0
+        }
+      },
+      "Quarter": {
+        "drift_score": 0.34582158210147185,
+        "mean_drift": 0.10585947630316929,
+        "std_drift": 0.02973878288338075,
+        "median_drift": 0.9018664871178655,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 2.388324509944198,
+          "std": 1.1417862816636666,
+          "median": 2.0,
+          "skewness": 0.09765662344649312,
+          "kurtosis": -1.4140703123797942
+        },
+        "reference_stats": {
+          "mean": 2.5057027225901396,
+          "std": 1.1088115749768506,
+          "median": 3.0,
+          "q25": 2.0,
+          "q75": 3.0,
+          "min": 1.0,
+          "max": 4.0,
+          "skewness": -0.02497724477975463,
+          "kurtosis": -1.338270940001089,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_MA_7": {
+        "drift_score": 0.39346272982180147,
+        "mean_drift": 0.47567204645765304,
+        "std_drift": 0.18462328838510064,
+        "median_drift": 0.5200928546226508,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.788290727325014,
+          "std": 5.947705023337956,
+          "median": 4.435714285714286,
+          "skewness": 1.9824263572730279,
+          "kurtosis": 3.3556179966201887
+        },
+        "reference_stats": {
+          "mean": 10.258045234507742,
+          "std": 7.294425924378183,
+          "median": 8.229493087557604,
+          "q25": 5.951966873706004,
+          "q75": 13.128069196428571,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.7902652359547546,
+          "kurtosis": 29.293619566767532,
+          "missing_rate": 0.0
+        }
+      },
+      "Month_Sin": {
+        "drift_score": 0.06037218970480852,
+        "mean_drift": 0.09927819085822531,
+        "std_drift": 0.08183837825619973,
+        "median_drift": 5.210284735085947e-16,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.05738742668534923,
+          "std": 0.7628392541800485,
+          "median": 1.2246467991473532e-16,
+          "skewness": -0.12238026164772751,
+          "kurtosis": -1.6372469433320762
+        },
+        "reference_stats": {
+          "mean": -0.01261683882490801,
+          "std": 0.7051323649745709,
+          "median": -2.4492935982947064e-16,
+          "q25": -0.8660254037844383,
+          "q75": 0.4999999999999999,
+          "min": -1.0,
+          "max": 1.0,
+          "skewness": 0.032072487078346326,
+          "kurtosis": -1.4919866958212749,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_Lag_7": {
+        "drift_score": 0.3256620724066677,
+        "mean_drift": 0.29810560209167214,
+        "std_drift": 0.5572592895435343,
+        "median_drift": 0.12162132558479667,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.516299114682944,
+          "std": 53.51090396410184,
+          "median": 27.857599999999998,
+          "skewness": 3.065314801997238,
+          "kurtosis": 18.77082431838967
+        },
+        "reference_stats": {
+          "mean": 82.54619170857117,
+          "std": 120.86284974546864,
+          "median": 42.5571,
+          "q25": 19.62705,
+          "q75": 97.34120000000001,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.717887933847085,
+          "kurtosis": 110.39778631257232,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Lag_1": {
+        "drift_score": 0.3777240928372641,
+        "mean_drift": 0.47079618374184956,
+        "std_drift": 0.19019524418991215,
+        "median_drift": 0.47218085058003056,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.7697235698334195,
+          "std": 6.0026081994930784,
+          "median": 4.5,
+          "skewness": 2.039934025284036,
+          "kurtosis": 3.7446165276576675
+        },
+        "reference_stats": {
+          "mean": 10.259459845822418,
+          "std": 7.4124141114587205,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 13.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.8209553248976893,
+          "kurtosis": 29.330789975504082,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Std_30": {
+        "drift_score": 0.08618368812226607,
+        "mean_drift": 0.028161912165964958,
+        "std_drift": 0.2142165118352744,
+        "median_drift": 0.016172640365558835,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 5.327842142486637,
+          "std": 5.370721457300189,
+          "median": 3.3624019876327664,
+          "skewness": 2.2914669496433318,
+          "kurtosis": 7.294533894920681
+        },
+        "reference_stats": {
+          "mean": 5.52032491697406,
+          "std": 6.834861686702066,
+          "median": 3.251864227625397,
+          "q25": 1.5364639817403445,
+          "q75": 7.035517047917259,
+          "min": 0.0,
+          "max": 105.21186872330516,
+          "skewness": 3.9816898244174057,
+          "kurtosis": 28.200234914114496,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Volatility_Quantity": {
+        "drift_score": 0.42402245266561245,
+        "mean_drift": 0.7390394527792156,
+        "std_drift": 0.5330279052176218,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 4.765347833128517,
+          "std": 7.971096010791261,
+          "median": 0.0,
+          "skewness": 2.4805891654384573,
+          "kurtosis": 8.015684575919776
+        },
+        "reference_stats": {
+          "mean": 0.9226555939226628,
+          "std": 5.199576591960158,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 239.24873715998882,
+          "skewness": 11.907608140429637,
+          "kurtosis": 277.5106725751774,
+          "missing_rate": 0.0
+        }
+      },
+      "IsLaborDay": {
+        "drift_score": 0.10179039076509865,
+        "mean_drift": 0.05118395541630643,
+        "std_drift": 0.2541872168789895,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.007154099298898269,
+          "std": 0.08428484209626085,
+          "median": 0.0,
+          "skewness": 11.69560625402673,
+          "kurtosis": 134.787205649229
+        },
+        "reference_stats": {
+          "mean": 0.012938435123865588,
+          "std": 0.11301072333937907,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 8.619872827288058,
+          "kurtosis": 72.30220755861897,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_MA_14": {
+        "drift_score": 0.36607367116678113,
+        "mean_drift": 0.3675346836113708,
+        "std_drift": 0.5712024209300833,
+        "median_drift": 0.15948390895888936,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.30715224303995,
+          "std": 42.459180356674054,
+          "median": 30.378571428571433,
+          "skewness": 1.6202527995531262,
+          "kurtosis": 2.486358886701776
+        },
+        "reference_stats": {
+          "mean": 82.70013154258925,
+          "std": 99.01916995140256,
+          "median": 46.17053571428571,
+          "q25": 24.46664285714286,
+          "q75": 101.01369540360315,
+          "min": 0.896,
+          "max": 2252.964,
+          "skewness": 3.739014259529915,
+          "kurtosis": 31.58011927785992,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Min_14": {
+        "drift_score": 0.4642983757710513,
+        "mean_drift": 0.5612264370465211,
+        "std_drift": 0.25538070650113837,
+        "median_drift": 0.5762879837654946,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 5.290081766177901,
+          "std": 4.780754524749732,
+          "median": 3.5,
+          "skewness": 2.2237921220274965,
+          "kurtosis": 5.209217233524807
+        },
+        "reference_stats": {
+          "mean": 8.893380595183368,
+          "std": 6.420401091523746,
+          "median": 7.2,
+          "q25": 5.0,
+          "q75": 12.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 4.054222473617168,
+          "kurtosis": 37.84226507941522,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfYear_Cos": {
+        "drift_score": 0.12076085851896616,
+        "mean_drift": 0.11605623999496428,
+        "std_drift": 0.07716313684429878,
+        "median_drift": 0.16906319871763542,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.07266895723109616,
+          "std": 0.6570539371110571,
+          "median": 0.09025161003104071,
+          "skewness": -0.10128801480819652,
+          "kurtosis": -1.3260071687249713
+        },
+        "reference_stats": {
+          "mean": -0.009962342470388795,
+          "std": 0.7119935964242022,
+          "median": -0.030120304846908114,
+          "q25": -0.7324940716135789,
+          "q75": 0.7025274741691571,
+          "min": -0.9999629591162656,
+          "max": 1.0,
+          "skewness": 0.021257627911944528,
+          "kurtosis": -1.5048649624674408,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Max_7": {
+        "drift_score": 0.3792039755437984,
+        "mean_drift": 0.4389885641176423,
+        "std_drift": 0.1905762684685657,
+        "median_drift": 0.5080470940451873,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 7.505976048393694,
+          "std": 6.532145027846002,
+          "median": 4.9,
+          "skewness": 1.953404061763859,
+          "kurtosis": 3.2026463513452637
+        },
+        "reference_stats": {
+          "mean": 11.04866556276822,
+          "std": 8.07011800294902,
+          "median": 9.0,
+          "q25": 6.0,
+          "q75": 14.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.973576495234045,
+          "kurtosis": 30.23394193167845,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Target_1d": {
+        "drift_score": 0.38099638197944463,
+        "mean_drift": 0.4741083625377753,
+        "std_drift": 0.19689934573224702,
+        "median_drift": 0.47198143766831147,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.748934395517489,
+          "std": 5.955429738557818,
+          "median": 4.5,
+          "skewness": 2.0348161896263695,
+          "kurtosis": 3.716858545630778
+        },
+        "reference_stats": {
+          "mean": 10.264706704445356,
+          "std": 7.415545868267072,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 13.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.748582457762931,
+          "kurtosis": 27.841553496366856,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Std_14": {
+        "drift_score": 0.08461423333184519,
+        "mean_drift": 0.001131936304359796,
+        "std_drift": 0.19539784491466375,
+        "median_drift": 0.05731291877651203,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 4.985502335205563,
+          "std": 5.381151726410264,
+          "median": 3.2386742641103914,
+          "skewness": 3.072176527787295,
+          "kurtosis": 15.308127922375142
+        },
+        "reference_stats": {
+          "mean": 4.993072686539939,
+          "std": 6.687965838022816,
+          "median": 2.8553674212557025,
+          "q25": 1.3259870882636482,
+          "q75": 6.148976708182021,
+          "min": 0.0,
+          "max": 109.35648430404417,
+          "skewness": 5.066949630665427,
+          "kurtosis": 47.52747666485019,
+          "missing_rate": 0.0
+        }
+      },
+      "Holiday_Demand": {
+        "drift_score": 0.0063077972651868494,
+        "mean_drift": 0.003069776816747533,
+        "std_drift": 0.015853614978813015,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.3822651309200171,
+          "std": 3.2781620898205848,
+          "median": 0.0,
+          "skewness": 11.810735565633818,
+          "kurtosis": 163.7040318501162
+        },
+        "reference_stats": {
+          "mean": 0.37203979641893553,
+          "std": 3.3309700057984886,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 106.0,
+          "skewness": 14.308283523623185,
+          "kurtosis": 261.1328408371459,
+          "missing_rate": 0.0
+        }
+      },
+      "Days_Since_Epoch": {
+        "drift_score": 1.0265245395062164,
+        "mean_drift": 1.1961262007402156,
+        "std_drift": 0.5216384938332292,
+        "median_drift": 1.3618089239452043,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 999.6484475604522,
+          "std": 144.0203644430426,
+          "median": 1000.0,
+          "skewness": -0.05613444679049188,
+          "kurtosis": -0.8949044000767499
+        },
+        "reference_stats": {
+          "mean": 639.5305678194751,
+          "std": 301.07013751401837,
+          "median": 590.0,
+          "q25": 387.0,
+          "q75": 857.0,
+          "min": 182.0,
+          "max": 1276.0,
+          "skewness": 0.4486071502636527,
+          "kurtosis": -0.8553917143354846,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Std_7": {
+        "drift_score": 0.11275827244338232,
+        "mean_drift": 0.012805071085198988,
+        "std_drift": 0.30142906423533383,
+        "median_drift": 0.02404068200961418,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.6950791365260376,
+          "std": 0.9207159965910315,
+          "median": 0.40965007480276283,
+          "skewness": 3.2611736791907107,
+          "kurtosis": 15.153285498654782
+        },
+        "reference_stats": {
+          "mean": 0.6782020619413032,
+          "std": 1.3179992889100118,
+          "median": 0.3779644730091796,
+          "q25": 0.0,
+          "q75": 0.9621404708846707,
+          "min": 0.0,
+          "max": 42.28498551495554,
+          "skewness": 9.951376961664728,
+          "kurtosis": 196.09091396296753,
+          "missing_rate": 0.0
+        }
+      },
+      "Season_Winter": {
+        "drift_score": 0.0009608808133014655,
+        "mean_drift": 0.0017723522459289396,
+        "std_drift": 0.0011102901939754567,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.24481327800829875,
+          "std": 0.43000720187520036,
+          "median": 0.0,
+          "skewness": 1.1869800280070801,
+          "kurtosis": -0.591078413112311
+        },
+        "reference_stats": {
+          "mean": 0.24405199901888644,
+          "std": 0.42953029859665315,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 1.1917758796745797,
+          "kurtosis": -0.5796702526258812,
+          "missing_rate": 0.0
+        }
+      },
+      "Discount_Count": {
+        "drift_score": 0.2010336933952137,
+        "mean_drift": 0.2174205279360643,
+        "std_drift": 0.3856805522495768,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1.9822578337387322,
+          "std": 3.4019464774787638,
+          "median": 0.0,
+          "skewness": 3.110889649748835,
+          "kurtosis": 14.403299718835896
+        },
+        "reference_stats": {
+          "mean": 0.7782376747608536,
+          "std": 5.537748300068237,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 161.0,
+          "skewness": 12.072807354513781,
+          "kurtosis": 188.11121550772,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Lag_7": {
+        "drift_score": 0.3712721057903356,
+        "mean_drift": 0.4689828758124418,
+        "std_drift": 0.16465532875928607,
+        "median_drift": 0.48017811279927874,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.79928713096111,
+          "std": 6.088795535261411,
+          "median": 4.5,
+          "skewness": 2.0886228151334607,
+          "kurtosis": 4.014899868163642
+        },
+        "reference_stats": {
+          "mean": 10.217685474389336,
+          "std": 7.288961963710015,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.9,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.882689546613111,
+          "kurtosis": 32.11444346811996,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price": {
+        "drift_score": 0.3788216710426435,
+        "mean_drift": 0.4717580078755043,
+        "std_drift": 0.19265947966344457,
+        "median_drift": 0.4720475255889816,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.764815626522379,
+          "std": 5.986032481903768,
+          "median": 4.5,
+          "skewness": 2.0324036117049524,
+          "kurtosis": 3.703002997480125
+        },
+        "reference_stats": {
+          "mean": 10.26266899521464,
+          "std": 7.414507671940429,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 13.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.7839771685448307,
+          "kurtosis": 28.575914766110436,
+          "missing_rate": 0.0
+        }
+      },
+      "Season_Summer": {
+        "drift_score": 0.04300757222712323,
+        "mean_drift": 0.08421160443344074,
+        "std_drift": 0.04481111224792896,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.28373157819430533,
+          "std": 0.450840384340578,
+          "median": 0.0,
+          "skewness": 0.9594699278779927,
+          "kurtosis": -1.0794174574978002
+        },
+        "reference_stats": {
+          "mean": 0.24739391709590386,
+          "std": 0.43150420114750426,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 1.1708342803950615,
+          "kurtosis": -0.6291470878517784,
+          "missing_rate": 0.0
+        }
+      },
+      "Category Name_Encoded": {
+        "drift_score": 0.6504957103683648,
+        "mean_drift": 0.20850277660992594,
+        "std_drift": 0.2789546787743121,
+        "median_drift": 1.4640296757208564,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 2.777221347832308,
+          "std": 0.9850146252952978,
+          "median": 2.0,
+          "skewness": -0.13781239537811868,
+          "kurtosis": -0.5409119900669968
+        },
+        "reference_stats": {
+          "mean": 3.06205543291636,
+          "std": 1.3660925274723297,
+          "median": 4.0,
+          "q25": 2.0,
+          "q75": 4.0,
+          "min": 0.0,
+          "max": 5.0,
+          "skewness": -0.8128539584644038,
+          "kurtosis": -0.18118461626118432,
+          "missing_rate": 0.0
+        }
+      },
+      "Month_Cos": {
+        "drift_score": 0.06382882951704308,
+        "mean_drift": 0.09686155303328978,
+        "std_drift": 0.09462493551783913,
+        "median_drift": 3.4552744578683287e-16,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.05515753918927228,
+          "std": 0.6417809573540736,
+          "median": 6.123233995736766e-17,
+          "skewness": -0.03387545893565957,
+          "kurtosis": -1.3221288093512165
+        },
+        "reference_stats": {
+          "mean": -0.01350339778060374,
+          "std": 0.7088564535639682,
+          "median": -1.8369701987210297e-16,
+          "q25": -0.8660254037844386,
+          "q75": 0.5000000000000001,
+          "min": -1.0,
+          "max": 1.0,
+          "skewness": 0.03883637779095051,
+          "kurtosis": -1.5020645420681045,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Markup_Pct": {
+        "drift_score": 0.3769827003855181,
+        "mean_drift": 0.052875189685176294,
+        "std_drift": 1.0529629162160046,
+        "median_drift": 0.025109995255373576,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 144.41111860543177,
+          "std": 1960.8291257053036,
+          "median": 86.91588785046727,
+          "skewness": 77.77830561767426,
+          "kurtosis": 6306.715585401741
+        },
+        "reference_stats": {
+          "mean": 93.90888539754386,
+          "std": 955.1215514985917,
+          "median": 62.93279022403259,
+          "q25": 48.749588274044804,
+          "q75": 80.83182640144665,
+          "min": -68.79875195007801,
+          "max": 91899.99999999999,
+          "skewness": 62.70475347529104,
+          "kurtosis": 4770.233266411703,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_MA_14": {
+        "drift_score": 0.4000776936931345,
+        "mean_drift": 0.4793608618525477,
+        "std_drift": 0.1754565743905861,
+        "median_drift": 0.5454156448362698,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.799345603452983,
+          "std": 5.948666551758149,
+          "median": 4.413214285714285,
+          "skewness": 1.9759307421093883,
+          "kurtosis": 3.2702893575173757
+        },
+        "reference_stats": {
+          "mean": 10.257693383033718,
+          "std": 7.214497583752528,
+          "median": 8.34811413752638,
+          "q25": 5.942857142857143,
+          "q75": 13.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.856744588394005,
+          "kurtosis": 30.8921265674905,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity": {
+        "drift_score": 0.06409449425300663,
+        "mean_drift": 0.011502618602444182,
+        "std_drift": 0.14163306208081128,
+        "median_drift": 0.039147802075764446,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.055835598798112,
+          "std": 12.355477034990534,
+          "median": 6.0,
+          "skewness": 3.2816547041084,
+          "kurtosis": 22.535010881079085
+        },
+        "reference_stats": {
+          "mean": 10.221406211675252,
+          "std": 14.39416698054806,
+          "median": 5.4365000000000006,
+          "q25": 2.004,
+          "q75": 12.445,
+          "min": 0.006,
+          "max": 407.0,
+          "skewness": 4.735141466305331,
+          "kurtosis": 50.264539876569714,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_MA_30": {
+        "drift_score": 0.40923682126436683,
+        "mean_drift": 0.4892328318699757,
+        "std_drift": 0.16250996819981112,
+        "median_drift": 0.5759676637233136,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.801261785336994,
+          "std": 5.923416417394559,
+          "median": 4.392950937950938,
+          "skewness": 1.9789174945361914,
+          "kurtosis": 3.20993992658647
+        },
+        "reference_stats": {
+          "mean": 10.26151764294754,
+          "std": 7.072820203796512,
+          "median": 8.466666666666667,
+          "q25": 6.0,
+          "q75": 12.866666666666667,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.938299817150863,
+          "kurtosis": 32.499547160404276,
+          "missing_rate": 0.0
+        }
+      },
+      "Loss_Rate_Category_Very_High": {
+        "drift_score": 0.29801036160539923,
+        "mean_drift": 0.1843886135588944,
+        "std_drift": 0.7096424712573032,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.003147803691515238,
+          "std": 0.056020925232775944,
+          "median": 0.0,
+          "skewness": 17.739362331421805,
+          "kurtosis": 312.68497592546674
+        },
+        "reference_stats": {
+          "mean": 0.038723325974981605,
+          "std": 0.19293773946677795,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 4.781684980735252,
+          "kurtosis": 20.864511254989086,
+          "missing_rate": 0.0
+        }
+      },
+      "Retail_Wholesale_Ratio": {
+        "drift_score": 0.37698270038551845,
+        "mean_drift": 0.05287518968517633,
+        "std_drift": 1.0529629162160055,
+        "median_drift": 0.02510999525537361,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 2.4441111860543177,
+          "std": 19.60829125705304,
+          "median": 1.8691588785046729,
+          "skewness": 77.77830561767422,
+          "kurtosis": 6306.715585401738
+        },
+        "reference_stats": {
+          "mean": 1.9390888539754383,
+          "std": 9.551215514985914,
+          "median": 1.6293279022403258,
+          "q25": 1.487495882740448,
+          "q75": 1.8083182640144664,
+          "min": 0.31201248049922,
+          "max": 919.9999999999999,
+          "skewness": 62.70475347529106,
+          "kurtosis": 4770.233266411707,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Change_Target_7d": {
+        "drift_score": 0.0754853928661709,
+        "mean_drift": 0.019532294904466237,
+        "std_drift": 0.20692388369404646,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 2.583898060864452,
+          "std": 24.787745059291915,
+          "median": 0.0,
+          "skewness": 1.2206895656078522,
+          "kurtosis": 4.416891725761957
+        },
+        "reference_stats": {
+          "mean": 3.1943836580981424,
+          "std": 31.255190453534322,
+          "median": 0.0,
+          "q25": -7.661290322580654,
+          "q75": 9.229708431836084,
+          "min": -79.7979797979798,
+          "max": 700.0,
+          "skewness": 5.976285269995613,
+          "kurtosis": 80.09342906415047,
+          "missing_rate": 0.0
+        }
+      },
+      "Quantity_Target_7d": {
+        "drift_score": 0.05800887981642317,
+        "mean_drift": 0.0008692768780599542,
+        "std_drift": 0.1290954872749899,
+        "median_drift": 0.04406187529621965,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.150714408355988,
+          "std": 12.402844365133738,
+          "median": 6.0,
+          "skewness": 3.241390064484038,
+          "kurtosis": 22.095716065427684
+        },
+        "reference_stats": {
+          "mean": 10.13833474368408,
+          "std": 14.241336660807914,
+          "median": 5.3725000000000005,
+          "q25": 2.0,
+          "q75": 12.34,
+          "min": 0.006,
+          "max": 407.0,
+          "skewness": 4.619721292643455,
+          "kurtosis": 48.47985715260067,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_MA_30": {
+        "drift_score": 0.38745337842473565,
+        "mean_drift": 0.3978795396897479,
+        "std_drift": 0.5729197656580182,
+        "median_drift": 0.19156082992644105,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 45.51067628901259,
+          "std": 40.4839214315122,
+          "median": 29.40333333333334,
+          "skewness": 1.4714538087324438,
+          "kurtosis": 1.608592276176081
+        },
+        "reference_stats": {
+          "mean": 83.22659645755833,
+          "std": 94.79230874237778,
+          "median": 47.56182666666666,
+          "q25": 25.666708605072465,
+          "q75": 103.13693166666667,
+          "min": 0.896,
+          "max": 2252.964,
+          "skewness": 3.4959159950398973,
+          "kurtosis": 31.996922629199474,
+          "missing_rate": 0.0
+        }
+      },
+      "Season_Spring": {
+        "drift_score": 0.019242881591798714,
+        "mean_drift": 0.036798039894856756,
+        "std_drift": 0.02093060488053939,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.2612677063957648,
+          "std": 0.43935692978689317,
+          "median": 0.0,
+          "skewness": 1.0868128321016302,
+          "kurtosis": -0.8188378679792341
+        },
+        "reference_stats": {
+          "mean": 0.24543168996811382,
+          "std": 0.4303494553758656,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 1.183095316832112,
+          "kurtosis": -0.6002854712899244,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Lag_14": {
+        "drift_score": 0.37370442080904037,
+        "mean_drift": 0.4698985778916384,
+        "std_drift": 0.1685337621562947,
+        "median_drift": 0.48268092237918814,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.781957762268081,
+          "std": 6.029100587006016,
+          "median": 4.5,
+          "skewness": 2.0560085964501065,
+          "kurtosis": 3.763197049733092
+        },
+        "reference_stats": {
+          "mean": 10.18927084709873,
+          "std": 7.251167049959442,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.9,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 4.053023776071558,
+          "kurtosis": 35.75703815832447,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Target_14d": {
+        "drift_score": 0.39101332075875633,
+        "mean_drift": 0.48893217738344813,
+        "std_drift": 0.199111429043763,
+        "median_drift": 0.4849963558490579,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.670118050386946,
+          "std": 5.779651670659608,
+          "median": 4.5,
+          "skewness": 2.0312715345605534,
+          "kurtosis": 3.7348918036252527
+        },
+        "reference_stats": {
+          "mean": 10.198521099614501,
+          "std": 7.216549068441415,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.43030303030303,
+          "min": 1.0,
+          "max": 111.91666666666667,
+          "skewness": 3.505097471164167,
+          "kurtosis": 25.199103317999683,
+          "missing_rate": 0.0
+        }
+      },
+      "Loss_Rate_Category_High": {
+        "drift_score": 0.38762020999442437,
+        "mean_drift": 0.38927902301241835,
+        "std_drift": 0.7735816069708548,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.006295607383030476,
+          "std": 0.07910036634429912,
+          "median": 0.0,
+          "skewness": 12.48387938839804,
+          "kurtosis": 153.8472445840695
+        },
+        "reference_stats": {
+          "mean": 0.14229212656364973,
+          "std": 0.34935486152892664,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 2.047851033889547,
+          "kurtosis": 2.1936938570024838,
+          "missing_rate": 0.0
+        }
+      },
+      "Category_Avg_Price": {
+        "drift_score": 0.2637322066010734,
+        "mean_drift": 0.3191544227561249,
+        "std_drift": 0.21643608293162414,
+        "median_drift": 0.2556061141154711,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 8.47583494625116,
+          "std": 3.0727014534204957,
+          "median": 7.907575757575757,
+          "skewness": 0.8795660332504123,
+          "kurtosis": 0.8781960737019392
+        },
+        "reference_stats": {
+          "mean": 9.727380911176889,
+          "std": 3.921443275382937,
+          "median": 8.909920634920635,
+          "q25": 7.23888888888889,
+          "q75": 11.15,
+          "min": 2.865671992481203,
+          "max": 29.855555555555554,
+          "skewness": 1.8809706355484677,
+          "kurtosis": 5.259889205281832,
+          "missing_rate": 0.0
+        }
+      },
+      "Loss Rate (%)": {
+        "drift_score": 0.35801836434642104,
+        "mean_drift": 0.23855070625157682,
+        "std_drift": 0.7265344488748153,
+        "median_drift": 0.10896993791287092,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 9.494723136357136,
+          "std": 1.5057302391628744,
+          "median": 9.43,
+          "skewness": 6.797125796019303,
+          "kurtosis": 104.83830052507653
+        },
+        "reference_stats": {
+          "mean": 10.808208547951926,
+          "std": 5.506105734223154,
+          "median": 10.03,
+          "q25": 6.72,
+          "q75": 13.7,
+          "min": 0.0,
+          "max": 29.25,
+          "skewness": 1.1441683142343533,
+          "kurtosis": 1.896624855564279,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Quantity_Interaction": {
+        "drift_score": 0.32159926564355673,
+        "mean_drift": 0.2914744211918755,
+        "std_drift": 0.5562779931788707,
+        "median_drift": 0.11704538255992399,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.732293961101824,
+          "std": 53.68091828287559,
+          "median": 27.9,
+          "skewness": 3.048667554252516,
+          "kurtosis": 18.54592129757879
+        },
+        "reference_stats": {
+          "mean": 81.99449494509969,
+          "std": 120.97871518127148,
+          "median": 42.06,
+          "q25": 19.326,
+          "q75": 96.369,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.737138500657081,
+          "kurtosis": 110.3937496343948,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Max_30": {
+        "drift_score": 0.407758419399946,
+        "mean_drift": 0.4839796623788274,
+        "std_drift": 0.26234353489338497,
+        "median_drift": 0.4769520609276256,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 8.194114528688296,
+          "std": 6.959722716207056,
+          "median": 5.5,
+          "skewness": 1.9272411409184245,
+          "kurtosis": 3.0486382125512943
+        },
+        "reference_stats": {
+          "mean": 12.760419319297444,
+          "std": 9.434910483975969,
+          "median": 10.0,
+          "q25": 7.6,
+          "q75": 16.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 4.090893652794782,
+          "kurtosis": 28.7826151298185,
+          "missing_rate": 0.0
+        }
+      },
+      "Month": {
+        "drift_score": 0.14183419904184683,
+        "mean_drift": 0.10684532411886981,
+        "std_drift": 0.02701805385745194,
+        "median_drift": 0.29163921914921875,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 6.139648018314494,
+          "std": 3.5215361529684137,
+          "median": 6.0,
+          "skewness": 0.11397347584472278,
+          "kurtosis": -1.3339334445253566
+        },
+        "reference_stats": {
+          "mean": 6.506009320578857,
+          "std": 3.428894107305728,
+          "median": 7.0,
+          "q25": 4.0,
+          "q75": 9.0,
+          "min": 1.0,
+          "max": 12.0,
+          "skewness": -0.014698438265554066,
+          "kurtosis": -1.1807427780140987,
+          "missing_rate": 0.0
+        }
+      },
+      "Wholesale_Price_Change": {
+        "drift_score": 0.7148247402844073,
+        "mean_drift": 0.027289164498018825,
+        "std_drift": 2.1171850563552033,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.2184559995929084,
+          "std": 12.608309608067254,
+          "median": 0.0,
+          "skewness": 81.09116474069069,
+          "kurtosis": 6694.491979140036
+        },
+        "reference_stats": {
+          "mean": 0.10807749183154829,
+          "std": 4.0447741728909845,
+          "median": 0.0,
+          "q25": -0.008598454398848016,
+          "q75": 0.00982800982800991,
+          "min": -0.9981981981981982,
+          "max": 349.0,
+          "skewness": 59.485431465737335,
+          "kurtosis": 4243.240825109528,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Change": {
+        "drift_score": 0.12015991523999854,
+        "mean_drift": 0.053711838438578095,
+        "std_drift": 0.30676790728141756,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.013902337147366899,
+          "std": 0.17824413914555945,
+          "median": 0.0,
+          "skewness": 1.6255500646029477,
+          "kurtosis": 7.887861007994431
+        },
+        "reference_stats": {
+          "mean": 0.006576001421593704,
+          "std": 0.13640076263915615,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": -0.7777777777777778,
+          "max": 6.0,
+          "skewness": 11.034529521737806,
+          "kurtosis": 277.46361115848714,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_MA_7": {
+        "drift_score": 0.06187987965997573,
+        "mean_drift": 0.020241966967064855,
+        "std_drift": 0.16467982252624006,
+        "median_drift": 0.0007178494866222989,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.00534479385974,
+          "std": 10.389665256144989,
+          "median": 6.0,
+          "skewness": 1.9857209595790317,
+          "kurtosis": 4.919704578490592
+        },
+        "reference_stats": {
+          "mean": 10.257113237368163,
+          "std": 12.437943600939008,
+          "median": 5.991071428571429,
+          "q25": 2.5714285714285716,
+          "q75": 13.030321428571426,
+          "min": 0.056,
+          "max": 157.76024999999998,
+          "skewness": 3.2220592327894497,
+          "kurtosis": 17.888401308962454,
+          "missing_rate": 0.0
+        }
+      },
+      "Max_Price": {
+        "drift_score": 0.3367508243069324,
+        "mean_drift": 0.42236934252622416,
+        "std_drift": 0.15812120615156705,
+        "median_drift": 0.42976192424300586,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 7.17344398340249,
+          "std": 6.268615222393866,
+          "median": 4.8,
+          "skewness": 1.9862267613937297,
+          "kurtosis": 3.3883595725555793
+        },
+        "reference_stats": {
+          "mean": 10.318398945302919,
+          "std": 7.445983041975079,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 13.9,
+          "min": 1.0,
+          "max": 119.9,
+          "skewness": 3.780251609334073,
+          "kurtosis": 28.59635085145522,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_Lag_1": {
+        "drift_score": 0.3221685614367445,
+        "mean_drift": 0.2921871441978413,
+        "std_drift": 0.5564849461097467,
+        "median_drift": 0.1178335940026454,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.744261533136786,
+          "std": 53.665830121631224,
+          "median": 27.9,
+          "skewness": 3.0510667669353393,
+          "kurtosis": 18.56700748980675
+        },
+        "reference_stats": {
+          "mean": 82.09924104669804,
+          "std": 121.00114675005081,
+          "median": 42.158,
+          "q25": 19.39925,
+          "q75": 96.6,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.73315565042541,
+          "kurtosis": 110.2924890731264,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Quantity": {
+        "drift_score": 0.9765797177282103,
+        "mean_drift": 1.095954726302259,
+        "std_drift": 0.12102639211748056,
+        "median_drift": 1.712758034764891,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.8666744645924226,
+          "std": 0.2975273001827767,
+          "median": 1.0,
+          "skewness": 2.4057451337104556,
+          "kurtosis": 106.12706482026566
+        },
+        "reference_stats": {
+          "mean": 0.49570035579660154,
+          "std": 0.33849400882414565,
+          "median": 0.4202416666666666,
+          "q25": 0.32369580419580424,
+          "q75": 0.5522751976284584,
+          "min": 0.003,
+          "max": 7.5,
+          "skewness": 6.063357165174136,
+          "kurtosis": 78.71683536088453,
+          "missing_rate": 0.0
+        }
+      },
+      "Quantity_Target_14d": {
+        "drift_score": 0.06099994763967423,
+        "mean_drift": 0.010062626554935615,
+        "std_drift": 0.12295570257203198,
+        "median_drift": 0.049981513792055086,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.216562884532836,
+          "std": 12.458635281927776,
+          "median": 6.0,
+          "skewness": 3.2009829324058474,
+          "kurtosis": 21.62900841040526
+        },
+        "reference_stats": {
+          "mean": 10.073620738287959,
+          "std": 14.205252024856827,
+          "median": 5.29,
+          "q25": 2.0,
+          "q75": 12.19275,
+          "min": 0.015,
+          "max": 407.0,
+          "skewness": 4.645445614685967,
+          "kurtosis": 48.992801029209915,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfYear_Sin": {
+        "drift_score": 0.09306496600921937,
+        "mean_drift": 0.06520669965867328,
+        "std_drift": 0.06703822452443596,
+        "median_drift": 0.1469499738445489,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.04289078329132789,
+          "std": 0.7492007812366044,
+          "median": 0.08596479873744647,
+          "skewness": -0.05975529447465844,
+          "kurtosis": -1.5982695220052119
+        },
+        "reference_stats": {
+          "mean": -0.0028928720673278008,
+          "std": 0.7021311552081583,
+          "median": -0.017213356155835285,
+          "q25": -0.6994583270516471,
+          "q75": 0.6994583270516471,
+          "min": -0.9999907397361902,
+          "max": 0.9999907397361901,
+          "skewness": 0.010127414311464415,
+          "kurtosis": -1.4767847346249314,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Min_7": {
+        "drift_score": 0.46894375649814773,
+        "mean_drift": 0.5469627028024528,
+        "std_drift": 0.24237868483475314,
+        "median_drift": 0.6174898818572372,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 5.736792791708572,
+          "std": 5.153136297753481,
+          "median": 3.7999999999999994,
+          "skewness": 2.1713003230147594,
+          "kurtosis": 4.776733286485804
+        },
+        "reference_stats": {
+          "mean": 9.457085899768636,
+          "std": 6.8017308840228665,
+          "median": 8.0,
+          "q25": 5.423863636363636,
+          "q75": 12.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 3.8696015020501813,
+          "kurtosis": 32.609945071602304,
+          "missing_rate": 0.0
+        }
+      },
+      "Effective_Supply": {
+        "drift_score": 0.0590119531713559,
+        "mean_drift": 0.002484207227126941,
+        "std_drift": 0.12926321833073567,
+        "median_drift": 0.04528843395620506,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.107148180955788,
+          "std": 11.191391596125547,
+          "median": 5.4342,
+          "skewness": 3.2809374502362676,
+          "kurtosis": 22.52649688894624
+        },
+        "reference_stats": {
+          "mean": 9.139077159345106,
+          "std": 12.852783793824413,
+          "median": 4.85211755,
+          "q25": 1.8234967000000002,
+          "q75": 11.117574600000001,
+          "min": 0.0050448,
+          "max": 396.90639999999996,
+          "skewness": 4.731719069042849,
+          "kurtosis": 54.969698467865285,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Markup": {
+        "drift_score": 0.3351985359703545,
+        "mean_drift": 0.32673203930180567,
+        "std_drift": 0.3508311150794176,
+        "median_drift": 0.3280324535298402,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 2.921205668016155,
+          "std": 4.159159898811971,
+          "median": 2.1399999999999997,
+          "skewness": -11.672641004368868,
+          "kurtosis": 389.23821583409983
+        },
+        "reference_stats": {
+          "mean": 3.9272017398798336,
+          "std": 3.0789636486626586,
+          "median": 3.1500000000000004,
+          "q25": 2.09,
+          "q75": 5.0,
+          "min": -41.46,
+          "max": 76.68666666666667,
+          "skewness": 3.4024870823811293,
+          "kurtosis": 34.437750781503546,
+          "missing_rate": 0.0
+        }
+      },
+      "Quantity_Target_1d": {
+        "drift_score": 0.06357870868017076,
+        "mean_drift": 0.009913590688891792,
+        "std_drift": 0.14101036682777404,
+        "median_drift": 0.03981216852384645,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.068949062812994,
+          "std": 12.363080888519537,
+          "median": 6.0,
+          "skewness": 3.2753418615148426,
+          "kurtosis": 22.465488005794416
+        },
+        "reference_stats": {
+          "mean": 10.211631254598968,
+          "std": 14.392584509853753,
+          "median": 5.4270000000000005,
+          "q25": 2.0,
+          "q75": 12.43225,
+          "min": 0.006,
+          "max": 407.0,
+          "skewness": 4.737279408610171,
+          "kurtosis": 50.29758466458653,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Lag_30": {
+        "drift_score": 0.3765082812929436,
+        "mean_drift": 0.4893451730822511,
+        "std_drift": 0.12302501763155396,
+        "median_drift": 0.5171546531650257,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.774276308643237,
+          "std": 5.935192537676156,
+          "median": 4.5,
+          "skewness": 2.0252987079487728,
+          "kurtosis": 3.582962743967876
+        },
+        "reference_stats": {
+          "mean": 10.086067269637159,
+          "std": 6.767801427638202,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.0,
+          "min": 1.0,
+          "max": 111.91666666666667,
+          "skewness": 3.0695007345563137,
+          "kurtosis": 18.573534379846176,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Change_Target_14d": {
+        "drift_score": 0.11132408082532624,
+        "mean_drift": 0.048834721016953984,
+        "std_drift": 0.28513752145902477,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 3.449589071291184,
+          "std": 30.226842641369696,
+          "median": 0.0,
+          "skewness": 1.3546182628448338,
+          "kurtosis": 4.650485727294909
+        },
+        "reference_stats": {
+          "mean": 5.514488925354581,
+          "std": 42.28343709277102,
+          "median": 0.0,
+          "q25": -14.285714285714285,
+          "q75": 15.999999999999998,
+          "min": -79.7979797979798,
+          "max": 890.0,
+          "skewness": 4.831741309575488,
+          "kurtosis": 51.48307558897334,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfWeek_Cos": {
+        "drift_score": 0.004816383920046962,
+        "mean_drift": 0.012540320951806027,
+        "std_drift": 0.0019088308083348578,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": -0.013038104357842122,
+          "std": 0.7068909726542929,
+          "median": -0.22252093395631437,
+          "skewness": 0.02426187942840201,
+          "kurtosis": -1.501216260439448
+        },
+        "reference_stats": {
+          "mean": -0.004190353542164386,
+          "std": 0.7055442081331661,
+          "median": -0.22252093395631437,
+          "q25": -0.900968867902419,
+          "q75": 0.6234898018587335,
+          "min": -0.900968867902419,
+          "max": 1.0,
+          "skewness": 0.0073200563528205915,
+          "kurtosis": -1.4966096866125786,
+          "missing_rate": 0.0
+        }
+      },
+      "Summer_Price": {
+        "drift_score": 0.07265368828111712,
+        "mean_drift": 0.05776585373274175,
+        "std_drift": 0.1601952111106096,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 2.241114448572707,
+          "std": 4.945398191299751,
+          "median": 0.0,
+          "skewness": 3.17950697970472,
+          "kurtosis": 11.62673262288102
+        },
+        "reference_stats": {
+          "mean": 2.5812829643376403,
+          "std": 5.888747309764511,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 111.91666666666667,
+          "skewness": 3.7736674430397406,
+          "kurtosis": 24.331099279840558,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Std_30": {
+        "drift_score": 0.29235664606791834,
+        "mean_drift": 0.27161431399706004,
+        "std_drift": 0.4043233510988832,
+        "median_drift": 0.2011322731078118,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 1.0061047815865491,
+          "std": 1.0372279518230745,
+          "median": 0.6577902739337339,
+          "skewness": 2.7194407935775575,
+          "kurtosis": 10.470175342698608
+        },
+        "reference_stats": {
+          "mean": 1.4790559357281763,
+          "std": 1.741260050627326,
+          "median": 1.0080138659882314,
+          "q25": 0.534983080621945,
+          "q75": 1.8124250210149326,
+          "min": 0.0,
+          "max": 42.28498551495554,
+          "skewness": 4.9963975855400315,
+          "kurtosis": 51.98785850861161,
+          "missing_rate": 0.0
+        }
+      },
+      "Category Code": {
+        "drift_score": 0.22668721965197727,
+        "mean_drift": 0.2341503785195539,
+        "std_drift": 0.058232778220962726,
+        "median_drift": 0.3876785022154152,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1011010420.0589498,
+          "std": 247.78329485003403,
+          "median": 1011010504.0,
+          "skewness": -0.06287071682588934,
+          "kurtosis": -1.1433918894523052
+        },
+        "reference_stats": {
+          "mean": 1011010358.4529065,
+          "std": 263.104607083225,
+          "median": 1011010402.0,
+          "q25": 1011010101.0,
+          "q75": 1011010504.0,
+          "min": 1011010101.0,
+          "max": 1011010801.0,
+          "skewness": 0.45033588219831816,
+          "kurtosis": -1.195357625964168,
+          "missing_rate": 0.0
+        }
+      },
+      "Loss_Adjusted_Revenue": {
+        "drift_score": 0.3182250900555088,
+        "mean_drift": 0.28446579528466026,
+        "std_drift": 0.5579409502338256,
+        "median_drift": 0.1122685246480406,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 42.32214383462629,
+          "std": 48.6241554431679,
+          "median": 25.195668299999994,
+          "skewness": 3.0478035354391486,
+          "kurtosis": 18.537591639020704
+        },
+        "reference_stats": {
+          "mean": 73.61187550170118,
+          "std": 109.9947065191573,
+          "median": 37.54461172,
+          "q25": 17.0514971,
+          "q75": 86.186669075,
+          "min": 0.08432,
+          "max": 3771.6077119999995,
+          "skewness": 6.917918965917759,
+          "kurtosis": 116.96030110940266,
+          "missing_rate": 0.0
+        }
+      },
+      "Min_Price": {
+        "drift_score": 0.4446873478944797,
+        "mean_drift": 0.5579673843046862,
+        "std_drift": 0.22178989221722867,
+        "median_drift": 0.5543047671615243,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 5.994634425525827,
+          "std": 5.756150101771728,
+          "median": 3.9,
+          "skewness": 2.2079934335225637,
+          "kurtosis": 4.826940861753879
+        },
+        "reference_stats": {
+          "mean": 10.1217255334805,
+          "std": 7.39665296583181,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.0,
+          "min": 0.1,
+          "max": 116.0,
+          "skewness": 3.754919479042629,
+          "kurtosis": 28.07820274992527,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Min_30": {
+        "drift_score": 0.4371794249395032,
+        "mean_drift": 0.5667284248998322,
+        "std_drift": 0.27277860903460854,
+        "median_drift": 0.4720312408840688,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 4.764420076379986,
+          "std": 4.313739681486872,
+          "median": 3.2,
+          "skewness": 2.2665011092626113,
+          "kurtosis": 5.733700190018519
+        },
+        "reference_stats": {
+          "mean": 8.1261458527238,
+          "std": 5.931810773278207,
+          "median": 6.0,
+          "q25": 4.293939393939395,
+          "q75": 10.0,
+          "min": 1.0,
+          "max": 116.0,
+          "skewness": 4.416855205645329,
+          "kurtosis": 47.99837344875562,
+          "missing_rate": 0.0
+        }
+      },
+      "Spring_Price": {
+        "drift_score": 0.2178799738873758,
+        "mean_drift": 0.1869876325569737,
+        "std_drift": 0.4666522891051536,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1.4880948615178466,
+          "std": 3.619948067569449,
+          "median": 0.0,
+          "skewness": 4.045650551672961,
+          "kurtosis": 20.810553245857367
+        },
+        "reference_stats": {
+          "mean": 2.7572209968833294,
+          "std": 6.7872196573149814,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 99.8,
+          "skewness": 4.892504548308064,
+          "kurtosis": 39.08200798155036,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Target_7d": {
+        "drift_score": 0.38628349131124545,
+        "mean_drift": 0.4831545504557994,
+        "std_drift": 0.19589315303357777,
+        "median_drift": 0.47980277044435937,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.714247937696065,
+          "std": 5.865689274315786,
+          "median": 4.5,
+          "skewness": 2.029608799223083,
+          "kurtosis": 3.6922383118196525
+        },
+        "reference_stats": {
+          "mean": 10.238698046704764,
+          "std": 7.2946640069596675,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 13.0,
+          "min": 1.0,
+          "max": 111.91666666666667,
+          "skewness": 3.5408366148831725,
+          "kurtosis": 25.17228585030797,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_MA_14": {
+        "drift_score": 0.07079622621565411,
+        "mean_drift": 0.028988629005102424,
+        "std_drift": 0.16729034326557454,
+        "median_drift": 0.016109706376285372,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.934236814535602,
+          "std": 10.07399889114805,
+          "median": 5.928571428571429,
+          "skewness": 1.8883312739438924,
+          "kurtosis": 4.266357274926458
+        },
+        "reference_stats": {
+          "mean": 10.284936982465132,
+          "std": 12.097852846638634,
+          "median": 6.123464285714285,
+          "q25": 2.662482142857143,
+          "q75": 13.29405357142857,
+          "min": 0.056,
+          "max": 157.76024999999998,
+          "skewness": 3.1115693347727102,
+          "kurtosis": 17.170982119724066,
+          "missing_rate": 0.0
+        }
+      },
+      "Loss_Rate_Category_Medium": {
+        "drift_score": 0.4326426512588141,
+        "mean_drift": 0.5271003175397411,
+        "std_drift": 0.7708276362367011,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.9905565889254543,
+          "std": 0.09672420418694674,
+          "median": 1.0,
+          "skewness": -10.144134898215801,
+          "kurtosis": 100.90347283319984
+        },
+        "reference_stats": {
+          "mean": 0.7680892813343144,
+          "std": 0.422058762228628,
+          "median": 1.0,
+          "q25": 1.0,
+          "q75": 1.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": -1.2704078919954647,
+          "kurtosis": -0.3860637879556381,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Lag_1": {
+        "drift_score": 0.06463374682332912,
+        "mean_drift": 0.012781034143009113,
+        "std_drift": 0.1424618601946465,
+        "median_drift": 0.038658346132331774,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.048106238374588,
+          "std": 12.344552277743661,
+          "median": 6.0,
+          "skewness": 3.289776225686867,
+          "kurtosis": 22.626207877612988
+        },
+        "reference_stats": {
+          "mean": 10.232093558376256,
+          "std": 14.395339058092114,
+          "median": 5.4435,
+          "q25": 2.016,
+          "q75": 12.463,
+          "min": 0.006,
+          "max": 407.0,
+          "skewness": 4.7332630218529435,
+          "kurtosis": 50.23635292468711,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_MA_7": {
+        "drift_score": 0.35738793140496633,
+        "mean_drift": 0.3474787533323436,
+        "std_drift": 0.5721301054742746,
+        "median_drift": 0.1525549354082807,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.58194258835262,
+          "std": 44.07376105613417,
+          "median": 29.97142857142857,
+          "skewness": 1.7956700253694993,
+          "kurtosis": 3.727806346984207
+        },
+        "reference_stats": {
+          "mean": 82.37482201827547,
+          "std": 103.00738990993501,
+          "median": 45.68571428571429,
+          "q25": 23.511321428571428,
+          "q75": 100.46592857142859,
+          "min": 0.896,
+          "max": 2252.964,
+          "skewness": 4.130260168836818,
+          "kurtosis": 35.565935451047196,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfWeek": {
+        "drift_score": 0.0029493225427011296,
+        "mean_drift": 0.004558490174135064,
+        "std_drift": 0.004289477453968325,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 3.032193446845042,
+          "std": 1.9891576628222252,
+          "median": 3.0,
+          "skewness": -0.024832011465245243,
+          "kurtosis": -1.2371937879531694
+        },
+        "reference_stats": {
+          "mean": 3.023086828550405,
+          "std": 1.9977268671781727,
+          "median": 3.0,
+          "q25": 1.0,
+          "q75": 5.0,
+          "min": 0.0,
+          "max": 6.0,
+          "skewness": -0.014862268710498349,
+          "kurtosis": -1.2485558896090436,
+          "missing_rate": 0.0
+        }
+      },
+      "Autumn_Price": {
+        "drift_score": 0.1811842240952599,
+        "mean_drift": 0.23805814070649786,
+        "std_drift": 0.3054945315792818,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1.2834734330656536,
+          "std": 3.439249926932253,
+          "median": 0.0,
+          "skewness": 3.9621995840177533,
+          "kurtosis": 18.13044023245015
+        },
+        "reference_stats": {
+          "mean": 2.4623575171496004,
+          "std": 4.952084732684669,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 3.0,
+          "min": 0.0,
+          "max": 91.6,
+          "skewness": 2.543376388046974,
+          "kurtosis": 11.250826219147088,
+          "missing_rate": 0.0
+        }
+      },
+      "Item Code": {
+        "drift_score": 1.5359585561779954,
+        "mean_drift": 1.4598411380757048,
+        "std_drift": 0.9995830252429212,
+        "median_drift": 2.1484515052153603,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 102900011031820.94,
+          "std": 1148.0374759456672,
+          "median": 102900011032176.0,
+          "skewness": -0.01951143178704541,
+          "kurtosis": -0.7826207872397122
+        },
+        "reference_stats": {
+          "mean": 102900007012507.28,
+          "std": 2753254.1393840113,
+          "median": 102900005116943.0,
+          "q25": 102900005116219.0,
+          "q75": 102900011006689.0,
+          "min": 102900005115168.0,
+          "max": 102900011030097.0,
+          "skewness": 0.7643832928818217,
+          "kurtosis": -1.4157016785244518,
+          "missing_rate": 0.0
+        }
+      },
+      "Date": {
+        "drift_score": 1.0265245395062172,
+        "mean_drift": 1.1961262007402182,
+        "std_drift": 0.5216384938332292,
+        "median_drift": 1.3618089239452043,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 1.664206425869223e+18,
+          "std": 1.2443359487878882e+16,
+          "median": 1.6642368e+18,
+          "skewness": -0.05613444679045472,
+          "kurtosis": -0.894904400076753
+        },
+        "reference_stats": {
+          "mean": 1.6330922410596024e+18,
+          "std": 2.6012459881211184e+16,
+          "median": 1.6288128e+18,
+          "q25": 1.6112736e+18,
+          "q75": 1.6518816e+18,
+          "min": 1.5935616e+18,
+          "max": 1.6880832e+18,
+          "skewness": 0.4486071502636777,
+          "kurtosis": -0.8553917143354703,
+          "missing_rate": 0.0
+        }
+      },
+      "Wholesale Price (RMB/kg)": {
+        "drift_score": 0.3621448673083079,
+        "mean_drift": 0.5007053411478366,
+        "std_drift": 0.04922852995024892,
+        "median_drift": 0.5365007308268382,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 3.8436099585062244,
+          "std": 4.731698726897325,
+          "median": 2.42,
+          "skewness": 11.910251614122307,
+          "kurtosis": 309.88692358013276
+        },
+        "reference_stats": {
+          "mean": 6.335467255334806,
+          "std": 4.976694059456506,
+          "median": 5.09,
+          "q25": 3.43,
+          "q75": 7.8,
+          "min": 0.01,
+          "max": 80.0,
+          "skewness": 4.119231553918965,
+          "kurtosis": 31.810931073782427,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Lag_14": {
+        "drift_score": 0.06685529712422714,
+        "mean_drift": 0.03633747140635603,
+        "std_drift": 0.14886432363465804,
+        "median_drift": 0.015364096331667331,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.780202174846186,
+          "std": 12.215193955256247,
+          "median": 5.2540000000000004,
+          "skewness": 3.4054976548010347,
+          "kurtosis": 23.88160225920692
+        },
+        "reference_stats": {
+          "mean": 10.301704531518274,
+          "std": 14.351641335749848,
+          "median": 5.4745,
+          "q25": 2.118,
+          "q75": 12.59675,
+          "min": 0.019,
+          "max": 407.0,
+          "skewness": 4.722579926750971,
+          "kurtosis": 50.43028505690069,
+          "missing_rate": 0.0
+        }
+      },
+      "Item_Revenue_Share": {
+        "drift_score": 0.4145273420748889,
+        "mean_drift": 0.44030486125604534,
+        "std_drift": 0.7003174454571487,
+        "median_drift": 0.10295971951147255,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.06421759203995789,
+          "std": 0.06711020561230717,
+          "median": 0.04116637354684021,
+          "skewness": 2.323195533981353,
+          "kurtosis": 7.948392100757575
+        },
+        "reference_stats": {
+          "mean": 0.16281842589919548,
+          "std": 0.2239376453350112,
+          "median": 0.06422293069859258,
+          "q25": 0.030640193733179635,
+          "q75": 0.18031867579271005,
+          "min": 9.877082560908894e-05,
+          "max": 1.0,
+          "skewness": 2.0915712541683016,
+          "kurtosis": 3.8007521324284994,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Relative_to_Category": {
+        "drift_score": 0.3511214467171208,
+        "mean_drift": 0.4394676954849695,
+        "std_drift": 0.02093009992688243,
+        "median_drift": 0.5929665447395104,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.8015978263795263,
+          "std": 0.6151250005283169,
+          "median": 0.5978260869565217,
+          "skewness": 2.087106674432801,
+          "kurtosis": 4.691453234863775
+        },
+        "reference_stats": {
+          "mean": 1.0663834041940412,
+          "std": 0.6025143156934752,
+          "median": 0.9550969188893723,
+          "q25": 0.6842105263157895,
+          "q75": 1.2640675228266673,
+          "min": 0.09958992384299942,
+          "max": 7.345348270823186,
+          "skewness": 2.5936055729388716,
+          "kurtosis": 14.061886915920294,
+          "missing_rate": 0.0
+        }
+      },
+      "Category_Total_Quantity": {
+        "drift_score": 0.2600831971087934,
+        "mean_drift": 0.3397905003882228,
+        "std_drift": 0.11797532894663232,
+        "median_drift": 0.32248376199152506,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 139.2398612104736,
+          "std": 96.61526599045474,
+          "median": 114.188,
+          "skewness": 3.067190385107789,
+          "kurtosis": 22.090095251535548
+        },
+        "reference_stats": {
+          "mean": 109.87521538508707,
+          "std": 86.41985515144295,
+          "median": 86.319,
+          "q25": 44.906,
+          "q75": 158.57,
+          "min": 0.252,
+          "max": 1265.473,
+          "skewness": 2.268713452229053,
+          "kurtosis": 16.80299425344321,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Lag_7": {
+        "drift_score": 0.059657713618628316,
+        "mean_drift": 0.02286242724154832,
+        "std_drift": 0.14638518787746121,
+        "median_drift": 0.009725525736875405,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.957019316068108,
+          "std": 12.287877995534519,
+          "median": 5.343,
+          "skewness": 3.332526237050278,
+          "kurtosis": 23.11797379728244
+        },
+        "reference_stats": {
+          "mean": 10.286126441010548,
+          "std": 14.395108684888378,
+          "median": 5.4830000000000005,
+          "q25": 2.07275,
+          "q75": 12.5795,
+          "min": 0.006,
+          "max": 407.0,
+          "skewness": 4.720838250197988,
+          "kurtosis": 50.12478501774018,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Range": {
+        "drift_score": 0.5986530967394396,
+        "mean_drift": 0.9118523296290948,
+        "std_drift": 0.8841069605892237,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 1.1788095578766635,
+          "std": 2.029330286165707,
+          "median": 0.0,
+          "skewness": 3.037422690891591,
+          "kurtosis": 11.733655701660231
+        },
+        "reference_stats": {
+          "mean": 0.19667341182241843,
+          "std": 1.0770780686097923,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 47.900000000000006,
+          "skewness": 11.302479863667129,
+          "kurtosis": 231.69491844801394,
+          "missing_rate": 0.0
+        }
+      },
+      "Avg_Price_Target_30d": {
+        "drift_score": 0.3939277461302317,
+        "mean_drift": 0.5006514505362787,
+        "std_drift": 0.1717870269791664,
+        "median_drift": 0.50934476087525,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 6.659800323356838,
+          "std": 5.691126380865799,
+          "median": 4.5,
+          "skewness": 2.045749127277515,
+          "kurtosis": 3.9079768194313766
+        },
+        "reference_stats": {
+          "mean": 10.100063601741963,
+          "std": 6.871573576187679,
+          "median": 8.0,
+          "q25": 6.0,
+          "q75": 12.0,
+          "min": 1.0,
+          "max": 111.91666666666667,
+          "skewness": 2.8601448536463527,
+          "kurtosis": 16.123930408075395,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_Lag_30": {
+        "drift_score": 0.34105298964627795,
+        "mean_drift": 0.32197452178286573,
+        "std_drift": 0.5633552668311672,
+        "median_drift": 0.1378291803248008,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 44.820911681644226,
+          "std": 51.927229553115296,
+          "median": 26.700000000000003,
+          "skewness": 2.9631517797843263,
+          "kurtosis": 17.132225080353486
+        },
+        "reference_stats": {
+          "mean": 83.11118208417015,
+          "std": 118.92329303108104,
+          "median": 43.0911,
+          "q25": 20.734,
+          "q75": 99.3435,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.729703545668601,
+          "kurtosis": 114.74024488896956,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Change_Target_30d": {
+        "drift_score": 0.10643705474585376,
+        "mean_drift": 0.0514901422692884,
+        "std_drift": 0.2678210219682729,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 6.251394242116408,
+          "std": 39.91808835121416,
+          "median": 0.0,
+          "skewness": 1.74416766482764,
+          "kurtosis": 6.5638065911971815
+        },
+        "reference_stats": {
+          "mean": 9.0586150310107,
+          "std": 54.51957724670485,
+          "median": 0.0,
+          "q25": -20.0,
+          "q75": 23.076923076923077,
+          "min": -83.33333333333334,
+          "max": 700.0,
+          "skewness": 3.317881260383445,
+          "kurtosis": 19.1506444779981,
+          "missing_rate": 0.0
+        }
+      },
+      "IsWeekend": {
+        "drift_score": 0.0016698730719214225,
+        "mean_drift": 0.003456392168078106,
+        "std_drift": 0.0015532270476861611,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 0.2881671197596223,
+          "std": 0.45294170155048846,
+          "median": 0.0,
+          "skewness": 0.9354318044740011,
+          "kurtosis": -1.1249673391785153
+        },
+        "reference_stats": {
+          "mean": 0.2897350993377483,
+          "std": 0.45364631728057186,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 1.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 0.9270134731243015,
+          "kurtosis": -1.1406460206460203,
+          "missing_rate": 0.0
+        }
+      },
+      "Quantity_Target_30d": {
+        "drift_score": 0.06852190778630703,
+        "mean_drift": 0.035646000002462194,
+        "std_drift": 0.10749469138930653,
+        "median_drift": 0.06242503196715238,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 10.383941050221777,
+          "std": 12.574417572363355,
+          "median": 6.0,
+          "skewness": 3.115960251095317,
+          "kurtosis": 20.67010899197441
+        },
+        "reference_stats": {
+          "mean": 9.881728139563405,
+          "std": 14.08889947325597,
+          "median": 5.1205,
+          "q25": 2.0,
+          "q75": 11.885,
+          "min": 0.015,
+          "max": 407.0,
+          "skewness": 4.734965891460472,
+          "kurtosis": 50.68749867823632,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Lag_30": {
+        "drift_score": 0.08842076567224309,
+        "mean_drift": 0.0660867217468387,
+        "std_drift": 0.16404973238837875,
+        "median_drift": 0.035125842881511826,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 9.419628702246388,
+          "std": 11.970758567332858,
+          "median": 5.0,
+          "skewness": 3.5658419273863844,
+          "kurtosis": 25.980846676510254
+        },
+        "reference_stats": {
+          "mean": 10.36598666298749,
+          "std": 14.319941067229156,
+          "median": 5.503,
+          "q25": 2.221,
+          "q75": 12.69,
+          "min": 0.019,
+          "max": 407.0,
+          "skewness": 4.731866113554596,
+          "kurtosis": 50.74628747189035,
+          "missing_rate": 0.0
+        }
+      },
+      "Winter_Price": {
+        "drift_score": 0.09721967482563665,
+        "mean_drift": 0.13259992617271177,
+        "std_drift": 0.1590590983041982,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1.7521328833661718,
+          "std": 4.500714618877036,
+          "median": 0.0,
+          "skewness": 3.70911226183009,
+          "kurtosis": 14.823254774601892
+        },
+        "reference_stats": {
+          "mean": 2.461807516844068,
+          "std": 5.351998707401563,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 116.0,
+          "skewness": 3.890603460745792,
+          "kurtosis": 39.05242044955689,
+          "missing_rate": 0.0
+        }
+      },
+      "Discount_Rate": {
+        "drift_score": 0.8790590604369397,
+        "mean_drift": 1.4096871343576747,
+        "std_drift": 1.2274900469531445,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.19910950801857843,
+          "std": 0.27507221454041936,
+          "median": 0.0,
+          "skewness": 1.4332178849211612,
+          "kurtosis": 1.2625713019563936
+        },
+        "reference_stats": {
+          "mean": 0.025027580071333162,
+          "std": 0.12348976145445625,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "skewness": 6.062917862113077,
+          "kurtosis": 38.42398471200457,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Volatility": {
+        "drift_score": 0.7496738472737223,
+        "mean_drift": 1.0469415043868435,
+        "std_drift": 1.2020800374343235,
+        "median_drift": 0.0,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.5373942205894022,
+          "std": 0.9795300429965053,
+          "median": 0.0,
+          "skewness": 3.3948387865957472,
+          "kurtosis": 15.027907701438064
+        },
+        "reference_stats": {
+          "mean": 0.07169331990746851,
+          "std": 0.4448203636311832,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": 0.0,
+          "max": 22.48599564173221,
+          "skewness": 15.349802154781631,
+          "kurtosis": 443.1004466909472,
+          "missing_rate": 0.0
+        }
+      },
+      "Item_Quantity_Share": {
+        "drift_score": 0.3555965242123654,
+        "mean_drift": 0.358609351760158,
+        "std_drift": 0.6781198960645494,
+        "median_drift": 0.030060324812388847,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 0.07476600985551697,
+          "std": 0.07228730920449393,
+          "median": 0.05101212697382151,
+          "skewness": 1.7365637253120874,
+          "kurtosis": 3.4366238290630013
+        },
+        "reference_stats": {
+          "mean": 0.1553019136823289,
+          "std": 0.22457837039530204,
+          "median": 0.05776302573374126,
+          "q25": 0.025530576000040564,
+          "q75": 0.16689395839618565,
+          "min": 5.4572740915912504e-05,
+          "max": 1.0,
+          "skewness": 2.1743250186662215,
+          "kurtosis": 4.131596034880062,
+          "missing_rate": 0.0
+        }
+      },
+      "Transaction_Count": {
+        "drift_score": 0.37777678976924656,
+        "mean_drift": 0.3849595911319198,
+        "std_drift": 0.5219588364821727,
+        "median_drift": 0.2264119416936472,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 11.329947059665189,
+          "std": 12.668267228536571,
+          "median": 7.0,
+          "skewness": 2.951267647465757,
+          "kurtosis": 19.00363262467749
+        },
+        "reference_stats": {
+          "mean": 21.531518273240128,
+          "std": 26.500368996077345,
+          "median": 13.0,
+          "q25": 5.0,
+          "q75": 27.0,
+          "min": 1.0,
+          "max": 476.0,
+          "skewness": 3.216650907307078,
+          "kurtosis": 18.730783808871543,
+          "missing_rate": 0.0
+        }
+      },
+      "Total_Quantity_Std_7": {
+        "drift_score": 0.07988003772972917,
+        "mean_drift": 0.015367679228939425,
+        "std_drift": 0.16612299769645308,
+        "median_drift": 0.058149436263794985,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 4.657017532296606,
+          "std": 5.455609085691043,
+          "median": 2.9439202887759484,
+          "skewness": 4.110394466611476,
+          "kurtosis": 30.11683459575393
+        },
+        "reference_stats": {
+          "mean": 4.5564750659666995,
+          "std": 6.5424625821556095,
+          "median": 2.563479777846627,
+          "q25": 1.1564726281883722,
+          "q75": 5.414619428118,
+          "min": 0.0,
+          "max": 145.98597453832596,
+          "skewness": 6.268415690577841,
+          "kurtosis": 78.33197348546786,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfYear": {
+        "drift_score": 0.09209746649396754,
+        "mean_drift": 0.10418648063147574,
+        "std_drift": 0.029267149128972825,
+        "median_drift": 0.14283876972145404,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 171.62226355701816,
+          "std": 108.08695193218044,
+          "median": 170.0,
+          "skewness": 0.12293138599989781,
+          "kurtosis": -1.3077033441000703
+        },
+        "reference_stats": {
+          "mean": 182.56325116507236,
+          "std": 105.01350599176322,
+          "median": 185.0,
+          "q25": 91.0,
+          "q75": 271.0,
+          "min": 1.0,
+          "max": 366.0,
+          "skewness": -0.0011942816584426105,
+          "kurtosis": -1.1758484194002359,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue_Lag_14": {
+        "drift_score": 0.3332069427598665,
+        "mean_drift": 0.3068199763255324,
+        "std_drift": 0.5611033008123079,
+        "median_drift": 0.13169755114175932,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 45.85577747679317,
+          "std": 52.61792754730533,
+          "median": 27.0,
+          "skewness": 2.8861280164083314,
+          "kurtosis": 16.2201018622619
+        },
+        "reference_stats": {
+          "mean": 82.63944733405677,
+          "std": 119.88681538204852,
+          "median": 42.788799999999995,
+          "q25": 20.0,
+          "q75": 98.0,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.720633499863738,
+          "kurtosis": 112.39420495838023,
+          "missing_rate": 0.0
+        }
+      },
+      "DayOfWeek_Sin": {
+        "drift_score": 0.0015041582252505222,
+        "mean_drift": 0.0025532590209547197,
+        "std_drift": 0.0019592156547968463,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": -0.007433221913369627,
+          "std": 0.7072644329067195,
+          "median": 0.0,
+          "skewness": 0.01581701256371682,
+          "kurtosis": -1.502474064868771
+        },
+        "reference_stats": {
+          "mean": -0.005623847665498305,
+          "std": 0.708652836638077,
+          "median": 0.0,
+          "q25": -0.78183148246803,
+          "q75": 0.7818314824680299,
+          "min": -0.9749279121818237,
+          "max": 0.9749279121818238,
+          "skewness": 0.012115518629397302,
+          "kurtosis": -1.5052841300850979,
+          "missing_rate": 0.0
+        }
+      },
+      "Price_Change_Target_1d": {
+        "drift_score": 0.1259454109497659,
+        "mean_drift": 0.056370615236194584,
+        "std_drift": 0.32146561761310316,
+        "median_drift": 0.0,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 1.4093483060738177,
+          "std": 17.903013469128723,
+          "median": 0.0,
+          "skewness": 1.6142630107410465,
+          "kurtosis": 7.749046221479919
+        },
+        "reference_stats": {
+          "mean": 0.6456478583394766,
+          "std": 13.547846595862278,
+          "median": 0.0,
+          "q25": 0.0,
+          "q75": 0.0,
+          "min": -77.77777777777779,
+          "max": 600.0,
+          "skewness": 10.981570484962804,
+          "kurtosis": 280.7326737770935,
+          "missing_rate": 0.0
+        }
+      },
+      "Category_Revenue": {
+        "drift_score": 0.10839378701680247,
+        "mean_drift": 0.0764339439713893,
+        "std_drift": 0.16743956292276457,
+        "median_drift": 0.08130785415625354,
+        "drift_detected": false,
+        "current_stats": {
+          "mean": 787.0428509358424,
+          "std": 487.86823476015576,
+          "median": 685.7054129032258,
+          "skewness": 4.167472994890433,
+          "kurtosis": 36.93070005706712
+        },
+        "reference_stats": {
+          "mean": 742.2536780897406,
+          "std": 585.9853687893855,
+          "median": 638.0602,
+          "q25": 378.4884,
+          "q75": 963.002,
+          "min": 1.512,
+          "max": 12406.8506,
+          "skewness": 5.4555465904683205,
+          "kurtosis": 77.133112369107,
+          "missing_rate": 0.0
+        }
+      },
+      "Revenue": {
+        "drift_score": 0.32159926564355673,
+        "mean_drift": 0.2914744211918755,
+        "std_drift": 0.5562779931788707,
+        "median_drift": 0.11704538255992399,
+        "drift_detected": true,
+        "current_stats": {
+          "mean": 46.732293961101824,
+          "std": 53.68091828287559,
+          "median": 27.9,
+          "skewness": 3.048667554252516,
+          "kurtosis": 18.54592129757879
+        },
+        "reference_stats": {
+          "mean": 81.99449494509969,
+          "std": 120.97871518127148,
+          "median": 42.06,
+          "q25": 19.326,
+          "q75": 96.369,
+          "min": 0.1,
+          "max": 3999.584,
+          "skewness": 6.737138500657081,
+          "kurtosis": 110.3937496343948,
+          "missing_rate": 0.0
+        }
+      }
+    },
+    "summary": {
+      "total_features": 104,
+      "drifted_features": 57,
+      "drift_ratio": 0.5480769230769231,
+      "overall_drift_score": 0.29232576215325007,
+      "drift_threshold": 0.25
+    },
+    "reference_shape": [
+      32616,
+      105
+    ],
+    "current_shape": [
+      6989,
+      105
+    ],
+    "method_details": {
+      "features_analyzed": 104,
+      "mean_drift_score": 0.29232576215325007,
+      "max_drift_score": 1.5359585561779954,
+      "min_drift_score": 0.0009608808133014655
+    }
+  },
+  "message": "\n            DRIFT ALERT - Chinese Produce Forecasting System\n            \n            Alert Type: DATA_DRIFT\n            Timestamp: 2025-06-23T02:10:51.711619\n            \n            Summary:\n            - Overall Drift Detected: True\n            - Drift Score: 0.292\n            - Features Analyzed: 104\n            - Drifted Features: 57\n            - Drift Ratio: 54.81%\n            - Method: statistical\n            \n            Action Required: Please review the model performance and consider retraining.\n            "
+}

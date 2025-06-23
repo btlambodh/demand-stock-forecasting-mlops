@@ -1,0 +1,154 @@
+{
+  "system": [
+    {
+      "timestamp": "2025-06-23T02:09:11.643935",
+      "cpu_percent": 2.0,
+      "memory_percent": 22.4,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.763507843017578,
+      "disk_free_gb": 36.9951057434082
+    },
+    {
+      "timestamp": "2025-06-23T02:10:11.683040",
+      "cpu_percent": 38.6,
+      "memory_percent": 22.9,
+      "disk_percent": 0.013227720518369932,
+      "memory_available_gb": 11.689872741699219,
+      "disk_free_gb": 36.9951057434082
+    }
+  ],
+  "models": {
+    "linear_regression": [
+      {
+        "timestamp": "2025-06-23T02:09:11.648655",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      },
+      {
+        "timestamp": "2025-06-23T02:10:11.687726",
+        "val_mape": 11.732646062210634,
+        "val_rmse": 1.3355177736851818,
+        "val_r2": 0.9497037879868249,
+        "test_mape": 7.061445880693218,
+        "test_rmse": 2.0302986199123847,
+        "test_r2": 0.9194225096576117
+      }
+    ],
+    "ridge": [
+      {
+        "timestamp": "2025-06-23T02:09:11.648719",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      },
+      {
+        "timestamp": "2025-06-23T02:10:11.687772",
+        "val_mape": 11.692430365041897,
+        "val_rmse": 1.3350168103729028,
+        "val_r2": 0.9497415139261531,
+        "test_mape": 7.0419568095489975,
+        "test_rmse": 2.030536284385143,
+        "test_r2": 0.919403643932705
+      }
+    ],
+    "random_forest": [
+      {
+        "timestamp": "2025-06-23T02:09:11.648788",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      },
+      {
+        "timestamp": "2025-06-23T02:10:11.687812",
+        "val_mape": 11.692245563600082,
+        "val_rmse": 1.4515461056419323,
+        "val_r2": 0.9405847945050512,
+        "test_mape": 7.072874850284714,
+        "test_rmse": 1.8954928819720138,
+        "test_r2": 0.9297674861147951
+      }
+    ],
+    "gradient_boosting": [
+      {
+        "timestamp": "2025-06-23T02:09:11.648886",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      },
+      {
+        "timestamp": "2025-06-23T02:10:11.687853",
+        "val_mape": 11.775138772175607,
+        "val_rmse": 1.4693491373548406,
+        "val_r2": 0.9391184166933845,
+        "test_mape": 7.834725357985373,
+        "test_rmse": 1.8824197718607916,
+        "test_r2": 0.9307329248728311
+      }
+    ],
+    "api_health": [
+      {
+        "timestamp": "2025-06-23T02:09:11.648926",
+        "models_loaded": 11,
+        "uptime_seconds": 4303.26,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      },
+      {
+        "timestamp": "2025-06-23T02:10:11.687881",
+        "models_loaded": 11,
+        "uptime_seconds": 4363.3,
+        "status_healthy": 1,
+        "response_time_ms": 200
+      }
+    ]
+  },
+  "api": [
+    {
+      "timestamp": "2025-06-23T02:09:11.655885",
+      "total_requests": 761.0,
+      "prediction_count": 6.0,
+      "average_latency_ms": 67.27683544158936,
+      "error_count": 0,
+      "monitoring_timestamp": 1750644551.6489372,
+      "api_response_time_ms": 2.81524658203125,
+      "api_available": 1
+    },
+    {
+      "timestamp": "2025-06-23T02:10:11.695904",
+      "total_requests": 769.0,
+      "prediction_count": 6.0,
+      "average_latency_ms": 67.27683544158936,
+      "error_count": 0,
+      "monitoring_timestamp": 1750644611.6878955,
+      "api_response_time_ms": 3.317594528198242,
+      "api_available": 1
+    }
+  ],
+  "data_quality": [
+    {
+      "timestamp": "2025-06-23T02:09:11.655969",
+      "quality_score": 98.68479847629865,
+      "data_freshness_hours": 1.3152015327745015,
+      "validation_status": "api_healthy"
+    },
+    {
+      "timestamp": "2025-06-23T02:10:11.696010",
+      "quality_score": 98.66812068780263,
+      "data_freshness_hours": 1.3318793257077535,
+      "validation_status": "api_healthy"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-06-23T01:56:27.700249",
+  "alert_type": "data_drift",
+  "drift_results": {
+    "timestamp": "2025-06-23T01:56:27.700249",
+    "method": "statistical",
+    "overall_drift_detected": true,
+    "drift_score": 0.2923257621532501,
+    "feature_drift": {
+      "Month": {
+        "drift_score": 0.14183419904184683,
+        "mean_drift": 0.10684532411886981,
+        "std_drift": 0.02701805385745194,
+        "median_drift": 0.29163921914921875,
+        "drift_detected": 

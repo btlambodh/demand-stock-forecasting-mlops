@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-06-23T01:43:16.973547",
+  "alert_type": "data_drift",
+  "drift_results": {
+    "timestamp": "2025-06-23T01:43:16.973547",
+    "method": "statistical",
+    "overall_drift_detected": true,
+    "drift_score": 0.2923257621532501,
+    "feature_drift": {
+      "Avg_Price_Max_7": {
+        "drift_score": 0.3792039755437984,
+        "mean_drift": 0.4389885641176423,
+        "std_drift": 0.1905762684685657,
+        "median_drift": 0.5080470940451873,
+        "drift_detected": 

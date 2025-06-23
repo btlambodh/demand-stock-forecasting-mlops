@@ -1,0 +1,156 @@
+# Coverage Configuration for Chinese Produce Market Forecasting MLOps Project
+# Author: Bhupal Lambodhar
+# Email: btiduwarlambodhar@sandiego.edu
+
+[run]
+# Source code to measure
+source = src/
+
+# Files to include in coverage
+include = 
+    src/*
+    */src/*
+
+# Files to exclude from coverage
+omit = 
+    */tests/*
+    */test_*
+    */__pycache__/*
+    */.*
+    */venv/*
+    */env/*
+    */.venv/*
+    */.env/*
+    */build/*
+    */dist/*
+    */htmlcov/*
+    setup.py
+    conftest.py
+    */conftest.py
+    */.tox/*
+    */migrations/*
+    */scripts/*
+    */notebooks/*
+    */docs/*
+
+# Branch coverage
+branch = True
+
+# Parallel coverage (if running tests in parallel)
+parallel = True
+
+# Coverage data file
+data_file = .coverage
+
+# Coverage context
+dynamic_context = test_function
+
+# Concurrency support
+concurrency = thread
+
+[report]
+# Reporting precision
+precision = 2
+
+# Show missing lines
+show_missing = True
+
+# Skip covered files in report
+skip_covered = False
+
+# Skip empty files
+skip_empty = True
+
+# Sort by coverage percentage
+sort = Cover
+
+# Exclude lines from coverage
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+    
+    # Don't complain about missing debug-only code
+    def __repr__
+    if self\.debug
+    
+    # Don't complain if tests don't hit defensive assertion code
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Don't complain if non-runnable code isn't run
+    if 0:
+    if __name__ == .__main__.:
+    if __name__ == "__main__":
+    
+    # Don't complain about abstract methods
+    @(abc\.)?abstractmethod
+    
+    # Don't complain about type checking imports
+    if TYPE_CHECKING:
+    
+    # Don't complain about platform specific code
+    if sys.platform
+    
+    # Don't complain about deprecated code
+    warnings.warn
+    
+    # Don't complain about pass statements
+    pass
+    
+    # Don't complain about ellipsis
+    \.\.\.
+
+# Partial branches to exclude
+partial_branches =
+    pragma: no branch
+    if DEBUG:
+    if settings.DEBUG
+
+# Fail if coverage is below this percentage
+fail_under = 70
+
+# Minimum coverage for individual files
+# per_file_fail_under = 50
+
+[html]
+# HTML report directory
+directory = htmlcov
+
+# Title for HTML report
+title = Chinese Produce Forecasting MLOps - Code Coverage Report
+
+# Show contexts in HTML report
+show_contexts = True
+
+# Skip covered files in HTML report
+skip_covered = False
+
+# Skip empty files in HTML report  
+skip_empty = True
+
+# Extra CSS for HTML report
+extra_css = 
+
+[xml]
+# XML report output file
+output = coverage.xml
+
+# Package depth for XML report
+package_depth = 99
+
+[json]
+# JSON report output file
+output = coverage.json
+
+# Show contexts in JSON report
+show_contexts = True
+
+# Pretty print JSON
+pretty_print = True
+
+[paths]
+# Path mapping for different environments
+source =
+    src/
+    */site-packages/
+    */demand-stock-forecasting-mlops/src

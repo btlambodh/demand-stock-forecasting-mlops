@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Data Validation Script for Chinese Produce Market Forecasting
+Data Validation Script for Demand Stock Forecasting MLOps
 Validates raw CSV files and generates data quality reports
 
 Author: Bhupal Lambodhar
@@ -24,11 +24,11 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('data_validation')
 
 
 class DataValidator:
-    """Comprehensive data validation for Chinese produce market data"""
+    """Comprehensive data validation for demand stock forecasting market data"""
     
     def __init__(self, config_path: str):
         """Initialize validator with configuration"""
@@ -471,7 +471,7 @@ class DataValidator:
 
 def main():
     """Main function"""
-    parser = argparse.ArgumentParser(description='Validate data for Chinese Produce Forecasting')
+    parser = argparse.ArgumentParser(description='Validate data for Demand Stock Forecasting MLOps')
     parser.add_argument('--config', required=True, help='Path to config.yaml')
     parser.add_argument('--data-path', required=True, help='Path to raw data directory')
     parser.add_argument('--output-path', required=True, help='Path for validation output')

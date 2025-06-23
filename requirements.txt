@@ -1,120 +1,177 @@
+# =============================================================================
+# Demand Stock Forecasting MLOps - Production Requirements
+# Tested and verified versions - DO NOT CHANGE without thorough testing
+# =============================================================================
+
+# =============================================================================
 # Core ML and Data Science Libraries (SageMaker Compatible Versions)
+# =============================================================================
 pandas==1.5.3
 numpy==1.24.3
 scikit-learn==1.3.2
+scipy==1.10.1
 matplotlib==3.7.2
 seaborn==0.12.2
 plotly==5.15.0
 
-# Time Series Analysis
+# =============================================================================
+# Time Series Analysis & Forecasting
+# =============================================================================
 statsmodels==0.14.0
 pmdarima==2.0.3
 prophet==1.1.4
 tslearn==0.6.1
 
-# Deep Learning
+# =============================================================================
+# Deep Learning Frameworks
+# =============================================================================
 tensorflow==2.13.0
 keras==2.13.1
 torch==2.0.1
 torchvision==0.15.2
 
-# AWS SDK and SageMaker
+# =============================================================================
+# AWS SDK and SageMaker (Feature Store Compatible)
+# =============================================================================
 boto3==1.34.51
 botocore==1.34.51
 sagemaker==2.210.0
 awscli==1.32.51
 
-# Data Processing and Feature Engineering
+# =============================================================================
+# Data Processing, Storage & Feature Engineering
+# =============================================================================
 pyarrow==12.0.1
 fastparquet==2023.7.0
 xlrd==2.0.1
 openpyxl==3.1.2
 
-# API and Web Framework
+# =============================================================================
+# Database and Storage Systems
+# =============================================================================
+pymongo==4.4.1
+redis==4.6.0
+sqlalchemy==2.0.19
+
+# =============================================================================
+# API and Web Frameworks
+# =============================================================================
 fastapi==0.101.1
 uvicorn==0.23.2
 requests==2.31.0
 httpx==0.24.1
 
-# Configuration and Logging
+# =============================================================================
+# Configuration, Logging & Monitoring
+# =============================================================================
 pyyaml==6.0.1
 python-dotenv==1.0.0
 loguru==0.7.0
 structlog==23.1.0
+prometheus-client==0.17.1
+grafana-api==1.0.3
+mlflow==2.5.0
 
-# Data Validation and Quality
+# =============================================================================
+# Data Validation and Quality Assurance
+# =============================================================================
 pydantic==1.10.12
 great-expectations==0.17.23
 evidently==0.4.11
 
-# Testing
+# =============================================================================
+# Testing Framework
+# =============================================================================
 pytest==7.4.0
 pytest-cov==4.1.0
 pytest-mock==3.11.1
 moto==4.2.5
 
-# Code Quality
+# =============================================================================
+# Code Quality and Formatting
+# =============================================================================
 black==23.7.0
 flake8==6.0.0
 isort==5.12.0
 mypy==1.5.1
 
-# Jupyter and Development
+# =============================================================================
+# Development Environment
+# =============================================================================
 jupyter==1.0.0
 jupyterlab==4.0.5
 ipykernel==6.25.1
 ipywidgets==8.1.0
 
+# =============================================================================
 # Data Visualization and Dashboards
+# =============================================================================
 streamlit==1.25.0
 dash==2.13.0
 bokeh==3.2.1
 
-# Database and Storage
-pymongo==4.4.1
-redis==4.6.0
-sqlalchemy==2.0.19
-
-# Monitoring and Observability
-prometheus-client==0.17.1
-grafana-api==1.0.3
-mlflow==2.5.0
-
-# Miscellaneous Utilities
-tqdm==4.65.0
-click==8.1.6
-joblib==1.3.2
-schedule==1.2.0
-
-# Exchange Rate and Financial Data
+# =============================================================================
+# Financial Data and Market Analysis
+# =============================================================================
 yfinance==0.2.18
 alpha-vantage==2.3.1
 fredapi==0.5.0
 
-# Chinese Text Processing (if needed for product names)
+# =============================================================================
+# Chinese Text Processing (for product names)
+# =============================================================================
 jieba==0.42.1
 zhconv==1.4.3
 
-# Containerization Support
-docker==6.1.3
-
-# Performance Optimization
+# =============================================================================
+# Performance Optimization & Scaling
+# =============================================================================
 numba==0.57.1
 dask==2023.8.0
+joblib==1.3.2
 
-# Model Interpretability
+# =============================================================================
+# Model Interpretability & Explainability
+# =============================================================================
 shap==0.42.1
 lime==0.2.0.1
 eli5==0.13.0
 
+# =============================================================================
 # Hyperparameter Optimization
+# =============================================================================
 optuna==3.3.0
 hyperopt==0.2.7
 ray[tune]==2.6.3
 
-# Time Zone Handling
+# =============================================================================
+# Containerization and Deployment
+# =============================================================================
+docker==6.1.3
+
+# =============================================================================
+# Utilities and Helper Libraries
+# =============================================================================
+tqdm==4.65.0
+click==8.1.6
+schedule==1.2.0
 pytz==2023.3
 pendulum==2.1.2
 
-# SageMaker-specific compatible versions
-scipy==1.10.1
+# =============================================================================
+# Additional Dependencies for Feature Store Integration
+# (Added for enhanced functionality - all new additions)
+# =============================================================================
+# boto3-stubs for better IDE support with AWS services
+boto3-stubs[glue]==1.34.51
+boto3-stubs[athena]==1.34.51
+boto3-stubs[sagemaker]==1.34.51
+boto3-stubs[sagemaker-featurestore-runtime]==1.34.51
+
+# Enhanced data processing for Feature Store
+s3fs==2023.6.0
+fsspec==2023.6.0
+
+# Additional utilities for production MLOps
+psutil==5.9.5
+rich==13.5.2
