@@ -57,6 +57,7 @@ See [`docs/`](docs/) for in-depth module explanations.
 - [`docs/model_training_and_registry.md`](docs/model_training_and_registry.md)
 - [`docs/model_deployment.md`](docs/model_deployment.md)
 - [`docs/api_inference_services.md`](docs/api_inference_services.md)
+- [`docs/monitoring_drift_detection.md`](docs/monitoring_drift_detection.md)
 
 
 ---
