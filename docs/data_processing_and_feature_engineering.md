@@ -1,12 +1,11 @@
-Absolutely! Here’s a **concise, business-friendly README/Guide** that explains the dataset and its analysis, specifically tailored to your Chinese Produce Market RMB Forecasting MLOps Project. This will serve well as a front page for your repo, onboarding new team members, or communicating to business/technical stakeholders.
 
 ---
 
-# Chinese Produce Market RMB Forecasting – MLOps Project
+# Data Flow & Feature Engineering - Demand Stock Forecasting MLOps (Chinese Produce Market RMB)
 
 ## Overview
 
-This project delivers an end-to-end, production-grade ML pipeline for **forecasting produce prices and demand** in the Chinese market. Leveraging historical transaction and pricing data, it automates data validation, feature engineering, AWS Feature Store and Athena integration, and prepares robust datasets for machine learning.
+Transforms raw S3 data into a rich, validated feature set with over 100 attributes, powering robust model training and business analytics. Centralized in AWS Feature Store for scalable reuse. Leveraging historical transaction and pricing data, it automates data validation, feature engineering, AWS Feature Store and Athena integration, and prepares robust datasets for machine learning.
 
 ---
 
@@ -76,9 +75,7 @@ Over **100 features** are automatically engineered:
 * **Athena/Glue**: Allows fast SQL analytics and BI dashboard connections on processed data.
 * **Automation**: All ingestion, validation, feature engineering, and AWS setup is fully automated and logged.
 
-![Data Processing, Feature Engineering and Ingestion](./images/data_processing_and_feature_flow)
-<br/> <br/>
-![Data Processing, Feature Engg & Ingestion ML-Ops](./images/data_processing_and_feature_mlops.png)
+![Data Processing, Feature Engineering and Ingestion](./images/data_processing_and_feature_flow.png)
 
 ---
 
