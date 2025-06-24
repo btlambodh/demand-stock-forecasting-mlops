@@ -1,0 +1,46 @@
+{
+  "model_performance_indicators": [
+    {
+      "Category_Name": 2,
+      "avg_price_range": 0.46103570100409097,
+      "avg_discount_rate": 0.0632689085908921,
+      "unique_items": 1,
+      "price_std": 9.17600831153047
+    },
+    {
+      "Category_Name": 3,
+      "avg_price_range": 0.5987418058786115,
+      "avg_discount_rate": 0.0834463200209204,
+      "unique_items": 1,
+      "price_std": 7.721493213971475
+    },
+    {
+      "Category_Name": 0,
+      "avg_price_range": 0.751401869158878,
+      "avg_discount_rate": 0.06645243315112853,
+      "unique_items": 1,
+      "price_std": 7.333210106907722
+    },
+    {
+      "Category_Name": 4,
+      "avg_price_range": 0.2853399668325034,
+      "avg_discount_rate": 0.04995533365391166,
+      "unique_items": 1,
+      "price_std": 5.699332614623642
+    },
+    {
+      "Category_Name": 5,
+      "avg_price_range": 0.06672903024633615,
+      "avg_discount_rate": 0.01266152151145475,
+      "unique_items": 1,
+      "price_std": 3.4051559819851356
+    },
+    {
+      "Category_Name": 1,
+      "avg_price_range": 0.6456243329775888,
+      "avg_discount_rate": 0.05671179143629844,
+      "unique_items": 1,
+      "price_std": 2.8344153884093055
+    }
+  ]
+}

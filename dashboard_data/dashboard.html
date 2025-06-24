@@ -1,0 +1,105 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Chinese Produce Market Analytics</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .metric { display: inline-block; margin: 10px; padding: 20px; 
+                     background: #f0f0f0; border-radius: 5px; text-align: center; }
+            .metric h3 { margin: 0; color: #333; }
+            .metric p { margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #007acc; }
+            .chart { margin: 20px 0; }
+            h1 { color: #333; text-align: center; }
+            h2 { color: #555; border-bottom: 2px solid #007acc; padding-bottom: 5px; }
+        </style>
+    </head>
+    <body>
+        <h1>Chinese Produce Market Analytics Dashboard</h1>
+        
+        <div id="metrics">
+            <div class="metric">
+                <h3>Total Revenue</h3>
+                <p id="total-revenue">Loading...</p>
+            </div>
+            <div class="metric">
+                <h3>Total Transactions</h3>
+                <p id="total-transactions">Loading...</p>
+            </div>
+            <div class="metric">
+                <h3>Unique Items</h3>
+                <p id="unique-items">Loading...</p>
+            </div>
+            <div class="metric">
+                <h3>Average Price</h3>
+                <p id="avg-price">Loading...</p>
+            </div>
+        </div>
+        
+        <h2>Revenue Trends</h2>
+        <div id="revenue-chart" class="chart"></div>
+        
+        <h2>Top Categories</h2>
+        <div id="category-chart" class="chart"></div>
+        
+        <script>
+            // Load and display dashboard data
+            fetch('dashboard_data.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Update metrics
+                    if (data.overview && data.overview.total_revenue) {
+                        document.getElementById('total-revenue').textContent = 
+                            data.overview.total_revenue.total_revenue.toLocaleString() + ' RMB';
+                        document.getElementById('total-transactions').textContent = 
+                            data.overview.total_revenue.transaction_count.toLocaleString();
+                        document.getElementById('avg-price').textContent = 
+                            data.overview.total_revenue.avg_revenue.toFixed(2) + ' RMB';
+                    }
+                    
+                    if (data.overview && data.overview.unique_items) {
+                        document.getElementById('unique-items').textContent = 
+                            data.overview.unique_items.unique_items.toLocaleString();
+                    }
+                    
+                    // Revenue trends chart
+                    if (data.revenue_trends && data.revenue_trends.monthly_revenue) {
+                        const monthlyData = data.revenue_trends.monthly_revenue;
+                        const trace = {
+                            x: monthlyData.map(d => `${d.year}-${d.month.toString().padStart(2, '0')}`),
+                            y: monthlyData.map(d => d.monthly_revenue),
+                            type: 'scatter',
+                            mode: 'lines+markers',
+                            name: 'Monthly Revenue'
+                        };
+                        
+                        Plotly.newPlot('revenue-chart', [trace], {
+                            title: 'Monthly Revenue Trend',
+                            xaxis: { title: 'Date' },
+                            yaxis: { title: 'Revenue (RMB)' }
+                        });
+                    }
+                    
+                    // Category chart
+                    if (data.category_analysis && data.category_analysis.top_categories_by_revenue) {
+                        const categoryData = data.category_analysis.top_categories_by_revenue.slice(0, 10);
+                        const trace = {
+                            x: categoryData.map(d => d['Category Name']),
+                            y: categoryData.map(d => d.total_revenue),
+                            type: 'bar',
+                            name: 'Revenue by Category'
+                        };
+                        
+                        Plotly.newPlot('category-chart', [trace], {
+                            title: 'Top 10 Categories by Revenue',
+                            xaxis: { title: 'Category' },
+                            yaxis: { title: 'Revenue (RMB)' }
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading dashboard data:', error));
+        </script>
+    </body>
+    </html>
+    

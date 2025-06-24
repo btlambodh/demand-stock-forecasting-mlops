@@ -1,0 +1,82 @@
+{
+  "top_performing_items": [
+    {
+      "Item_Code": 1011010101,
+      "Category_Name": 4,
+      "total_revenue": 1079993.843021641,
+      "avg_price": 7.322697160720544,
+      "total_quantity": 198659.55300000068,
+      "trading_days": 18090
+    },
+    {
+      "Item_Code": 1011010504,
+      "Category_Name": 2,
+      "total_revenue": 754677.5237397945,
+      "avg_price": 12.41040746924356,
+      "total_quantity": 91645.11200000004,
+      "trading_days": 10756
+    },
+    {
+      "Item_Code": 1011010801,
+      "Category_Name": 3,
+      "total_revenue": 620363.2849752925,
+      "avg_price": 9.40924546612734,
+      "total_quantity": 76131.72600000002,
+      "trading_days": 9458
+    },
+    {
+      "Item_Code": 1011010201,
+      "Category_Name": 1,
+      "total_revenue": 376076.73663846677,
+      "avg_price": 9.170779954903967,
+      "total_quantity": 41789.77700000008,
+      "trading_days": 1874
+    },
+    {
+      "Item_Code": 1011010402,
+      "Category_Name": 0,
+      "total_revenue": 350368.4755458698,
+      "avg_price": 12.164711741050546,
+      "total_quantity": 40607.551999999974,
+      "trading_days": 3210
+    },
+    {
+      "Item_Code": 1011010501,
+      "Category_Name": 5,
+      "total_revenue": 191224.80013400482,
+      "avg_price": 9.203604939220538,
+      "total_quantity": 22442.11899999999,
+      "trading_days": 3207
+    }
+  ],
+  "loss_rate_impact": [
+    {
+      "loss_category": "Low Loss (< 5%)",
+      "item_count": 3182,
+      "avg_price": 6.780164592895146,
+      "total_revenue": 203599.889542457,
+      "avg_loss_rate": 1.4329761156505192
+    },
+    {
+      "loss_category": "Medium Loss (5-15%)",
+      "item_count": 36196,
+      "avg_price": 9.64910556266343,
+      "total_revenue": 2712290.5753045934,
+      "avg_loss_rate": 9.30047657199494
+    },
+    {
+      "loss_category": "High Loss (15-25%)",
+      "item_count": 5932,
+      "avg_price": 9.295021466216758,
+      "total_revenue": 420456.058859581,
+      "avg_loss_rate": 17.40270903573829
+    },
+    {
+      "loss_category": "Very High Loss (> 25%)",
+      "item_count": 1285,
+      "avg_price": 11.459711549630304,
+      "total_revenue": 36358.140348376684,
+      "avg_loss_rate": 28.078638132296017
+    }
+  ]
+}

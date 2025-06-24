@@ -1,0 +1,72 @@
+{
+  "price_distribution": [
+    {
+      "price_range": "Low (< 5 RMB)",
+      "transaction_count": 12569,
+      "range_revenue": 591591.6667739752,
+      "avg_price_in_range": 3.5148455646155674
+    },
+    {
+      "price_range": "Medium (5-15 RMB)",
+      "transaction_count": 26522,
+      "range_revenue": 2157559.1903713145,
+      "avg_price_in_range": 8.746005676160676
+    },
+    {
+      "price_range": "High (15-30 RMB)",
+      "transaction_count": 6851,
+      "range_revenue": 570195.6822068606,
+      "avg_price_in_range": 19.742053913508524
+    },
+    {
+      "price_range": "Premium (> 30 RMB)",
+      "transaction_count": 653,
+      "range_revenue": 53358.124702889974,
+      "avg_price_in_range": 44.877239744817416
+    }
+  ],
+  "most_volatile_items": [
+    {
+      "Item_Code": 1011010402,
+      "Category_Name": 0,
+      "avg_volatility": 0.31597497795537544,
+      "avg_price": 12.164711741050546,
+      "data_points": 3210
+    },
+    {
+      "Item_Code": 1011010801,
+      "Category_Name": 3,
+      "avg_volatility": 0.25784691625611283,
+      "avg_price": 9.40924546612734,
+      "data_points": 9458
+    },
+    {
+      "Item_Code": 1011010201,
+      "Category_Name": 1,
+      "avg_volatility": 0.21120718114206816,
+      "avg_price": 9.170779954903967,
+      "data_points": 1874
+    },
+    {
+      "Item_Code": 1011010504,
+      "Category_Name": 2,
+      "avg_volatility": 0.20002392096311536,
+      "avg_price": 12.41040746924356,
+      "data_points": 10756
+    },
+    {
+      "Item_Code": 1011010101,
+      "Category_Name": 4,
+      "avg_volatility": 0.11234406899771252,
+      "avg_price": 7.322697160720544,
+      "data_points": 18090
+    },
+    {
+      "Item_Code": 1011010501,
+      "Category_Name": 5,
+      "avg_volatility": 0.020416726402420426,
+      "avg_price": 9.203604939220538,
+      "data_points": 3207
+    }
+  ]
+}

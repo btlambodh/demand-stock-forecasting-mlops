@@ -92,10 +92,10 @@
     "Category Name_Encoded"
   ],
   "num_features": 90,
-  "model_version": "v20250623_100104",
-  "training_date": "2025-06-23T10:02:40.101831",
-  "best_model": "random_forest",
-  "best_model_mape": 11.69224556360008,
+  "model_version": "v20250623_160021",
+  "training_date": "2025-06-23T16:02:02.400851",
+  "best_model": "ridge",
+  "best_model_mape": 11.692430365041805,
   "training_summary": {
     "models_trained": 4,
     "models_failed": 0
