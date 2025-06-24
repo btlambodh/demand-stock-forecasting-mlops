@@ -149,6 +149,3 @@ make pipeline-bi                # full BI workflow, verification & sample querie
 
 For more details or technical help, please contact [Bhupal Lambodhar](mailto:btiduwarlambodhar@sandiego.edu) or open an issue in the [GitHub repository](https://github.com/btlambodh/demand-stock-forecasting-mlops).
 
----
-
-**This guide is suitable for onboarding, project documentation, and executive presentations. Let me know if you want a more technical deep-dive or additional EDA plots/examples!**
