@@ -52,8 +52,11 @@ See [`docs/`](docs/) for in-depth module explanations.
 ![MLOps Architecture](docs/images/MLOps_Architecture.png)
 
 **See specific documentation for deep dives**
-- [`docs/data_processing_and_feature_engineering.md`]
+- [`docs/data_processing_and_feature_engineering.md`](docs/data_processing_and_feature_engineering.md)
 - [`docs/bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) 
+- [`docs/model_training_and_registry.md`](docs/model_training_and_registry.md)
+- [`docs/model_deployment.md`](docs/model_deployment.md)
+
 
 ---
 
