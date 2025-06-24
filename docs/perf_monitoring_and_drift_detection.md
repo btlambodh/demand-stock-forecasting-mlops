@@ -82,4 +82,4 @@ The monitoring system in this project ensures **your deployed AI models remain f
 * **Audit-ready:** All drift events, health checks, and resource stats are logged and reportable.
 
 ---
-![Performance Monitor Drift Detection](perf_monitor_drift_detect.png)
+![Performance Monitor Drift Detection](./images/perf_monitor_drift_detect.png)
