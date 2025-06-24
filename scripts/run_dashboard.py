@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Dashboard Management Script - Updated Version
-Handles all dashboard operations with correct column names
+Handles all dashboard operations with improved error handling and column verification
 
 Author: Bhupal Lambodhar
 Email: btiduwarlambodhar@sandiego.edu
@@ -47,6 +47,11 @@ def print_warning(message):
     print(f"WARNING: {message}")
 
 
+def print_info(message):
+    """Print info message"""
+    print(f"INFO: {message}")
+
+
 def setup_dashboard():
     """Set up dashboard infrastructure"""
     print_header("Setting up dashboard infrastructure")
@@ -56,7 +61,8 @@ def setup_dashboard():
         directories = [
             'dashboard_data',
             'reports', 
-            'src/dashboard'
+            'src/dashboard',
+            'logs'
         ]
         
         for directory in directories:
@@ -80,6 +86,8 @@ def setup_dashboard():
         
         if missing_files:
             print_warning(f"Missing {len(missing_files)} essential files")
+            print("  Run the following to check what's available:")
+            print("  python3 scripts/run_dashboard.py debug")
             return False
         
         print_success("Dashboard infrastructure setup completed!")
@@ -90,8 +98,138 @@ def setup_dashboard():
         return False
 
 
+def verify_column_names():
+    """Verify that the column names in the generator match the actual database"""
+    print_header("Verifying database column names")
+    
+    try:
+        # Import the dashboard generator to check table schema
+        sys.path.append('src/dashboard')
+        from bi_dashboard_generator import BIDashboardGenerator
+        
+        dashboard_generator = BIDashboardGenerator('config.yaml')
+        
+        # Test basic connectivity first
+        print_info("Testing database connectivity...")
+        test_query = f"SELECT COUNT(*) as total_count FROM {dashboard_generator.database_name}.features_complete LIMIT 1"
+        result = dashboard_generator.execute_query(test_query, "connectivity_test")
+        
+        if not result:
+            print_error("Cannot connect to Athena database")
+            print("  Check your AWS credentials and config.yaml settings")
+            return False
+        
+        print_success(f"Database connection successful ({result[0]['total_count']:,} records)")
+        
+        # Get actual table schema
+        print_info("Retrieving table schema...")
+        schema_query = f"DESCRIBE {dashboard_generator.database_name}.features_complete"
+        schema_result = dashboard_generator.execute_query(schema_query, "schema_discovery")
+        
+        if not schema_result:
+            print_error("Cannot retrieve table schema")
+            return False
+        
+        # Extract available columns
+        available_columns = []
+        for row in schema_result:
+            col_name = row.get('col_name', '')
+            if col_name and not col_name.startswith('#'):
+                available_columns.append(col_name)
+        
+        print_success(f"Found {len(available_columns)} columns in database")
+        
+        # Check which expected columns exist
+        expected_columns = dashboard_generator.columns
+        missing_columns = []
+        existing_columns = []
+        
+        print_info("Checking column availability:")
+        for key, col_name in expected_columns.items():
+            if col_name in available_columns:
+                existing_columns.append(col_name)
+                print(f"  FOUND {key}: '{col_name}'")
+            else:
+                missing_columns.append((key, col_name))
+                print(f"  MISSING {key}: '{col_name}'")
+        
+        if missing_columns:
+            print_warning(f"Missing {len(missing_columns)} expected columns")
+            print("\nAvailable columns in database:")
+            for col in sorted(available_columns):
+                print(f"    {col}")
+            
+            print("\nSuggested improvements:")
+            print("1. Update the column mapping in bi_dashboard_generator.py")
+            print("2. Check if column names have changed in your data pipeline")
+            print("3. Verify the table structure matches your expectations")
+            return False
+        else:
+            print_success("All expected columns found in database!")
+            return True
+            
+    except Exception as e:
+        print_error(f"Column verification failed: {e}")
+        logger.exception("Column verification error")
+        return False
+
+
+def test_individual_queries():
+    """Test individual queries to identify which ones are failing"""
+    print_header("Testing individual dashboard queries")
+    
+    try:
+        sys.path.append('src/dashboard')
+        from bi_dashboard_generator import BIDashboardGenerator
+        
+        dashboard_generator = BIDashboardGenerator('config.yaml')
+        
+        # Define test queries for each component
+        test_queries = {
+            'basic_count': f"SELECT COUNT(*) as count FROM {dashboard_generator.database_name}.features_complete",
+            'revenue_sum': f"SELECT SUM(\"{dashboard_generator.columns['revenue']}\") as total_revenue FROM {dashboard_generator.database_name}.features_complete WHERE \"{dashboard_generator.columns['revenue']}\" IS NOT NULL",
+            'monthly_revenue': f"SELECT \"{dashboard_generator.columns['year']}\" as year, \"{dashboard_generator.columns['month']}\" as month, SUM(\"{dashboard_generator.columns['revenue']}\") as monthly_revenue FROM {dashboard_generator.database_name}.features_complete WHERE \"{dashboard_generator.columns['revenue']}\" IS NOT NULL GROUP BY \"{dashboard_generator.columns['year']}\", \"{dashboard_generator.columns['month']}\" ORDER BY \"{dashboard_generator.columns['year']}\", \"{dashboard_generator.columns['month']}\" LIMIT 5"
+        }
+        
+        results = {}
+        for query_name, query in test_queries.items():
+            print_info(f"Testing query: {query_name}")
+            result = dashboard_generator.execute_query(query, f"test_{query_name}")
+            
+            if result is not None:
+                results[query_name] = len(result)
+                print_success(f"{query_name}: returned {len(result)} rows")
+                if len(result) > 0:
+                    print(f"  Sample result: {result[0]}")
+            else:
+                results[query_name] = 0
+                print_error(f"{query_name}: failed")
+        
+        # Analysis
+        print_info("Query test analysis:")
+        all_passed = True
+        for query_name, row_count in results.items():
+            if row_count > 0:
+                print(f"  PASSED {query_name}: {row_count} rows")
+            else:
+                print(f"  FAILED {query_name}: query failed")
+                all_passed = False
+        
+        if all_passed:
+            print_success("All test queries passed!")
+        else:
+            print_warning("Some queries failed - check column names and data availability")
+        
+        return all_passed
+        
+    except Exception as e:
+        print_error(f"Query testing failed: {e}")
+        logger.exception("Query testing error")
+        return False
+
+
 def generate_dashboard_data(component=None):
-    """Generate dashboard data using the fixed BI generator"""
+    """Generate dashboard data using the BI generator with enhanced error handling"""
     if component:
         print_header(f"Generating {component} component")
     else:
@@ -109,6 +247,16 @@ def generate_dashboard_data(component=None):
             print_error("config.yaml not found")
             return False
         
+        # Verify columns before generating (for complete dashboard only)
+        if not component:
+            print_info("Verifying database setup before generation...")
+            if not verify_column_names():
+                print_error("Column verification failed - stopping generation")
+                return False
+            
+            if not test_individual_queries():
+                print_warning("Some test queries failed - proceeding with caution")
+        
         # Build command
         cmd = [
             sys.executable, generator_path,
@@ -119,39 +267,81 @@ def generate_dashboard_data(component=None):
         if component:
             cmd.extend(['--component', component])
         
-        print(f"Executing: {' '.join(cmd)}")
+        print_info(f"Executing: {' '.join(cmd)}")
         
-        # Run the generator
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        # Run the generator with extended timeout
+        print_info("Starting dashboard generation (this may take several minutes)...")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)  # 10 minutes
         
         if result.returncode == 0:
             print_success("Dashboard data generated successfully!")
-            print("Generator output:")
-            print(result.stdout)
+            if result.stdout:
+                print("Generator output:")
+                print(result.stdout)
             
             # Verify output files
             verify_dashboard_data()
             return True
         else:
             print_error("Dashboard generation failed!")
-            print("Error output:")
-            print(result.stderr)
+            if result.stderr:
+                print("Error output:")
+                print(result.stderr)
             if result.stdout:
                 print("Standard output:")
                 print(result.stdout)
+            
+            # Try to provide helpful error analysis
+            analyze_generation_error(result.stderr, result.stdout)
             return False
             
     except subprocess.TimeoutExpired:
-        print_error("Dashboard generation timed out (5 minutes)")
+        print_error("Dashboard generation timed out (10 minutes)")
+        print_info("Try generating individual components:")
+        print("  python3 scripts/run_dashboard.py overview")
+        print("  python3 scripts/run_dashboard.py revenue")
         return False
     except Exception as e:
         print_error(f"Dashboard generation failed: {e}")
+        logger.exception("Dashboard generation error")
         return False
+
+
+def analyze_generation_error(stderr, stdout):
+    """Analyze generation errors and provide helpful suggestions"""
+    print_info("Analyzing error...")
+    
+    error_suggestions = {
+        'column': "Column name mismatch - run 'python3 scripts/run_dashboard.py debug'",
+        'timeout': "Query timeout - try generating individual components",
+        'permission': "AWS permission error - check your credentials",
+        'syntax': "SQL syntax error - check the query formatting",
+        'connection': "Database connection issue - verify your config.yaml"
+    }
+    
+    combined_output = (stderr or '') + (stdout or '')
+    combined_output_lower = combined_output.lower()
+    
+    suggestions_found = []
+    for error_type, suggestion in error_suggestions.items():
+        if error_type in combined_output_lower:
+            suggestions_found.append(suggestion)
+    
+    if suggestions_found:
+        print_info("Suggested improvements:")
+        for suggestion in suggestions_found:
+            print(f"  • {suggestion}")
+    else:
+        print_info("General troubleshooting steps:")
+        print("  • Run: python3 scripts/run_dashboard.py debug")
+        print("  • Check AWS credentials: aws sts get-caller-identity")
+        print("  • Verify config.yaml settings")
+        print("  • Try individual components first")
 
 
 def verify_dashboard_data():
     """Verify dashboard data files exist and contain data"""
-    print("\nVerifying dashboard data files...")
+    print_info("Verifying dashboard data files...")
     
     data_file = 'dashboard_data/dashboard_data.json'
     if os.path.exists(data_file):
@@ -159,20 +349,48 @@ def verify_dashboard_data():
             with open(data_file, 'r') as f:
                 data = json.load(f)
             
-            print(f"  Main data file exists")
+            print_success("Main data file exists")
             print(f"  Data components: {len(data)}")
             
-            # Check individual components
-            components = ['overview', 'revenue_trends', 'category_analysis', 'price_analysis', 'market_insights']
-            for component in components:
+            # Check individual components with expected counts
+            expected_datasets = {
+                'overview': 5,
+                'revenue_trends': 3,
+                'category_analysis': 3,
+                'price_analysis': 3,
+                'market_insights': 4,
+                'forecasting_features': 3
+            }
+            
+            print_info("Component verification:")
+            total_expected = 0
+            total_actual = 0
+            
+            for component, expected_count in expected_datasets.items():
+                total_expected += expected_count
                 if component in data:
                     if isinstance(data[component], dict):
-                        sub_count = len(data[component])
-                        print(f"    {component}: {sub_count} datasets")
+                        actual_count = len(data[component])
+                        total_actual += actual_count
+                        status = "COMPLETE" if actual_count == expected_count else "PARTIAL"
+                        print(f"  {status} {component}: {actual_count}/{expected_count} datasets")
+                        
+                        # Show which datasets are available
+                        if actual_count > 0:
+                            datasets = list(data[component].keys())
+                            print(f"      Available: {', '.join(datasets)}")
                     else:
-                        print(f"    {component}: Available")
+                        print(f"  COMPLETE {component}: Available (single dataset)")
+                        total_actual += 1
                 else:
-                    print(f"    {component}: Missing")
+                    print(f"  MISSING {component}: 0/{expected_count}")
+            
+            print_info(f"Overall completion: {total_actual}/{total_expected} datasets ({total_actual/total_expected*100:.1f}%)")
+            
+            if total_actual < total_expected:
+                print_warning("Some datasets are missing. Try:")
+                print("  python3 scripts/run_dashboard.py generate  # Regenerate all")
+                print("  python3 scripts/run_dashboard.py debug    # Check for issues")
             
             return True
             
@@ -181,11 +399,12 @@ def verify_dashboard_data():
             return False
     else:
         print_error("Dashboard data file not found")
+        print_info("Generate data first: python3 scripts/run_dashboard.py generate")
         return False
 
 
 def view_dashboard_data():
-    """View dashboard data in terminal"""
+    """View dashboard data in terminal with enhanced formatting"""
     print_header("Dashboard data summary")
     
     data_file = 'dashboard_data/dashboard_data.json'
@@ -243,6 +462,11 @@ def view_dashboard_data():
                     month_num = month.get('month', 'N/A')
                     revenue = month.get('monthly_revenue', 0)
                     print(f"    {year}-{month_num:02d}: {revenue:,.0f} RMB")
+        elif 'revenue_trends' in data:
+            print(f"\nREVENUE TRENDS: No monthly data available")
+            available_trends = list(data['revenue_trends'].keys()) if data['revenue_trends'] else []
+            if available_trends:
+                print(f"    Available: {', '.join(available_trends)}")
         
         # Category analysis
         if 'category_analysis' in data and 'top_categories_by_revenue' in data['category_analysis']:
@@ -273,9 +497,10 @@ def view_dashboard_data():
         for component_name, component_data in data.items():
             if isinstance(component_data, dict):
                 sub_components = len(component_data)
-                print(f"  {component_name.replace('_', ' ').title()}: {sub_components} datasets")
+                status = "AVAILABLE" if sub_components > 0 else "EMPTY"
+                print(f"  {status} {component_name.replace('_', ' ').title()}: {sub_components} datasets")
             else:
-                print(f"  {component_name.replace('_', ' ').title()}: Available")
+                print(f"  AVAILABLE {component_name.replace('_', ' ').title()}: Available")
         
         print_success("Dashboard data loaded and displayed successfully!")
         return True
@@ -487,7 +712,7 @@ def generate_daily_report():
         print_success(f"Daily report generated: {report_file}")
         
         # Display report summary
-        print("\n📋 REPORT SUMMARY:")
+        print("\nREPORT SUMMARY:")
         with open(report_file, 'r') as f:
             lines = f.readlines()[:20]  # Show first 20 lines
             for line in lines:
@@ -521,9 +746,9 @@ def check_system_status():
     for name, path in files_to_check:
         if os.path.exists(path):
             size = os.path.getsize(path)
-            print(f"  {name}: EXISTS ({size:,} bytes)")
+            print(f"  EXISTS {name}: ({size:,} bytes)")
         else:
-            print(f"  {name}: NOT FOUND ({path})")
+            print(f"  MISSING {name}: ({path})")
             all_files_ok = False
     
     # Check directories
@@ -532,9 +757,9 @@ def check_system_status():
     for directory in directories:
         if os.path.exists(directory):
             file_count = len(os.listdir(directory))
-            print(f"  {directory}: EXISTS ({file_count} files)")
+            print(f"  EXISTS {directory}: ({file_count} files)")
         else:
-            print(f"  {directory}: NOT FOUND")
+            print(f"  MISSING {directory}")
     
     # Check Python dependencies
     print("\nPYTHON DEPENDENCIES:")
@@ -549,9 +774,9 @@ def check_system_status():
     for module, name in dependencies:
         try:
             __import__(module)
-            print(f"  {name}: Available")
+            print(f"  AVAILABLE {name}")
         except ImportError:
-            print(f"  {name}: Missing")
+            print(f"  MISSING {name}")
             if module != 'streamlit':
                 all_files_ok = False
     
@@ -567,24 +792,192 @@ def check_system_status():
                 if component in data:
                     if isinstance(data[component], dict):
                         count = len(data[component])
-                        print(f"  {component}: {count} datasets")
+                        status = "AVAILABLE" if count > 0 else "EMPTY"
+                        print(f"  {status} {component}: {count} datasets")
                     else:
-                        print(f"  {component}: Available")
+                        print(f"  AVAILABLE {component}")
                 else:
-                    print(f"  {component}: Missing")
+                    print(f"  MISSING {component}")
             
         except Exception as e:
-            print(f"  Data file corrupted: {e}")
+            print(f"  CORRUPTED Data file: {e}")
             all_files_ok = False
     
     # Overall status
     print(f"\nOVERALL STATUS:")
     if all_files_ok:
         print("  Dashboard system is ready!")
+        print("\nNext steps:")
+        print("  • python3 scripts/run_dashboard.py view      # View current data")
+        print("  • python3 scripts/run_dashboard.py streamlit # Launch interactive dashboard")
+        print("  • python3 scripts/run_dashboard.py html     # Generate static HTML")
     else:
-        print("  Dashboard system has issues - run 'setup' and 'generate'")
+        print("  Dashboard system has issues")
+        print("\nRecommended actions:")
+        print("  • python3 scripts/run_dashboard.py setup    # Setup infrastructure")
+        print("  • python3 scripts/run_dashboard.py debug    # Check database connectivity")
+        print("  • python3 scripts/run_dashboard.py generate # Generate missing data")
     
     return all_files_ok
+
+
+def debug_table_schema():
+    """Debug the actual table schema to identify available columns"""
+    print_header("Debugging Table Schema and Connectivity")
+    
+    try:
+        # Import the dashboard generator to check table schema
+        sys.path.append('src/dashboard')
+        from bi_dashboard_generator import BIDashboardGenerator
+        
+        print_info("Initializing dashboard generator...")
+        dashboard_generator = BIDashboardGenerator('config.yaml')
+        
+        # Test basic connectivity
+        print_info("Testing database connectivity...")
+        test_query = f"SELECT COUNT(*) as total_count FROM {dashboard_generator.database_name}.features_complete LIMIT 1"
+        result = dashboard_generator.execute_query(test_query, "connectivity_test")
+        
+        if result:
+            print_success(f"Database connection successful ({result[0]['total_count']:,} records)")
+        else:
+            print_error("Cannot connect to Athena table")
+            print_info("Check:")
+            print("  • AWS credentials: aws sts get-caller-identity")
+            print("  • config.yaml database settings")
+            print("  • VPN/network connection")
+            return False
+        
+        # Get table schema
+        print_info("Retrieving table schema...")
+        schema_query = f"DESCRIBE {dashboard_generator.database_name}.features_complete"
+        schema_result = dashboard_generator.execute_query(schema_query, "schema_discovery")
+        
+        if schema_result:
+            print_success(f"Schema retrieved ({len(schema_result)} rows)")
+            
+            # Debug the schema result structure
+            print_info("Analyzing schema result structure...")
+            if len(schema_result) > 0:
+                first_row = schema_result[0]
+                print(f"First row keys: {list(first_row.keys())}")
+                print(f"First row values: {first_row}")
+            
+            print(f"\nExtracting column names...")
+            available_columns = []
+            
+            for i, row in enumerate(schema_result):
+                # Try different possible column name keys
+                col_name = None
+                for possible_key in ['col_name', 'column_name', 'field', 'Column', 'column']:
+                    if possible_key in row:
+                        col_name = row[possible_key]
+                        break
+                
+                if col_name:
+                    if not col_name.startswith('#') and col_name.strip():
+                        available_columns.append(col_name.strip())
+                        if i < 10:  # Show first 10 for debugging
+                            print(f"  Row {i}: {col_name}")
+                else:
+                    if i < 5:  # Show first 5 problematic rows
+                        print(f"  Row {i} (no column name found): {row}")
+            
+            print_success(f"Extracted {len(available_columns)} valid columns")
+            
+            if available_columns:
+                print(f"\nFirst 20 Available Columns:")
+                for i, col in enumerate(available_columns[:20]):
+                    print(f"  {i+1:2d}. {col}")
+                
+                if len(available_columns) > 20:
+                    print(f"  ... and {len(available_columns) - 20} more columns")
+            else:
+                print_error("No columns extracted from schema!")
+                print("Raw schema data (first 3 rows):")
+                for i, row in enumerate(schema_result[:3]):
+                    print(f"  Row {i}: {row}")
+                return False
+            
+            # Check which of our expected columns exist
+            expected_columns = dashboard_generator.columns
+            print(f"\nColumn Mapping Verification:")
+            missing_columns = []
+            found_columns = []
+            
+            for key, expected_col in expected_columns.items():
+                # Check exact match
+                if expected_col in available_columns:
+                    found_columns.append((key, expected_col))
+                    print(f"  FOUND {key} -> '{expected_col}'")
+                else:
+                    # Check case-insensitive match
+                    case_match = None
+                    for col in available_columns:
+                        if col.lower() == expected_col.lower():
+                            case_match = col
+                            break
+                    
+                    if case_match:
+                        found_columns.append((key, case_match))
+                        print(f"  FOUND (case diff) {key} -> '{case_match}' (expected '{expected_col}')")
+                    else:
+                        missing_columns.append((key, expected_col))
+                        print(f"  MISSING {key} -> '{expected_col}'")
+            
+            print(f"\nSummary:")
+            print(f"  • Total columns in database: {len(available_columns)}")
+            print(f"  • Expected columns found: {len(found_columns)}")
+            print(f"  • Missing columns: {len(missing_columns)}")
+            
+            if missing_columns:
+                print(f"\nMissing columns may cause query failures:")
+                for key, col_name in missing_columns:
+                    print(f"    {key}: '{col_name}'")
+                
+                print(f"\nColumn name suggestions:")
+                print("Update the column mapping in bi_dashboard_generator.py with these corrections:")
+                print("self.columns = {")
+                for key, expected_col in expected_columns.items():
+                    # Find best match
+                    best_match = expected_col
+                    for col in available_columns:
+                        if col.lower() == expected_col.lower():
+                            best_match = col
+                            break
+                        elif expected_col.lower().replace(' ', '_') == col.lower().replace(' ', '_'):
+                            best_match = col
+                            break
+                    
+                    if best_match != expected_col:
+                        print(f"    '{key}': '{best_match}',  # Was '{expected_col}'")
+                    else:
+                        # Find partial matches
+                        partial_matches = [col for col in available_columns if 
+                                         expected_col.lower() in col.lower() or 
+                                         col.lower() in expected_col.lower()]
+                        if partial_matches:
+                            print(f"    '{key}': '{partial_matches[0]}',  # Was '{expected_col}', similar: {partial_matches[:3]}")
+                        else:
+                            print(f"    '{key}': '{expected_col}',  # NOT FOUND")
+                print("}")
+            else:
+                print(f"\nAll expected columns found!")
+            
+            # Test a few sample queries with found columns
+            if found_columns:
+                print(f"\nTesting sample queries with found columns...")
+                test_individual_queries()
+            
+            return True
+        else:
+            print_error("Cannot describe table schema")
+            return False
+            
+    except Exception as e:
+        print_error(f"Debug failed: {e}")
+        logger.exception("Debug error")
+        return False
 
 
 def clean_dashboard():
@@ -594,7 +987,8 @@ def clean_dashboard():
     try:
         items_to_clean = [
             'dashboard_data',
-            'reports'
+            'reports',
+            'logs'
         ]
         
         cleaned_count = 0
@@ -613,7 +1007,7 @@ def clean_dashboard():
         if cleaned_count > 0:
             print_success(f"Cleaned {cleaned_count} items")
         else:
-            print("Nothing to clean")
+            print_info("Nothing to clean")
         
         return True
         
@@ -638,6 +1032,7 @@ def show_help():
         ('streamlit', 'Run interactive Streamlit dashboard'),
         ('report', 'Generate daily business report'),
         ('status', 'Check system status'),
+        ('debug', 'Debug table schema and column availability'),
         ('clean', 'Clean dashboard files'),
         ('help', 'Show this help message')
     ]
@@ -651,16 +1046,21 @@ def show_help():
     
     print(f"\nEXAMPLE WORKFLOW:")
     print(f"  1. python3 scripts/run_dashboard.py setup")
-    print(f"  2. python3 scripts/run_dashboard.py generate")
-    print(f"  3. python3 scripts/run_dashboard.py view")
-    print(f"  4. python3 scripts/run_dashboard.py html")
+    print(f"  2. python3 scripts/run_dashboard.py debug    # Verify database connectivity")
+    print(f"  3. python3 scripts/run_dashboard.py generate")
+    print(f"  4. python3 scripts/run_dashboard.py view")
     print(f"  5. python3 scripts/run_dashboard.py streamlit")
     
+    print(f"\nTROUBLESHOOTING:")
+    print(f"  python3 scripts/run_dashboard.py debug    # Check database & columns")
+    print(f"  python3 scripts/run_dashboard.py status   # Check system health")
+    print(f"  python3 scripts/run_dashboard.py clean    # Clean and restart")
+    
     print(f"\nCOMPONENT COMMANDS:")
-    print(f"  python3 scripts/run_dashboard.py overview")
-    print(f"  python3 scripts/run_dashboard.py revenue") 
-    print(f"  python3 scripts/run_dashboard.py categories")
-    print(f"  python3 scripts/run_dashboard.py market")
+    print(f"  python3 scripts/run_dashboard.py overview   # Generate overview only")
+    print(f"  python3 scripts/run_dashboard.py revenue    # Generate revenue trends only") 
+    print(f"  python3 scripts/run_dashboard.py categories # Generate category analysis only")
+    print(f"  python3 scripts/run_dashboard.py market     # Generate market insights only")
 
 
 def main():
@@ -684,6 +1084,7 @@ def main():
         'streamlit': run_streamlit_dashboard,
         'report': generate_daily_report,
         'status': check_system_status,
+        'debug': debug_table_schema,
         'clean': clean_dashboard,
         'help': show_help
     }

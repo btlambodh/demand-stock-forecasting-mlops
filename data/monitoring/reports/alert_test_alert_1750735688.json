@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-06-24T03:28:08.370605",
+  "alert_type": "test_alert",
+  "drift_results": {
+    "timestamp": "2025-06-24T03:28:08.370605",
+    "method": "test",
+    "overall_drift_detected": true,
+    "drift_score": 0.75,
+    "summary": {
+      "total_features": 20,
+      "drifted_features": 8,
+      "drift_ratio": 0.4,
+      "drift_threshold": 0.25
+    },
+    "feature_drift": {
+      "test_feature_1": {
+        "drift_score": 0.8,
+        "drift_detected": true
+      },
+      "test_feature_2": {
+        "drift_score": 0.6,
+        "drift_detected": true
+      }
+    }
+  },
+  "message": "\n            DRIFT ALERT - Chinese Produce Forecasting System\n            \n            Alert Type: TEST_ALERT\n            Timestamp: 2025-06-24T03:28:08.370605\n            \n            Summary:\n            - Overall Drift Detected: True\n            - Drift Score: 0.750\n            - Features Analyzed: 20\n            - Drifted Features: 8\n            - Drift Ratio: 40.00%\n            - Method: test\n            \n            Action Required: Please review the model performance and consider retraining.\n            "
+}
