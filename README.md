@@ -2,11 +2,11 @@
 
 A comprehensive MLOps solution for forecasting produce prices in the Chinese market using AWS SageMaker, built with CI/CD automation and production-grade deployment.
 
-## 🎯 Project Overview
+## Project Overview
 
 This project implements an end-to-end machine learning pipeline for forecasting produce prices in the Chinese market using historical sales data, wholesale prices, and market indicators. The solution leverages AWS SageMaker for model training and deployment with full MLOps automation.
 
-## 📊 Business Problem
+## Business Problem
 
 Agricultural price forecasting in China involves multiple complex factors:
 - **Seasonal patterns** with predictable yearly recurrence
@@ -15,7 +15,7 @@ Agricultural price forecasting in China involves multiple complex factors:
 - **Import/export volumes** influencing domestic pricing
 - **Regional demand variations** across different produce categories
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ├── Data Ingestion (S3) → Feature Engineering → Model Training (SageMaker)
@@ -24,7 +24,7 @@ Agricultural price forecasting in China involves multiple complex factors:
 └── CI/CD Pipeline (GitHub Actions) → Infrastructure as Code (CloudFormation)
 ```
 
-## 📁 Data Structure
+## Data Structure
 
 Our dataset consists of four key annexes:
 
@@ -33,7 +33,7 @@ Our dataset consists of four key annexes:
 - **annex3.csv** (55,956 rows): Historical wholesale prices
 - **annex4.csv** (241 rows): Product loss rates by item
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - AWS Account with SageMaker access
@@ -97,7 +97,7 @@ jupyter notebook run_end_to_end_pipeline.ipynb
 └── organized-notebook.md       # Project documentation
 ```
 
-## 🔧 Configuration
+## Configuration
 
 Key configuration parameters in `config.yaml`:
 - **AWS Region**: us-east-1
@@ -106,7 +106,7 @@ Key configuration parameters in `config.yaml`:
 - **Model Parameters**: Network architecture, hyperparameters
 - **Data Processing**: Feature engineering settings
 
-## 🤖 Machine Learning Pipeline
+## Machine Learning Pipeline
 
 ### 1. Data Processing
 - **Temporal Feature Engineering**: Seasonal patterns, trend decomposition
@@ -126,34 +126,34 @@ Key configuration parameters in `config.yaml`:
 - **A/B Testing**: Model performance comparison
 - **Auto Scaling**: Dynamic resource allocation
 
-## 📈 Key Features
+## Key Features
 
-- ✅ **Automated ETL Pipeline** with error handling and validation
-- ✅ **Feature Engineering** for seasonal and exchange rate patterns
-- ✅ **Multi-model Training** with hyperparameter optimization
-- ✅ **Model Registry** with versioning and lineage tracking
-- ✅ **CI/CD Integration** with automated testing and deployment
-- ✅ **Monitoring & Alerting** for model drift and performance
-- ✅ **Infrastructure as Code** for reproducible deployments
+-  **Automated ETL Pipeline** with error handling and validation
+-  **Feature Engineering** for seasonal and exchange rate patterns
+-  **Multi-model Training** with hyperparameter optimization
+-  **Model Registry** with versioning and lineage tracking
+-  **CI/CD Integration** with automated testing and deployment
+-  **Monitoring & Alerting** for model drift and performance
+-  **Infrastructure as Code** for reproducible deployments
 
-## 🎯 Expected Outcomes
+## Expected Outcomes
 
 - **Price Forecast Accuracy**: MAPE < 15% for 30-day predictions
 - **Real-time Performance**: < 100ms inference latency
 - **Cost Optimization**: 40% reduction in compute costs via auto-scaling
 - **Operational Efficiency**: 80% reduction in manual intervention
 
-## 👥 Team
+## Team
 
 - **Author**: Bhupal Lambodhar
 - **Email**: btiduwarlambodhar@sandiego.edu
 - **Repository**: https://github.com/btlambodh/demand-stock-forecasting-mlops.git
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -161,6 +161,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📞 Support
+## Support
 
 For questions and support, please contact btiduwarlambodhar@sandiego.edu or open an issue in the GitHub repository.
