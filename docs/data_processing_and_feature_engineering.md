@@ -82,15 +82,13 @@ Automate every step—from validating raw data to producing ready-to-query featu
 
 Transforms raw S3 data into a validated, feature-rich dataset for robust ML and BI—fully automated via Makefile.
 
-<details> <summary><b>How it Works (Click to Expand)</b></summary>
-<ul>
-    <li>Data Validation: Checks data quality, schema, and completeness.</li>
-    <li>Feature Engineering: Builds 100+ features for forecasting.</li>
-    <li>Feature Store & Athena Integration: Syncs processed data to AWS for both ML and analytics.</li>
-    <li>Business Intelligence: Ready-to-query in Athena and for dashboarding.</li>
-</ul>
-    
-<code>
+**How it Works**
+
+- Data Validation: Checks data quality, schema, and completeness.
+- Feature Engineering: Builds 100+ features for forecasting.
+- Feature Store & Athena Integration: Syncs processed data to AWS for both ML and analytics.
+- Business Intelligence: Ready-to-query in Athena and for dashboarding.
+
 ```bash
 # Validate data for completeness and schema consistency
 make validate-data
@@ -117,10 +115,7 @@ make pipeline-data-analytics    # + Athena setup
 make pipeline-data-ml           # + Feature Store
 make pipeline-data-full         # all integrations
 make pipeline-bi                # full BI workflow, verification & sample queries
-```    
-</code>
-</details>
-
+``` 
 
 
 **Key Scripts Referenced:**
