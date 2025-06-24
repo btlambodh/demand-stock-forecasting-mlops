@@ -295,7 +295,7 @@ All monitoring components validated successfully!
 
 ## Performance Monitoring Dashboard
 
-![Performance Monitor Drift Detection](./images/perf_monitor_drift_detect.png)
+![Performance Monitor Drift Detection](./images/monitoring_drift_detect.png)
 
 ---
 
