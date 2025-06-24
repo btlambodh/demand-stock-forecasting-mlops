@@ -68,7 +68,8 @@ Over **100 features** are automatically engineered:
 
 ---
 
-## AWS Integration
+## AWS Integration & Makefile Workflow
+Automate every step—from validating raw data to producing ready-to-query features for both ML and business dashboards. Makefile targets let you run, repeat, and chain data workflows for fast, reproducible results.
 
 * **S3**: Central repository for raw and processed data.
 * **Feature Store**: Stores all engineered features, ensuring versioning and discoverability for models.
@@ -77,9 +78,58 @@ Over **100 features** are automatically engineered:
 
 ![Data Processing, Feature Engineering and Ingestion](./images/data_processing_and_feature_flow.png)
 
+<br/>
+
+Transforms raw S3 data into a validated, feature-rich dataset for robust ML and BI—fully automated via Makefile.
+
+<details> <summary><b>How it Works (Click to Expand)</b></summary>
+- Data Validation: Checks data quality, schema, and completeness.
+- Feature Engineering: Builds 100+ features for forecasting.
+- Feature Store & Athena Integration: Syncs processed data to AWS for both ML and analytics.
+- Business Intelligence: Ready-to-query in Athena and for dashboarding.
+
+</details>
+
+```bash
+# Validate data for completeness and schema consistency
+make validate-data
+
+# Generate engineered features for modeling
+make process-features
+
+# Integrate processed data with SageMaker Feature Store
+make setup-feature-store
+
+# Set up Athena tables for BI analytics
+make setup-athena
+
+# Or, run the full pipeline (validation, features, feature store, Athena)
+make setup-data-infrastructure
+
+# Verify Athena table accessibility and run BI sample queries
+make verify-athena
+make run-sample-queries
+
+# Pipeline combos for specific use cases:
+make pipeline-data-basic        # validation + features
+make pipeline-data-analytics    # + Athena setup
+make pipeline-data-ml           # + Feature Store
+make pipeline-data-full         # all integrations
+make pipeline-bi                # full BI workflow, verification & sample queries
+```
+
+**Key Scripts Referenced:**
+
+* [`src/data_processing/data_validation.py`](src/data_processing/data_validation.py)
+* [`src/data_processing/feature_engineering.py`](src/data_processing/feature_engineering.py)
+* [`src/data_processing/feature_store_integration.py`](src/data_processing/feature_store_integration.py)
+* [`scripts/run_sample_queries.py`](scripts/run_sample_queries.py)
+
+**Configurable:** All paths and parameters are set in [`config.yaml`](config.yaml).
+
 ---
 
-## Business Impact
+## Business Impact 
 
 * **Accurate, explainable forecasts** for pricing, demand, and waste reduction.
 * **Real-time and batch predictions** ready for dashboards and business workflows.
