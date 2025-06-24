@@ -49,7 +49,7 @@ See [`docs/`](docs/) for in-depth module explanations.
 
 ## Architecture
 
-
+![MLOps Architecture](docs/images/MLOps_Architecture.png)
 
 > See [`docs/bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) and [`docs/data_processing_and_feature_engineering.md`](docs/data_processing_and_feature_engineering.md) for deep dives.
 
