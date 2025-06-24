@@ -1,6 +1,3 @@
-
----
-
 # Data Flow & Feature Engineering - Demand Stock Forecasting MLOps (Chinese Produce Market RMB)
 
 ## Overview

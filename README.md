@@ -1,4 +1,4 @@
-# Demand Stock Forecasting MLOps
+# Demand Stock Forecasting MLOps (Chinese Produce Market RMB)
 
 > **End-to-End AI/ML Platform for Demand & Stock Forecasting in Retail**  
 > Automates the full ML lifecycle: data prep, feature engineering, BI dashboard, model training & registry, inference APIs, monitoring, drift detection, and CI/CD – all orchestrated for AWS (Athena, Glue, SageMaker) with robust testing.
@@ -51,7 +51,9 @@ See [`docs/`](docs/) for in-depth module explanations.
 
 ![MLOps Architecture](docs/images/MLOps_Architecture.png)
 
-> See [`docs/bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) and [`docs/data_processing_and_feature_engineering.md`](docs/data_processing_and_feature_engineering.md) for deep dives.
+**See specific documentation for deep dives**
+- [`docs/data_processing_and_feature_engineering.md`]
+- [`docs/bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) 
 
 ---
 
