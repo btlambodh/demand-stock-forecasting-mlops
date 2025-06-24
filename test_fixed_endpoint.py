@@ -18,7 +18,7 @@ from sagemaker.deserializers import JSONDeserializer
 
 def test_endpoint(endpoint_name: str):
     """Test the fixed endpoint with various input formats"""
-    print(f"🧪 TESTING FIXED ENDPOINT: {endpoint_name}")
+    print(f" TESTING FIXED ENDPOINT: {endpoint_name}")
     print("=" * 60)
     
     try:
@@ -47,7 +47,7 @@ def test_endpoint(endpoint_name: str):
         result1 = predictor.predict(basic_test)
         latency1 = (time.time() - start_time) * 1000
         
-        print(f"✅ Result: {result1}")
+        print(f" Result: {result1}")
         print(f"⏱️  Latency: {latency1:.2f}ms")
         print()
         
@@ -64,7 +64,7 @@ def test_endpoint(endpoint_name: str):
         result2 = predictor.predict(minimal_test)
         latency2 = (time.time() - start_time) * 1000
         
-        print(f"✅ Result: {result2}")
+        print(f" Result: {result2}")
         print(f"⏱️  Latency: {latency2:.2f}ms")
         print()
         
@@ -87,7 +87,7 @@ def test_endpoint(endpoint_name: str):
         result3 = predictor.predict(produce_test)
         latency3 = (time.time() - start_time) * 1000
         
-        print(f"✅ Result: {result3}")
+        print(f" Result: {result3}")
         print(f"⏱️  Latency: {latency3:.2f}ms")
         print()
         
@@ -103,20 +103,20 @@ def test_endpoint(endpoint_name: str):
         result4 = predictor.predict(direct_test)
         latency4 = (time.time() - start_time) * 1000
         
-        print(f"✅ Result: {result4}")
+        print(f" Result: {result4}")
         print(f"⏱️  Latency: {latency4:.2f}ms")
         print()
         
         # Summary
         avg_latency = (latency1 + latency2 + latency3 + latency4) / 4
         
-        print("🎉 TEST SUMMARY")
+        print(" TEST SUMMARY")
         print("=" * 30)
-        print(f"✅ All 4 tests passed!")
+        print(f" All 4 tests passed!")
         print(f"⏱️  Average latency: {avg_latency:.2f}ms")
         print(f"🎯 Endpoint is working perfectly!")
         print()
-        print("✅ Your endpoint can handle:")
+        print(" Your endpoint can handle:")
         print("  - Basic input features")
         print("  - Minimal input features") 
         print("  - Complex produce data")
@@ -126,7 +126,7 @@ def test_endpoint(endpoint_name: str):
         return True
         
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        print(f" Test failed: {e}")
         return False
 
 
@@ -143,18 +143,18 @@ def check_endpoint_status(endpoint_name: str):
         print(f"Status: {status}")
         
         if status == 'InService':
-            print("✅ Endpoint is ready for testing!")
+            print(" Endpoint is ready for testing!")
             return True
         elif status == 'Creating':
-            print("🔄 Endpoint is still being created...")
+            print(" Endpoint is still being created...")
             print("Wait a few minutes and try again")
             return False
         else:
-            print(f"⚠️ Endpoint status: {status}")
+            print(f" Endpoint status: {status}")
             return False
             
     except Exception as e:
-        print(f"❌ Error checking status: {e}")
+        print(f" Error checking status: {e}")
         return False
 
 
@@ -167,7 +167,7 @@ def main():
     
     args = parser.parse_args()
     
-    print(f"🧪 ENDPOINT TESTING TOOL")
+    print(f" ENDPOINT TESTING TOOL")
     print(f"Testing endpoint: {args.endpoint_name}")
     print(f"Time: {datetime.now()}")
     print()
@@ -176,7 +176,7 @@ def main():
     ready = check_endpoint_status(args.endpoint_name)
     
     if not ready and args.wait:
-        print("⏳ Waiting for endpoint to be ready...")
+        print(" Waiting for endpoint to be ready...")
         for i in range(30):  # Wait up to 15 minutes
             time.sleep(30)
             print(f"Checking status... ({i+1}/30)")
@@ -188,11 +188,11 @@ def main():
         print()
         success = test_endpoint(args.endpoint_name)
         if success:
-            print("🎉 ALL TESTS PASSED! Your endpoint is working perfectly!")
+            print(" ALL TESTS PASSED! Your endpoint is working perfectly!")
         else:
-            print("❌ Some tests failed. Check the logs above.")
+            print(" Some tests failed. Check the logs above.")
     else:
-        print("❌ Endpoint not ready for testing")
+        print(" Endpoint not ready for testing")
 
 
 if __name__ == "__main__":

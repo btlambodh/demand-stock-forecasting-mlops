@@ -374,7 +374,7 @@ class TestDataGenerator:
             filepath = os.path.join(output_dir, filename)
             with open(filepath, 'w') as f:
                 json.dump(file_info["data"], f, indent=2)
-            print(f"✅ Generated {filename}")
+            print(f" Generated {filename}")
         
         # Generate additional random test cases
         for i in range(5):
@@ -383,14 +383,14 @@ class TestDataGenerator:
             random_filepath = os.path.join(output_dir, random_filename)
             with open(random_filepath, 'w') as f:
                 json.dump(random_data, f, indent=2)
-            print(f"✅ Generated {random_filename}")
+            print(f" Generated {random_filename}")
         
         # Create comprehensive test summary
         self._create_test_summary(output_dir, test_files)
         
         print(f"\n🎉 All test data files created successfully!")
         print(f"📁 Output directory: {output_dir}")
-        print(f"📊 Total files generated: {len(os.listdir(output_dir))}")
+        print(f" Total files generated: {len(os.listdir(output_dir))}")
         
         return output_dir
     
@@ -444,7 +444,7 @@ class TestDataGenerator:
         summary_filepath = os.path.join(output_dir, "test_summary.json")
         with open(summary_filepath, 'w') as f:
             json.dump(summary, f, indent=2)
-        print(f"✅ Generated test_summary.json")
+        print(f" Generated test_summary.json")
         
         # Create a simple README for the test data
         readme_content = f"""# Test Data for Chinese Produce Market Forecasting
@@ -492,7 +492,7 @@ The inference script automatically expands these {len(self.base_features)} basic
         readme_filepath = os.path.join(output_dir, "README.md")
         with open(readme_filepath, 'w') as f:
             f.write(readme_content)
-        print(f"✅ Generated README.md")
+        print(f" Generated README.md")
 
 
 def main():
@@ -530,17 +530,17 @@ Examples:
     
     if args.scenario == 'all':
         # Generate complete test suite
-        print("📊 Generating complete test data suite...")
+        print(" Generating complete test data suite...")
         output_dir = generator.create_all_test_files(args.output_dir)
         
-        print(f"\n🧪 Quick test commands:")
+        print(f"\n Quick test commands:")
         print(f"python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data {output_dir}/basic_test.json")
         print(f"python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data {output_dir}/batch_test.json")
         
     else:
         # Generate specific scenario
         os.makedirs(args.output_dir, exist_ok=True)
-        print(f"📊 Generating {args.scenario} test data...")
+        print(f" Generating {args.scenario} test data...")
         
         if args.scenario == 'batch':
             data = generator.generate_batch_data(args.batch_size)
@@ -556,8 +556,8 @@ Examples:
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=2)
         
-        print(f"✅ Generated {filename} in {args.output_dir}")
-        print(f"\n🧪 Test with:")
+        print(f" Generated {filename} in {args.output_dir}")
+        print(f"\n Test with:")
         print(f"python fixed_sagemaker_deploy.py --config config.yaml --action test --endpoint-name YOUR_ENDPOINT --test-data {filepath}")
     
     print(f"\n✨ Test data generation completed successfully!")

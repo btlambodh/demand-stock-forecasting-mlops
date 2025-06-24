@@ -3,7 +3,7 @@
 # Git Workflow Setup Script for MLOps Project
 # =============================================================================
 
-echo "🚀 Setting up Git Workflow for Demand Stock Forecasting MLOps Project..."
+echo " Setting up Git Workflow for Demand Stock Forecasting MLOps Project..."
 
 # 1. Configure Git User
 echo "📧 Configuring Git user..."
@@ -11,12 +11,12 @@ git config --local user.name "Bhupal Lambodhar"
 git config --local user.email "btiduwarlambodhar@sandiego.edu"
 
 # 2. Set up branch structure
-echo "🌳 Setting up branch structure..."
+echo " Setting up branch structure..."
 git checkout -b develop 2>/dev/null || git checkout develop
 git checkout -b main 2>/dev/null || git checkout main
 
 # 3. Configure pre-commit hooks
-echo "🔧 Setting up pre-commit hooks..."
+echo " Setting up pre-commit hooks..."
 cat > .pre-commit-config.yaml << EOF
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -61,7 +61,7 @@ pip install pre-commit
 pre-commit install
 
 # 5. Create commit message template
-echo "📝 Setting up commit message template..."
+echo " Setting up commit message template..."
 cat > .gitmessage << EOF
 # Type: Brief description (50 chars max)
 #
@@ -77,101 +77,101 @@ EOF
 git config --local commit.template .gitmessage
 
 # 6. Create pull request template
-echo "📋 Setting up PR template..."
+echo " Setting up PR template..."
 mkdir -p .github
 cat > .github/pull_request_template.md << EOF
-## 🎯 Purpose
+##  Purpose
 Brief description of the changes
 
-## 🔄 Type of Change
-- [ ] 🐛 Bug fix
-- [ ] ✨ New feature
-- [ ] 🚨 Breaking change
-- [ ] 📚 Documentation update
-- [ ] 🧹 Code cleanup/refactoring
-- [ ] 🧪 Tests
+##  Type of Change
+- [ ]  Bug fix
+- [ ]  New feature
+- [ ]  Breaking change
+- [ ]  Documentation update
+- [ ]  Code cleanup/refactoring
+- [ ]  Tests
 
-## 🧪 Testing
+##  Testing
 - [ ] Unit tests pass
 - [ ] Integration tests pass
 - [ ] Manual testing completed
 - [ ] Data validation passes
 
-## 📋 Checklist
+##  Checklist
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
 - [ ] No sensitive data exposed
 - [ ] Model performance validated (if applicable)
 
-## 🔗 Related Issues
+##  Related Issues
 Closes #issue_number
 
-## 📸 Screenshots (if applicable)
+##  Screenshots (if applicable)
 Add screenshots for UI changes
 EOF
 
 # 7. Create issue templates
-echo "🐛 Setting up issue templates..."
+echo " Setting up issue templates..."
 mkdir -p .github/ISSUE_TEMPLATE
 
 cat > .github/ISSUE_TEMPLATE/bug_report.md << EOF
 ---
-name: 🐛 Bug Report
+name:  Bug Report
 about: Report a bug in the MLOps pipeline
 title: '[BUG] '
 labels: bug
 assignees: btlambodh
 ---
 
-## 🐛 Bug Description
+##  Bug Description
 A clear description of the bug.
 
-## 🔄 Steps to Reproduce
+##  Steps to Reproduce
 1. Step 1
 2. Step 2
 3. Step 3
 
-## 💡 Expected Behavior
+##  Expected Behavior
 What should have happened.
 
-## 📋 Environment
+##  Environment
 - Branch:
 - Python Version:
 - AWS Region:
 - Model Version:
 
-## 📸 Screenshots/Logs
+##  Screenshots/Logs
 Add any relevant screenshots or error logs.
 EOF
 
 cat > .github/ISSUE_TEMPLATE/feature_request.md << EOF
 ---
-name: ✨ Feature Request
+name:  Feature Request
 about: Suggest a new feature for the MLOps pipeline
 title: '[FEATURE] '
 labels: enhancement
 assignees: btlambodh
 ---
 
-## 🎯 Feature Description
+##  Feature Description
 A clear description of the proposed feature.
 
-## 💪 Motivation
+##  Motivation
 Why is this feature needed?
 
-## 💡 Proposed Solution
+##  Proposed Solution
 How should this feature work?
 
-## 🔄 Alternatives Considered
+##  Alternatives Considered
 What other approaches did you consider?
 
-## 📋 Additional Context
+##  Additional Context
 Add any other context about the feature request.
 EOF
 
 # 8. Create workflow status badges for README
-echo "🏷️ Creating status badges..."
+echo " Creating status badges..."
 cat > status_badges.md << EOF
 # Demand Stock Forecasting MLOps - Project Status
 
@@ -198,15 +198,15 @@ make monitoring-start
 \`\`\`
 EOF
 
-echo "✅ Git workflow setup completed!"
+echo " Git workflow setup completed!"
 echo ""
-echo "🎯 Next Steps:"
+echo " Next Steps:"
 echo "1. Push these changes to your repository"
 echo "2. Set up branch protection rules in GitHub"
 echo "3. Configure repository secrets for AWS"
 echo "4. Test the workflow with a small change"
 echo ""
-echo "📚 Usage:"
+echo " Usage:"
 echo "  git add ."
 echo "  git commit -m 'feat: setup comprehensive MLOps workflow for demand forecasting'"
 echo "  git push origin main"

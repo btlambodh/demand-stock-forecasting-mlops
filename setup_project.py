@@ -44,7 +44,7 @@ def create_directory_structure():
     
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
-        print(f"✅ Created directory: {directory}")
+        print(f" Created directory: {directory}")
 
 def create_init_files():
     """Create __init__.py files for Python packages"""
@@ -67,7 +67,7 @@ def create_init_files():
     for init_file in init_locations:
         with open(init_file, 'w') as f:
             f.write('"""Package initialization file"""\n')
-        print(f"✅ Created: {init_file}")
+        print(f" Created: {init_file}")
 
 def create_placeholder_data_files():
     """Create placeholder files to show expected data structure"""
@@ -103,7 +103,7 @@ def create_placeholder_data_files():
     with open('data/raw/README.json', 'w') as f:
         json.dump(data_info, f, indent=2)
     
-    print("✅ Created data structure info in data/raw/README.json")
+    print(" Created data structure info in data/raw/README.json")
 
 def create_gitignore():
     """Create .gitignore file"""
@@ -183,31 +183,31 @@ mlruns/
     with open('.gitignore', 'w') as f:
         f.write(gitignore_content)
     
-    print("✅ Created .gitignore")
+    print(" Created .gitignore")
 
 def main():
     """Main setup function"""
-    print("🚀 Setting up Chinese Produce Forecasting MLOps Project")
+    print(" Setting up Chinese Produce Forecasting MLOps Project")
     print("=" * 60)
     
     # Create directory structure
-    print("\n📁 Creating directory structure...")
+    print("\n Creating directory structure...")
     create_directory_structure()
     
     # Create __init__.py files
-    print("\n🐍 Creating Python package files...")
+    print("\n Creating Python package files...")
     create_init_files()
     
     # Create data info
-    print("\n📊 Creating data structure info...")
+    print("\n Creating data structure info...")
     create_placeholder_data_files()
     
     # Create .gitignore
-    print("\n📝 Creating .gitignore...")
+    print("\n Creating .gitignore...")
     create_gitignore()
     
     print("\n" + "=" * 60)
-    print("✅ PROJECT SETUP COMPLETE!")
+    print(" PROJECT SETUP COMPLETE!")
     print("=" * 60)
     print("\nNext steps:")
     print("1. Copy your CSV files to data/raw/ directory:")
@@ -217,7 +217,7 @@ def main():
     print("   - annex4.csv")
     print("\n2. Save the provided Python scripts to their respective directories")
     print("3. Run the validation script to test everything")
-    print("\n📂 Project structure is ready for MLOps pipeline!")
+    print("\n Project structure is ready for MLOps pipeline!")
 
 if __name__ == "__main__":
     main()

@@ -24,46 +24,46 @@ logger = logging.getLogger(__name__)
 
 def check_model_file(model_path):
     """Enhanced model file checking with feature analysis"""
-    print("🔍 CHECKING MODEL FILE")
+    print(" CHECKING MODEL FILE")
     print("=" * 40)
     
     if not os.path.exists(model_path):
-        print(f"❌ Model file not found: {model_path}")
+        print(f" Model file not found: {model_path}")
         return False
     
     file_size = os.path.getsize(model_path) / (1024 * 1024)
-    print(f"📊 File size: {file_size:.2f} MB")
+    print(f" File size: {file_size:.2f} MB")
     
     try:
-        print("🔄 Loading model...")
+        print(" Loading model...")
         model = joblib.load(model_path)
-        print(f"✅ Model loaded successfully!")
-        print(f"📦 Model type: {type(model).__name__}")
+        print(f" Model loaded successfully!")
+        print(f" Model type: {type(model).__name__}")
         
         # Analyze model structure
         actual_model = None
         scaler = None
         
         if isinstance(model, dict):
-            print(f"🔑 Dictionary keys: {list(model.keys())}")
+            print(f" Dictionary keys: {list(model.keys())}")
             if 'model' in model:
                 actual_model = model['model']
-                print(f"🤖 Actual model type: {type(actual_model).__name__}")
+                print(f" Actual model type: {type(actual_model).__name__}")
             if 'scaler' in model:
                 scaler = model['scaler']
-                print(f"📏 Scaler found: {type(scaler).__name__}")
+                print(f" Scaler found: {type(scaler).__name__}")
         else:
             actual_model = model
-            print(f"🤖 Direct model type: {type(model).__name__}")
+            print(f" Direct model type: {type(model).__name__}")
         
         # Check model capabilities
         if actual_model and hasattr(actual_model, 'predict'):
-            print("✅ Model has predict method")
+            print(" Model has predict method")
             
             # Try to get feature names if available
             if hasattr(actual_model, 'feature_names_in_'):
                 features = actual_model.feature_names_in_
-                print(f"📋 Expected features ({len(features)}):")
+                print(f" Expected features ({len(features)}):")
                 print(f"   First 10: {list(features[:10])}")
                 if len(features) > 10:
                     print(f"   Last 10: {list(features[-10:])}")
@@ -73,14 +73,14 @@ def check_model_file(model_path):
                                       'Season_Autumn', 'Holiday_Demand']
                 found_features = [f for f in problematic_features if f in features]
                 if found_features:
-                    print(f"⚠️  Model expects complex features: {found_features}")
+                    print(f"  Model expects complex features: {found_features}")
                     print("   This requires feature engineering in inference script!")
         else:
-            print("❌ Model missing predict method")
+            print(" Model missing predict method")
             return False
         
         # Test prediction with minimal data
-        print("\n🧪 Testing prediction with minimal data...")
+        print("\n Testing prediction with minimal data...")
         try:
             sample_data = pd.DataFrame([{
                 'Total_Quantity': 100.0,
@@ -99,45 +99,45 @@ def check_model_file(model_path):
                         scaled_data = test_scaler.transform(sample_data)
                         prediction = test_model.predict(scaled_data)
                     except Exception as scale_error:
-                        print(f"⚠️  Scaling failed: {scale_error}")
+                        print(f"  Scaling failed: {scale_error}")
                         prediction = test_model.predict(sample_data)
                 else:
                     prediction = test_model.predict(sample_data)
             else:
                 prediction = model.predict(sample_data)
             
-            print(f"✅ Basic prediction successful: {prediction}")
+            print(f" Basic prediction successful: {prediction}")
             return True
             
         except Exception as e:
-            print(f"❌ Prediction failed: {e}")
-            print("🔧 This indicates feature mismatch - inference script needs feature engineering!")
+            print(f" Prediction failed: {e}")
+            print(" This indicates feature mismatch - inference script needs feature engineering!")
             
             # More specific error analysis
             error_str = str(e)
             if "feature names" in error_str.lower():
-                print("   💡 SOLUTION: Use inference script with automatic feature generation")
+                print("    SOLUTION: Use inference script with automatic feature generation")
             elif "shape" in error_str.lower():
-                print("   💡 SOLUTION: Model expects different number of features than provided")
+                print("    SOLUTION: Model expects different number of features than provided")
             elif "columns" in error_str.lower():
-                print("   💡 SOLUTION: Column names don't match training data")
+                print("    SOLUTION: Column names don't match training data")
                 
             return False
             
     except Exception as e:
-        print(f"❌ Model loading failed: {e}")
+        print(f" Model loading failed: {e}")
         return False
 
 
 def get_enhanced_cloudwatch_logs(endpoint_name, region='us-east-1', hours_back=2):
     """Enhanced CloudWatch log analysis with better error detection"""
-    print(f"\n🔍 ENHANCED CLOUDWATCH ANALYSIS FOR {endpoint_name}")
+    print(f"\n ENHANCED CLOUDWATCH ANALYSIS FOR {endpoint_name}")
     print("=" * 70)
     
     try:
         cloudwatch_client = boto3.client('logs', region_name=region)
         log_group = f"/aws/sagemaker/Endpoints/{endpoint_name}"
-        print(f"📋 Log group: {log_group}")
+        print(f" Log group: {log_group}")
         
         # Get all log streams (not just the latest)
         try:
@@ -149,18 +149,18 @@ def get_enhanced_cloudwatch_logs(endpoint_name, region='us-east-1', hours_back=2
             )
             
             if not streams_response['logStreams']:
-                print("❌ No log streams found")
+                print(" No log streams found")
                 return []
             
-            print(f"📊 Found {len(streams_response['logStreams'])} log streams")
+            print(f" Found {len(streams_response['logStreams'])} log streams")
             
             all_events = []
             
             # Analyze multiple streams for comprehensive error detection
             for i, stream in enumerate(streams_response['logStreams'][:3]):  # Top 3 streams
                 stream_name = stream['logStreamName']
-                print(f"\n📄 Stream {i+1}: {stream_name}")
-                print(f"🕐 Last event: {datetime.fromtimestamp(stream.get('lastEventTime', 0)/1000)}")
+                print(f"\n Stream {i+1}: {stream_name}")
+                print(f" Last event: {datetime.fromtimestamp(stream.get('lastEventTime', 0)/1000)}")
                 
                 # Get events from this stream
                 start_time = int((datetime.now() - timedelta(hours=hours_back)).timestamp() * 1000)
@@ -176,20 +176,20 @@ def get_enhanced_cloudwatch_logs(endpoint_name, region='us-east-1', hours_back=2
                     
                     stream_events = events_response['events']
                     all_events.extend(stream_events)
-                    print(f"   📊 {len(stream_events)} events in this stream")
+                    print(f"    {len(stream_events)} events in this stream")
                     
                 except Exception as e:
-                    print(f"   ❌ Error reading stream: {e}")
+                    print(f"    Error reading stream: {e}")
                     continue
             
             if not all_events:
-                print("❌ No log events found")
+                print(" No log events found")
                 return []
             
             # Sort all events by timestamp
             all_events.sort(key=lambda x: x['timestamp'])
             
-            print(f"\n📜 COMPREHENSIVE LOG ANALYSIS ({len(all_events)} total events):")
+            print(f"\n COMPREHENSIVE LOG ANALYSIS ({len(all_events)} total events):")
             print("=" * 70)
             
             # Categorize and display events
@@ -210,35 +210,35 @@ def get_enhanced_cloudwatch_logs(endpoint_name, region='us-east-1', hours_back=2
             
             # Display errors with better formatting
             if errors:
-                print(f"\n🚨 ERRORS FOUND ({len(errors)}):")
+                print(f"\n ERRORS FOUND ({len(errors)}):")
                 print("-" * 50)
                 for timestamp, message in errors[-10:]:  # Last 10 errors
-                    print(f"❌ {timestamp}: {message}")
+                    print(f" {timestamp}: {message}")
                     
                     # Multi-line error handling (for stack traces)
                     if 'Traceback' in message:
-                        print("   📝 This appears to be a Python stack trace")
+                        print("    This appears to be a Python stack trace")
                     if 'IndentationError' in message:
-                        print("   💡 FIX: Inference script has indentation issues")
+                        print("    FIX: Inference script has indentation issues")
                     if 'ImportError' in message or 'ModuleNotFoundError' in message:
-                        print("   💡 FIX: Missing Python dependencies")
+                        print("    FIX: Missing Python dependencies")
                     if 'joblib' in message.lower():
-                        print("   💡 FIX: Model loading/serialization issue")
+                        print("    FIX: Model loading/serialization issue")
             
             # Display warnings
             if warnings:
-                print(f"\n⚠️  WARNINGS FOUND ({len(warnings)}):")
+                print(f"\n  WARNINGS FOUND ({len(warnings)}):")
                 print("-" * 50)
                 for timestamp, message in warnings[-5:]:  # Last 5 warnings
-                    print(f"⚠️  {timestamp}: {message}")
+                    print(f"  {timestamp}: {message}")
             
             # Display key info events
             if info_events:
-                print(f"\n📋 KEY INFO EVENTS ({len(info_events)}):")
+                print(f"\n KEY INFO EVENTS ({len(info_events)}):")
                 print("-" * 50)
                 for timestamp, message in info_events[-10:]:  # Last 10 info events
                     if any(keyword in message.lower() for keyword in ['starting', 'loading', 'installing', 'building']):
-                        print(f"ℹ️  {timestamp}: {message}")
+                        print(f"  {timestamp}: {message}")
             
             # Enhanced error pattern analysis
             analyze_error_patterns(all_events)
@@ -246,18 +246,18 @@ def get_enhanced_cloudwatch_logs(endpoint_name, region='us-east-1', hours_back=2
             return all_events
             
         except cloudwatch_client.exceptions.ResourceNotFoundException:
-            print(f"❌ Log group not found: {log_group}")
-            print("💡 This means the container never started properly")
+            print(f" Log group not found: {log_group}")
+            print(" This means the container never started properly")
             return []
             
     except Exception as e:
-        print(f"❌ Error accessing CloudWatch: {e}")
+        print(f" Error accessing CloudWatch: {e}")
         return []
 
 
 def analyze_error_patterns(events: List[Dict]) -> None:
     """Advanced error pattern analysis"""
-    print(f"\n🔍 ADVANCED ERROR PATTERN ANALYSIS:")
+    print(f"\n ADVANCED ERROR PATTERN ANALYSIS:")
     print("=" * 50)
     
     all_messages = " ".join([event['message'] for event in events])
@@ -329,35 +329,35 @@ def analyze_error_patterns(events: List[Dict]) -> None:
     
     # Display findings
     if issues_found:
-        print("🎯 SPECIFIC ISSUES DETECTED:")
+        print(" SPECIFIC ISSUES DETECTED:")
         for i, issue in enumerate(issues_found, 1):
             print(f"   {i}. {issue}")
         
-        print(f"\n💡 RECOMMENDED FIXES:")
+        print(f"\n RECOMMENDED FIXES:")
         for i, fix in enumerate(fixes, 1):
             print(f"   {i}. {fix}")
     else:
         print("🤔 No specific error patterns detected in logs")
-        print("💡 This might be a subtle timing or resource issue")
+        print(" This might be a subtle timing or resource issue")
     
     # Specific SageMaker recommendations
-    print(f"\n🚀 SAGEMAKER-SPECIFIC RECOMMENDATIONS:")
+    print(f"\n SAGEMAKER-SPECIFIC RECOMMENDATIONS:")
     if 'indentationerror' in all_messages_lower:
-        print("   🔧 IMMEDIATE FIX: Run the ultra-clean inference patch")
+        print("    IMMEDIATE FIX: Run the ultra-clean inference patch")
         print("      python inference_method_patch.py")
     
     if 'feature' in all_messages_lower and 'mismatch' in all_messages_lower:
-        print("   🔧 FEATURE FIX: Use inference script with automatic feature generation")
+        print("    FEATURE FIX: Use inference script with automatic feature generation")
         print("      Your model expects 105+ features, test data has ~5 features")
     
     if 'memory' in all_messages_lower:
-        print("   🔧 RESOURCE FIX: Use larger instance type")
+        print("    RESOURCE FIX: Use larger instance type")
         print("      --instance-type ml.m5.large (or ml.m5.xlarge)")
 
 
 def check_endpoint_status(endpoint_name, region='us-east-1'):
     """Check current endpoint status with detailed info"""
-    print(f"\n📊 ENDPOINT STATUS CHECK: {endpoint_name}")
+    print(f"\n ENDPOINT STATUS CHECK: {endpoint_name}")
     print("=" * 50)
     
     try:
@@ -370,41 +370,41 @@ def check_endpoint_status(endpoint_name, region='us-east-1'):
             creation_time = response['CreationTime']
             last_modified = response['LastModifiedTime']
             
-            print(f"🔹 Status: {status}")
-            print(f"🔹 Created: {creation_time}")
-            print(f"🔹 Last Modified: {last_modified}")
+            print(f" Status: {status}")
+            print(f" Created: {creation_time}")
+            print(f" Last Modified: {last_modified}")
             
             if status == 'Failed':
                 if 'FailureReason' in response:
-                    print(f"❌ Failure Reason: {response['FailureReason']}")
+                    print(f" Failure Reason: {response['FailureReason']}")
                     
                     # Parse failure reason for specific guidance
                     failure_reason = response['FailureReason'].lower()
                     if 'health check' in failure_reason:
-                        print("💡 Health check failure usually means inference script issues")
+                        print(" Health check failure usually means inference script issues")
                     if 'memory' in failure_reason:
-                        print("💡 Try larger instance type: ml.m5.large")
+                        print(" Try larger instance type: ml.m5.large")
                     if 'timeout' in failure_reason:
-                        print("💡 Model loading taking too long - optimize inference script")
+                        print(" Model loading taking too long - optimize inference script")
             
             elif status == 'Creating':
                 elapsed = datetime.now(creation_time.tzinfo) - creation_time
-                print(f"🕐 Creating for: {elapsed}")
+                print(f" Creating for: {elapsed}")
                 if elapsed.total_seconds() > 1200:  # 20 minutes
-                    print("⚠️  Taking longer than usual - might be stuck")
+                    print("  Taking longer than usual - might be stuck")
             
             return status
             
         except sagemaker_client.exceptions.ClientError as e:
             if 'ValidationException' in str(e):
-                print("✅ Endpoint doesn't exist")
+                print(" Endpoint doesn't exist")
                 return 'NotFound'
             else:
-                print(f"❌ Error checking status: {e}")
+                print(f" Error checking status: {e}")
                 return 'Error'
                 
     except Exception as e:
-        print(f"❌ Status check error: {e}")
+        print(f" Status check error: {e}")
         return 'Error'
 
 
@@ -420,46 +420,46 @@ def main():
     region = 'us-east-1'
     
     # 1. Enhanced model checking
-    print("🎯 STEP 1: ENHANCED MODEL ANALYSIS")
+    print(" STEP 1: ENHANCED MODEL ANALYSIS")
     model_ok = check_model_file(model_path)
     
     # 2. Endpoint status
-    print("\n🎯 STEP 2: ENDPOINT STATUS CHECK")
+    print("\n STEP 2: ENDPOINT STATUS CHECK")
     status = check_endpoint_status(endpoint_name, region)
     
     # 3. Enhanced CloudWatch analysis
-    print("\n🎯 STEP 3: COMPREHENSIVE LOG ANALYSIS")
+    print("\n STEP 3: COMPREHENSIVE LOG ANALYSIS")
     events = get_enhanced_cloudwatch_logs(endpoint_name, region, hours_back=3)
     
     # 4. Cleanup if needed
     if status == 'Failed':
-        print(f"\n🎯 STEP 4: CLEANUP FAILED ENDPOINT")
+        print(f"\n STEP 4: CLEANUP FAILED ENDPOINT")
         print("=" * 40)
         try:
             sagemaker_client = boto3.client('sagemaker', region_name=region)
             sagemaker_client.delete_endpoint(EndpointName=endpoint_name)
-            print("✅ Failed endpoint deletion initiated")
+            print(" Failed endpoint deletion initiated")
         except Exception as e:
-            print(f"⚠️  Cleanup error: {e}")
+            print(f"  Cleanup error: {e}")
     
     # 5. Final recommendations
-    print(f"\n🎯 FINAL RECOMMENDATIONS:")
+    print(f"\n FINAL RECOMMENDATIONS:")
     print("=" * 40)
     
     if not model_ok:
-        print("🔧 PRIORITY 1: Fix model issues")
+        print(" PRIORITY 1: Fix model issues")
         print("   python model_validator.py --model-path models/best_model.pkl")
         print("   Consider retraining if model is corrupted")
     
     if events and any('indentationerror' in event['message'].lower() for event in events):
-        print("🔧 PRIORITY 2: Fix inference script indentation")
+        print(" PRIORITY 2: Fix inference script indentation")
         print("   python inference_method_patch.py")
     
     if events and any('feature' in event['message'].lower() for event in events):
-        print("🔧 PRIORITY 3: Fix feature mismatch")
+        print(" PRIORITY 3: Fix feature mismatch")
         print("   Use inference script with automatic feature engineering")
     
-    print(f"\n📋 NEXT DEPLOYMENT COMMAND:")
+    print(f"\n NEXT DEPLOYMENT COMMAND:")
     print("python src/deployment/sagemaker_deploy.py \\")
     print("  --config config.yaml \\")
     print("  --action deploy \\")
@@ -468,7 +468,7 @@ def main():
     print("  --endpoint-name produce-forecast-staging-fixed \\")
     print("  --environment staging")
     
-    print(f"\n🎉 Good luck with your deployment! 🚀")
+    print(f"\n Good luck with your deployment! ")
 
 
 if __name__ == "__main__":

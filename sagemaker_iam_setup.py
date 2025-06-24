@@ -42,10 +42,10 @@ class SageMakerIAMSetup:
         """Check if IAM role exists"""
         try:
             self.iam_client.get_role(RoleName=role_name)
-            logger.info(f"✅ Role {role_name} exists")
+            logger.info(f" Role {role_name} exists")
             return True
         except self.iam_client.exceptions.NoSuchEntityException:
-            logger.info(f"❌ Role {role_name} does not exist")
+            logger.info(f" Role {role_name} does not exist")
             return False
         except Exception as e:
             logger.error(f"Error checking role {role_name}: {e}")
@@ -168,7 +168,7 @@ class SageMakerIAMSetup:
                     ]
                 )
                 role_arn = response['Role']['Arn']
-                logger.info(f"✅ Created role: {role_arn}")
+                logger.info(f" Created role: {role_arn}")
             
             # Attach AWS managed policies
             managed_policies = [
@@ -183,7 +183,7 @@ class SageMakerIAMSetup:
                         RoleName=role_name,
                         PolicyArn=policy_arn
                     )
-                    logger.info(f"✅ Attached managed policy: {policy_arn}")
+                    logger.info(f" Attached managed policy: {policy_arn}")
                 except Exception as e:
                     if "already attached" in str(e).lower():
                         logger.info(f"Policy already attached: {policy_arn}")
@@ -198,7 +198,7 @@ class SageMakerIAMSetup:
                     PolicyName=custom_policy_name,
                     PolicyDocument=json.dumps(custom_policy)
                 )
-                logger.info(f"✅ Attached custom policy: {custom_policy_name}")
+                logger.info(f" Attached custom policy: {custom_policy_name}")
             except Exception as e:
                 logger.warning(f"Failed to attach custom policy: {e}")
             
@@ -226,7 +226,7 @@ class SageMakerIAMSetup:
                 # Check if bucket exists
                 try:
                     self.s3_client.head_bucket(Bucket=bucket_name)
-                    logger.info(f"✅ Bucket {bucket_name} already exists")
+                    logger.info(f" Bucket {bucket_name} already exists")
                     bucket_info[bucket_type] = bucket_name
                     continue
                 except:
@@ -241,7 +241,7 @@ class SageMakerIAMSetup:
                         CreateBucketConfiguration={'LocationConstraint': self.region}
                     )
                 
-                logger.info(f"✅ Created bucket: {bucket_name}")
+                logger.info(f" Created bucket: {bucket_name}")
                 
                 # Set bucket policy for SageMaker access
                 bucket_policy = {
@@ -291,7 +291,7 @@ class SageMakerIAMSetup:
                 )
                 
                 bucket_info[bucket_type] = bucket_name
-                logger.info(f"✅ Configured bucket: {bucket_name}")
+                logger.info(f" Configured bucket: {bucket_name}")
                 
             except Exception as e:
                 logger.error(f"Failed to setup bucket {bucket_name}: {e}")
@@ -302,7 +302,7 @@ class SageMakerIAMSetup:
                         session = sagemaker.Session()
                         default_bucket = session.default_bucket()
                         bucket_info[bucket_type] = default_bucket
-                        logger.info(f"✅ Using SageMaker default bucket: {default_bucket}")
+                        logger.info(f" Using SageMaker default bucket: {default_bucket}")
                     except Exception as e2:
                         logger.error(f"Failed to get SageMaker default bucket: {e2}")
         
@@ -332,7 +332,7 @@ class SageMakerIAMSetup:
             
             # Test list endpoints (basic SageMaker permission)
             sagemaker_client.list_endpoints()
-            logger.info("✅ Role can access SageMaker")
+            logger.info(" Role can access SageMaker")
             
             # Test S3 permissions
             s3_client = boto3.client(
@@ -344,7 +344,7 @@ class SageMakerIAMSetup:
             )
             
             s3_client.list_buckets()
-            logger.info("✅ Role can access S3")
+            logger.info(" Role can access S3")
             
             return True
             
@@ -443,7 +443,7 @@ test_data = {{
             # 3. Test permissions
             logger.info("Step 3: Testing role permissions...")
             if self.test_role_permissions(role_arn):
-                logger.info("✅ Role permissions test passed")
+                logger.info(" Role permissions test passed")
             else:
                 results['issues'].append("Role permissions test failed")
             
@@ -452,7 +452,7 @@ test_data = {{
             results['fixes'] = self.fix_deployment_script_issues()
             
             results['status'] = 'success'
-            logger.info("🎉 Complete setup finished successfully!")
+            logger.info(" Complete setup finished successfully!")
             
         except Exception as e:
             logger.error(f"Setup failed: {e}")
@@ -478,27 +478,27 @@ def main():
     print(f"Status: {results['status'].upper()}")
     
     if results['role_arn']:
-        print(f"✅ SageMaker Role ARN: {results['role_arn']}")
+        print(f" SageMaker Role ARN: {results['role_arn']}")
     
     if results['buckets']:
-        print("✅ S3 Buckets:")
+        print(" S3 Buckets:")
         for bucket_type, bucket_name in results['buckets'].items():
             print(f"   {bucket_type}: {bucket_name}")
     
     if results['issues']:
-        print("⚠️ Issues found:")
+        print(" Issues found:")
         for issue in results['issues']:
             print(f"   - {issue}")
     
-    print("\n📝 NEXT STEPS:")
+    print("\n NEXT STEPS:")
     print("1. Update your config.yaml with the new role ARN")
     print("2. Ensure your model files are in the correct S3 bucket")
     print("3. Run the deployment command again")
     
     if results['status'] == 'success':
-        print("\n🎉 Setup completed! You can now run your SageMaker deployment.")
+        print("\n Setup completed! You can now run your SageMaker deployment.")
     else:
-        print("\n❌ Setup had issues. Please check the logs above.")
+        print("\n Setup had issues. Please check the logs above.")
     
     return results
 

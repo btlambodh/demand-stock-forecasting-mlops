@@ -24,17 +24,17 @@ class AWSRoleChecker:
             self.iam_client = boto3.client('iam')
             self.sagemaker_client = boto3.client('sagemaker')
             self.identity = self.sts_client.get_caller_identity()
-            logger.info("✅ AWS clients initialized successfully")
+            logger.info(" AWS clients initialized successfully")
         except NoCredentialsError:
-            logger.error("❌ No AWS credentials found. Please configure AWS CLI.")
+            logger.error(" No AWS credentials found. Please configure AWS CLI.")
             raise
         except Exception as e:
-            logger.error(f"❌ Failed to initialize AWS clients: {e}")
+            logger.error(f" Failed to initialize AWS clients: {e}")
             raise
     
     def check_current_identity(self):
         """Check current AWS identity and permissions"""
-        print("🔍 CURRENT AWS IDENTITY")
+        print(" CURRENT AWS IDENTITY")
         print("=" * 50)
         
         try:
@@ -48,19 +48,19 @@ class AWSRoleChecker:
             
             # Check if running from SageMaker
             if 'sagemaker' in arn.lower() or 'SageMaker' in arn:
-                print("⚠️  WARNING: You're running from SageMaker environment")
+                print("  WARNING: You're running from SageMaker environment")
                 print("   This has limited IAM permissions for security")
                 print("   Consider running from local machine or AWS CloudShell")
             
             return self.identity
             
         except Exception as e:
-            print(f"❌ Error checking identity: {e}")
+            print(f" Error checking identity: {e}")
             return None
     
     def check_iam_permissions(self):
         """Check if current user can create/manage IAM roles"""
-        print("\n🔒 IAM PERMISSIONS CHECK")
+        print("\n IAM PERMISSIONS CHECK")
         print("=" * 50)
         
         permissions_to_test = [
@@ -79,36 +79,36 @@ class AWSRoleChecker:
                 if action == 'iam:ListRoles':
                     self.iam_client.list_roles(MaxItems=1)
                     results[action] = True
-                    print(f"✅ {description}: ALLOWED")
+                    print(f" {description}: ALLOWED")
                 elif action == 'iam:CreateRole':
                     # We can't actually test this without trying to create a role
                     # So we'll assume it's not allowed if we're in SageMaker
                     arn = self.identity.get('Arn', '')
                     if 'sagemaker' in arn.lower():
                         results[action] = False
-                        print(f"❌ {description}: DENIED (SageMaker limitation)")
+                        print(f" {description}: DENIED (SageMaker limitation)")
                     else:
                         results[action] = True
-                        print(f"✅ {description}: LIKELY ALLOWED")
+                        print(f" {description}: LIKELY ALLOWED")
                 else:
                     # For other permissions, assume they're available if list works
                     results[action] = results.get('iam:ListRoles', False)
-                    status = "✅ LIKELY ALLOWED" if results[action] else "❌ LIKELY DENIED"
+                    status = " LIKELY ALLOWED" if results[action] else " LIKELY DENIED"
                     print(f"{status} {description}")
                     
             except ClientError as e:
                 results[action] = False
                 error_code = e.response.get('Error', {}).get('Code', 'Unknown')
-                print(f"❌ {description}: DENIED ({error_code})")
+                print(f" {description}: DENIED ({error_code})")
             except Exception as e:
                 results[action] = False
-                print(f"❌ {description}: ERROR ({str(e)[:50]}...)")
+                print(f" {description}: ERROR ({str(e)[:50]}...)")
         
         return results
     
     def find_existing_sagemaker_roles(self):
         """Find existing SageMaker execution roles"""
-        print("\n🎯 EXISTING SAGEMAKER ROLES")
+        print("\n EXISTING SAGEMAKER ROLES")
         print("=" * 50)
         
         try:
@@ -160,19 +160,19 @@ class AWSRoleChecker:
                     self.check_role_policies(role['name'])
                 
                 # Recommend best role
-                print(f"\n🏆 RECOMMENDATION:")
+                print(f"\n RECOMMENDATION:")
                 best_role = sagemaker_roles[0]  # Use first one found
                 print(f"Use this role ARN in your config.yaml:")
                 print(f'execution_role: "{best_role["arn"]}"')
                 
                 return sagemaker_roles
             else:
-                print("❌ No SageMaker roles found")
+                print(" No SageMaker roles found")
                 print("You need to create one using the manual setup guide")
                 return []
                 
         except ClientError as e:
-            print(f"❌ Error listing roles: {e}")
+            print(f" Error listing roles: {e}")
             return []
     
     def check_role_policies(self, role_name):
@@ -193,11 +193,11 @@ class AWSRoleChecker:
             has_s3_access = any('S3' in policy for policy in attached_policy_names)
             
             if has_sagemaker_access and has_s3_access:
-                print(f"   ✅ Has required permissions")
+                print(f"    Has required permissions")
             elif has_sagemaker_access:
-                print(f"   ⚠️  Has SageMaker access, may need S3 permissions")
+                print(f"     Has SageMaker access, may need S3 permissions")
             else:
-                print(f"   ❌ May need additional permissions")
+                print(f"    May need additional permissions")
                 
         except Exception as e:
             print(f"   ❓ Could not check policies: {str(e)[:50]}...")
@@ -211,7 +211,7 @@ class AWSRoleChecker:
             # Try to list endpoints
             response = self.sagemaker_client.list_endpoints()
             endpoints = response.get('Endpoints', [])
-            print(f"✅ SageMaker access: OK ({len(endpoints)} endpoints found)")
+            print(f" SageMaker access: OK ({len(endpoints)} endpoints found)")
             
             if endpoints:
                 print("Existing endpoints:")
@@ -221,15 +221,15 @@ class AWSRoleChecker:
             return True
             
         except ClientError as e:
-            print(f"❌ SageMaker access: DENIED ({e.response.get('Error', {}).get('Code', 'Unknown')})")
+            print(f" SageMaker access: DENIED ({e.response.get('Error', {}).get('Code', 'Unknown')})")
             return False
         except Exception as e:
-            print(f"❌ SageMaker access: ERROR ({str(e)[:50]}...)")
+            print(f" SageMaker access: ERROR ({str(e)[:50]}...)")
             return False
     
     def generate_config_update(self, roles):
         """Generate config.yaml update based on findings"""
-        print("\n📝 CONFIG.YAML UPDATE")
+        print("\n CONFIG.YAML UPDATE")
         print("=" * 50)
         
         if roles:
@@ -250,7 +250,7 @@ class AWSRoleChecker:
     
     def run_complete_check(self):
         """Run all checks and provide recommendations"""
-        print("🔍 AWS ROLE & PERMISSION CHECKER")
+        print(" AWS ROLE & PERMISSION CHECKER")
         print("=" * 60)
         
         # Check current identity
@@ -268,15 +268,15 @@ class AWSRoleChecker:
         # Generate recommendations
         role_arn = self.generate_config_update(roles)
         
-        print("\n🎯 SUMMARY & NEXT STEPS")
+        print("\n SUMMARY & NEXT STEPS")
         print("=" * 60)
         
         if roles and sagemaker_ok:
-            print("✅ GOOD NEWS: You can deploy immediately!")
+            print(" GOOD NEWS: You can deploy immediately!")
             print(f"1. Update config.yaml with: {role_arn}")
             print("2. Run: python simple_sagemaker_deploy.py --config config.yaml --action deploy [options]")
         elif not iam_perms.get('iam:CreateRole', False):
-            print("⚠️  LIMITED PERMISSIONS: You can't create IAM roles")
+            print("  LIMITED PERMISSIONS: You can't create IAM roles")
             if roles:
                 print("But you have existing roles to use!")
                 print(f"1. Update config.yaml with: {roles[0]['arn']}")
@@ -287,12 +287,12 @@ class AWSRoleChecker:
                 print("2. Or ask AWS administrator for help")
                 print("3. Or run from local machine with admin permissions")
         else:
-            print("✅ You have permissions to create roles!")
+            print(" You have permissions to create roles!")
             print("1. Run the IAM setup script from local machine")
             print("2. Or create role manually using AWS Console")
         
         if not sagemaker_ok:
-            print("❌ SageMaker access issue - check your permissions")
+            print(" SageMaker access issue - check your permissions")
         
         return {
             'identity': identity,
@@ -321,10 +321,10 @@ def main():
                 'role_count': len(results['existing_roles'])
             }, f, indent=2, default=str)
         
-        print(f"\n💾 Results saved to: aws_check_results.json")
+        print(f"\n Results saved to: aws_check_results.json")
         
     except Exception as e:
-        print(f"❌ Checker failed: {e}")
+        print(f" Checker failed: {e}")
         print("Please check your AWS credentials and try again")
 
 
