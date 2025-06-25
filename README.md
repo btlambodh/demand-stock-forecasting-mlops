@@ -882,7 +882,7 @@ pytest -m "api or deployment"              # API and deployment tests
 pytest tests/unit/ -m "fast"               # Fast unit tests only
 ```
 
-#### ** Coverage Configuration**
+#### **Coverage Configuration**
 
 ```yaml
 # Coverage requirements
@@ -903,7 +903,7 @@ coverage:
     - terminal: "term-missing"
 ```
 
-#### ** Test Structure**
+#### **Test Structure**
 
 ```text
 tests/
