@@ -1037,11 +1037,11 @@ make ci-quality            # Simulate CI quality gates
 [![CI/CD Pipeline](https://github.com/btlambodh/demand-stock-forecasting-mlops/actions/workflows/ci-cd.yml/badge.svg)](.github/workflows/ci-cd.yml)
 
 **Pipeline Stages:**
-1. ** Code Quality** - Linting, formatting, security scans
-2. ** Testing** - Unit, integration, and e2e tests
-3. ** Build** - Model artifacts and package creation
-4. ** Deploy** - Automated deployment to staging/production
-5. ** Monitor** - Post-deployment monitoring and validation
+1. **Code Quality** - Linting, formatting, security scans
+2. **Testing** - Unit, integration, and e2e tests
+3. **Build** - Model artifacts and package creation
+4. **Deploy** - Automated deployment to staging/production
+5. **Monitor** - Post-deployment monitoring and validation
 
 ### **Environment Promotion**
 
