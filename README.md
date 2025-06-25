@@ -1608,17 +1608,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 ### **Ready to Start?**
-<pre>
+
+</div>
+
 ```bash
 git clone https://github.com/btlambodh/demand-stock-forecasting-mlops.git
 cd demand-stock-forecasting-mlops
 make quick-start
 ```
-</pre>
+
+<div align="center">
 
 **From Zero to Production-Ready MLOps in Minutes!**
+</div>
 
 ---
+<div align="center">
 
 *Built with ❤️ for the MLOps Community*
 
