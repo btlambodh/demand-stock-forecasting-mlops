@@ -538,7 +538,7 @@ hyperparameter_tuning:
   max_parallel_jobs: 4
 ```
 
-### 📊 **Evaluation Framework**
+### **Evaluation Framework**
 
 #### **Performance Metrics**
 ```python
@@ -566,7 +566,7 @@ thresholds = {
 forecast_horizons = [1, 7, 14, 30]  # 1 day to 1 month ahead
 ```
 
-### 🎓 **Training Workflows**
+### **Training Workflows**
 
 ```bash
 # Basic Training Pipeline
@@ -581,7 +581,7 @@ make list-models              # View all registered models
 make promote-model            # Promote dev -> staging -> prod
 ```
 
-### 🏆 **Model Registry & Lifecycle**
+### **Model Registry & Lifecycle**
 
 ```python
 # Model stages and promotion
@@ -646,7 +646,7 @@ blue_green:
   performance_threshold: 0.2      # 20% degradation triggers rollback
 ```
 
-### 🚀 **Deployment Commands**
+### **Deployment Commands**
 
 ```bash
 # Environment-specific deployments
@@ -660,7 +660,7 @@ make test-endpoint          # Test endpoint functionality
 make delete-endpoint        # Clean up endpoints
 ```
 
-### 📊 **Infrastructure Monitoring**
+### **Infrastructure Monitoring**
 
 ```bash
 # Real-time infrastructure monitoring
@@ -670,15 +670,15 @@ make monitoring-logs       # View monitoring logs
 ```
 
 **Monitored Metrics:**
-- 🖥️ **CPU Usage**: Target <80%
-- 💾 **Memory Usage**: Target <85%  
-- 💽 **Disk Usage**: Target <90%
-- 🌐 **API Response Time**: Target <100ms
-- 📊 **Prediction Latency**: Target <50ms
-- 🔄 **Throughput**: Requests per second
-- ❌ **Error Rate**: Target <1%
+-  **CPU Usage**: Target <80%
+-  **Memory Usage**: Target <85%  
+-  **Disk Usage**: Target <90%
+-  **API Response Time**: Target <100ms
+-  **Prediction Latency**: Target <50ms
+-  **Throughput**: Requests per second
+-  **Error Rate**: Target <1%
 
-### 🛡️ **Auto-scaling Configuration**
+### **Auto-scaling Configuration**
 
 ```yaml
 # Intelligent auto-scaling
@@ -690,7 +690,7 @@ auto_scaling:
   scale_down_cooldown: 600   # 10 minutes
 ```
 
-### 💰 **Cost Optimization**
+### **Cost Optimization**
 
 ```yaml
 # Cost-aware infrastructure
@@ -750,12 +750,12 @@ make monitoring-drift-only    # Continuous drift monitoring
 ```
 
 **Drift Detection Methods:**
-- 📊 **Population Stability Index (PSI)** - Distribution changes
-- 📈 **Kolmogorov-Smirnov Test** - Statistical distribution drift
-- 🎯 **Model Performance Drift** - Accuracy degradation over time
-- 📋 **Schema Drift** - Data structure changes
+-  **Population Stability Index (PSI)** - Distribution changes
+-  **Kolmogorov-Smirnov Test** - Statistical distribution drift
+-  **Model Performance Drift** - Accuracy degradation over time
+-  **Schema Drift** - Data structure changes
 
-#### **⚠️ Alert System**
+#### ** Alert System**
 
 ```yaml
 # Multi-channel alerting
@@ -770,11 +770,11 @@ alerts:
 ```
 
 **Alert Types:**
-- 🚨 **Critical**: System failures, severe performance degradation
-- ⚠️ **Warning**: Moderate drift, performance issues
-- ℹ️ **Info**: Successful deployments, routine updates
+-  **Critical**: System failures, severe performance degradation
+-  **Warning**: Moderate drift, performance issues
+-  **Info**: Successful deployments, routine updates
 
-### 📊 **Real-time Dashboards**
+###  **Real-time Dashboards**
 
 ```bash
 # Interactive monitoring dashboards
@@ -783,13 +783,13 @@ make monitoring-start         # Launches dashboard on available port
 ```
 
 **Dashboard Features:**
-- 📈 **Real-time Metrics**: Live system performance
-- 🎯 **Model Performance Trends**: Accuracy over time
-- 📊 **Data Quality Monitoring**: Freshness and completeness
-- 🚨 **Alert History**: Recent alerts and resolution status
-- 🔄 **System Health**: Overall platform status
+-  **Real-time Metrics**: Live system performance
+-  **Model Performance Trends**: Accuracy over time
+-  **Data Quality Monitoring**: Freshness and completeness
+-  **Alert History**: Recent alerts and resolution status
+-  **System Health**: Overall platform status
 
-### 🔧 **Monitoring Commands**
+###  **Monitoring Commands**
 
 ```bash
 # Monitoring lifecycle
@@ -808,15 +808,15 @@ make monitoring-test          # Test monitoring components
 make performance-report       # Generate performance report
 ```
 
-### 📋 **Monitoring Reports**
+###  **Monitoring Reports**
 
 **Automated Reports Generated:**
-- 📅 **Daily Reports**: `reports/daily_report_*.txt`
-- 🚨 **Drift Alerts**: `data/monitoring/reports/alert_data_drift_*.json`
-- 📈 **Drift Analysis**: `data/monitoring/reports/drift_report_*.html`
-- 📊 **Performance Metrics**: Real-time CloudWatch integration
+-  **Daily Reports**: `reports/daily_report_*.txt`
+-  **Drift Alerts**: `data/monitoring/reports/alert_data_drift_*.json`
+-  **Drift Analysis**: `data/monitoring/reports/drift_report_*.html`
+-  **Performance Metrics**: Real-time CloudWatch integration
 
-### 🛠️ **Emergency Procedures**
+###  **Emergency Procedures**
 
 ```bash
 # Emergency operations
@@ -882,7 +882,7 @@ pytest -m "api or deployment"              # API and deployment tests
 pytest tests/unit/ -m "fast"               # Fast unit tests only
 ```
 
-#### **📊 Coverage Configuration**
+#### ** Coverage Configuration**
 
 ```yaml
 # Coverage requirements
@@ -903,31 +903,31 @@ coverage:
     - terminal: "term-missing"
 ```
 
-#### **🎯 Test Structure**
+#### ** Test Structure**
 
 ```text
 tests/
-├── 🧪 unit/                     # Fast, isolated tests
+├── unit/                        # Fast, isolated tests
 │   ├── test_data_processing.py  # Data pipeline unit tests
 │   ├── test_model_training.py   # ML training unit tests  
 │   ├── test_deployment.py       # Deployment unit tests
 │   └── test_monitoring.py       # Monitoring unit tests
-├── 🔗 integration/              # Component interaction tests
+├── integration/                 # Component interaction tests
 │   ├── test_data_pipeline.py    # End-to-end data flow
 │   ├── test_training_pipeline.py # Training workflow tests
 │   ├── test_deployment_pipeline.py # Deployment workflow tests
 │   └── test_end_to_end.py       # Complete system tests
-├── ⚙️ config/                   # Test configurations
+├── config/                      # Test configurations
 │   └── test_config.yaml         # Test environment settings
-├── 🎭 data/                     # Test datasets & fixtures
+├── data/                        # Test datasets & fixtures
 │   ├── processed/               # Test processed data
 │   └── raw/                     # Test raw data
 └── conftest.py                  # Pytest configuration & fixtures
 ```
 
-### 🛡️ **Quality Gates**
+###  **Quality Gates**
 
-#### **🎨 Code Quality**
+#### ** Code Quality**
 ```bash
 # Code formatting and style
 make format                  # Black + isort formatting
@@ -935,17 +935,17 @@ make lint                   # Flake8 + MyPy linting
 make quality-check          # Complete quality pipeline
 ```
 
-#### **🔒 Security Testing**
+#### ** Security Testing**
 ```bash
 # Security and vulnerability scanning
 make security-check         # Bandit + Safety scans
 ```
 
 **Security Checks Include:**
-- 🔍 **Bandit**: Python security vulnerability scanner
-- 🛡️ **Safety**: Dependency vulnerability checker  
-- 🔐 **Secrets**: No hardcoded secrets or credentials
-- 📋 **Code Quality**: Adherence to security best practices
+-  **Bandit**: Python security vulnerability scanner
+-  **Safety**: Dependency vulnerability checker  
+-  **Secrets**: No hardcoded secrets or credentials
+-  **Code Quality**: Adherence to security best practices
 
 #### **⚡ Performance Testing**
 ```yaml
@@ -959,7 +959,7 @@ timeout: 300                # 5-minute global timeout
 timeout_method: thread      # Thread-based timeouts
 ```
 
-### 🔄 **CI-Friendly Testing**
+###  **CI-Friendly Testing**
 
 ```bash
 # CI/CD optimized test execution
@@ -968,7 +968,7 @@ pytest -m "unit" --cov-fail-under=80             # Unit tests with coverage
 pytest -m "integration and not aws"              # Integration without AWS
 ```
 
-### 📊 **Test Reporting**
+###  **Test Reporting**
 
 ```yaml
 # JUnit XML for CI/CD integration
@@ -979,10 +979,10 @@ junit_duration_report: total
 ```
 
 **Generated Reports:**
-- 📊 **HTML Coverage**: `reports/htmlcov/index.html`
-- 📋 **XML Coverage**: `reports/coverage.xml`  
-- 🧪 **JUnit XML**: `reports/junit.xml`
-- 🔒 **Security Report**: `security_report.json`
+-  **HTML Coverage**: `reports/htmlcov/index.html`
+-  **XML Coverage**: `reports/coverage.xml`  
+-  **JUnit XML**: `reports/junit.xml`
+-  **Security Report**: `security_report.json`
 
 ---
 
@@ -1003,26 +1003,26 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: 🧪 Run Tests
-      - name: 🔍 Code Quality  
-      - name: 🔒 Security Scan
-      - name: 📊 Coverage Report
+      - name:  Run Tests
+      - name:  Code Quality  
+      - name:  Security Scan
+      - name:  Coverage Report
       
   build:
     needs: test
     steps:
-      - name: 🏗️ Build Artifacts
-      - name: 📦 Package Models
+      - name:  Build Artifacts
+      - name:  Package Models
       
   deploy:
     needs: build
     steps:
-      - name: 🚀 Deploy to Staging
-      - name: ✅ Verify Deployment
-      - name: 📈 Start Monitoring
+      - name:  Deploy to Staging
+      - name:  Verify Deployment
+      - name:  Start Monitoring
 ```
 
-#### **🎯 CI/CD Simulation Commands**
+#### **CI/CD Simulation Commands**
 
 ```bash
 # Local CI/CD testing
@@ -1032,18 +1032,18 @@ make ci-test               # Simulate CI testing phase
 make ci-quality            # Simulate CI quality gates
 ```
 
-#### **📊 Pipeline Status**
+#### **Pipeline Status**
 
 [![CI/CD Pipeline](https://github.com/btlambodh/demand-stock-forecasting-mlops/actions/workflows/ci-cd.yml/badge.svg)](.github/workflows/ci-cd.yml)
 
 **Pipeline Stages:**
-1. **🔍 Code Quality** - Linting, formatting, security scans
-2. **🧪 Testing** - Unit, integration, and e2e tests
-3. **🏗️ Build** - Model artifacts and package creation
-4. **🚀 Deploy** - Automated deployment to staging/production
-5. **📈 Monitor** - Post-deployment monitoring and validation
+1. ** Code Quality** - Linting, formatting, security scans
+2. ** Testing** - Unit, integration, and e2e tests
+3. ** Build** - Model artifacts and package creation
+4. ** Deploy** - Automated deployment to staging/production
+5. ** Monitor** - Post-deployment monitoring and validation
 
-### 🎛️ **Environment Promotion**
+### **Environment Promotion**
 
 ```bash
 # Automated model promotion workflow
@@ -1052,12 +1052,12 @@ make promote-model SOURCE_STAGE=staging TARGET_STAGE=prod
 ```
 
 **Promotion Criteria:**
-- ✅ **Performance Improvement**: >5% better metrics
-- ✅ **Stability**: >95% prediction consistency
-- ✅ **Security**: Passed security scans
-- ✅ **Quality**: >90% test coverage
+- **Performance Improvement**: >5% better metrics
+- **Stability**: >95% prediction consistency
+- **Security**: Passed security scans
+- **Quality**: >90% test coverage
 
-### 🛡️ **Quality Gates**
+### **Quality Gates**
 
 ```yaml
 # Automated quality requirements
@@ -1077,31 +1077,31 @@ quality_gates:
 Our documentation provides **in-depth guidance** for all aspects of the platform:
 
 #### **Core Documentation**
-- 📊 [`data_processing_and_feature_engineering.md`](docs/data_processing_and_feature_engineering.md) - Complete data pipeline guide
-- 🤖 [`model_training_and_registry.md`](docs/model_training_and_registry.md) - ML training and model management
-- 🚀 [`model_deployment.md`](docs/model_deployment.md) - Deployment strategies and best practices
-- 🌐 [`api_inference_services.md`](docs/api_inference_services.md) - API development and usage
-- 📈 [`perf_monitoring_and_drift_detection.md`](docs/perf_monitoring_and_drift_detection.md) - Monitoring and observability
-- 📊 [`bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) - Business intelligence and analytics
+- [`data_processing_and_feature_engineering.md`](docs/data_processing_and_feature_engineering.md) - Complete data pipeline guide
+- [`model_training_and_registry.md`](docs/model_training_and_registry.md) - ML training and model management
+- [`model_deployment.md`](docs/model_deployment.md) - Deployment strategies and best practices
+- [`api_inference_services.md`](docs/api_inference_services.md) - API development and usage
+- [`perf_monitoring_and_drift_detection.md`](docs/perf_monitoring_and_drift_detection.md) - Monitoring and observability
+- [`bi_dashboard_readme.md`](docs/bi_dashboard_readme.md) - Business intelligence and analytics
 
-#### **🔧 Setup & Configuration**
-- 🏗️ [`how_to_set_up_env.md`](docs/how_to_set_up_env.md) - Environment setup guide
-- ⚙️ **Configuration Reference** - Complete `config.yaml` documentation
-- 🔐 **AWS Setup Guide** - IAM policies and infrastructure setup
+#### **Setup & Configuration**
+- [`how_to_set_up_env.md`](docs/how_to_set_up_env.md) - Environment setup guide
+- **Configuration Reference** - Complete `config.yaml` documentation
+- **AWS Setup Guide** - IAM policies and infrastructure setup
 
-#### **🖼️ Visual Documentation**
-- 🏗️ **Architecture Diagrams** - System design and data flow
-- 📊 **Dashboard Screenshots** - Monitoring interface examples  
-- 🔄 **Workflow Diagrams** - Process flow visualizations
-- 📈 **Performance Charts** - Benchmark and performance data
+#### **Visual Documentation**
+- **Architecture Diagrams** - System design and data flow
+- **Dashboard Screenshots** - Monitoring interface examples  
+- **Workflow Diagrams** - Process flow visualizations
+- **Performance Charts** - Benchmark and performance data
 
-### 📓 **Interactive Examples**
+### **Interactive Examples**
 
-#### **🎪 Jupyter Notebooks**
-- 📊 [`eda_notebook.ipynb`](notebooks/eda_notebook.ipynb) - Exploratory data analysis
-- 🎛️ [`mlops_pipeline_notebook.ipynb`](notebooks/mlops_pipeline_notebook.ipynb) - Complete pipeline demonstration
+#### **Jupyter Notebooks**
+- [`eda_notebook.ipynb`](notebooks/eda_notebook.ipynb) - Exploratory data analysis
+- [`mlops_pipeline_notebook.ipynb`](notebooks/mlops_pipeline_notebook.ipynb) - Complete pipeline demonstration
 
-#### **🎯 Quick Start Examples**
+#### **Quick Start Examples**
 
 ```bash
 # Interactive demo mode
@@ -1113,14 +1113,14 @@ make workflow-dev           # Development workflow demo
 make monitoring-start       # Monitoring dashboard demo
 ```
 
-### 📋 **API Documentation**
+### **API Documentation**
 
-#### **🌐 Interactive API Docs**
+#### **Interactive API Docs**
 ```bash
 # Start API with automatic documentation
 make api-start              # API available at http://localhost:8000
-# 📚 Swagger UI: http://localhost:8000/docs
-# 📋 ReDoc: http://localhost:8000/redoc
+# Swagger UI: http://localhost:8000/docs
+# ReDoc: http://localhost:8000/redoc
 ```
 
 #### **🧪 API Testing Examples**
@@ -1158,7 +1158,7 @@ security:
     security_group_ids: []
 ```
 
-#### **🛡️ Security Scanning**
+#### **Security Scanning**
 
 ```bash
 # Automated security checks
@@ -1166,37 +1166,37 @@ make security-check         # Complete security scan
 ```
 
 **Security Checks Include:**
-- 🔍 **Dependency Vulnerabilities** - Safety scanner for known CVEs
-- 🚨 **Code Security Issues** - Bandit static analysis
-- 🔐 **Secrets Detection** - No hardcoded credentials
-- 📋 **Compliance Validation** - Security best practices
+- **Dependency Vulnerabilities** - Safety scanner for known CVEs
+- **Code Security Issues** - Bandit static analysis
+- **Secrets Detection** - No hardcoded credentials
+- **Compliance Validation** - Security best practices
 
-#### **🔒 Data Protection**
+#### **Data Protection**
 
 **Data Security Measures:**
-- 🔐 **Encryption at Rest** - S3 AES256 encryption
-- 🌐 **Encryption in Transit** - HTTPS/TLS for all communications
-- 🎭 **Data Anonymization** - PII removal and masking
-- 📊 **Access Logging** - CloudTrail for audit trails
-- 🔄 **Data Lineage** - Complete data provenance tracking
+- **Encryption at Rest** - S3 AES256 encryption
+- **Encryption in Transit** - HTTPS/TLS for all communications
+- **Data Anonymization** - PII removal and masking
+- **Access Logging** - CloudTrail for audit trails
+- **Data Lineage** - Complete data provenance tracking
 
-#### **🛡️ Model Security**
+#### **Model Security**
 
 **Model Protection:**
-- 📦 **Model Signing** - Cryptographic model integrity
-- 🔒 **Secure Model Registry** - Access-controlled artifact storage
-- 🎯 **Inference Security** - API authentication and rate limiting
-- 📊 **Audit Logging** - Model access and prediction logging
+- **Model Signing** - Cryptographic model integrity
+- **Secure Model Registry** - Access-controlled artifact storage
+- **Inference Security** - API authentication and rate limiting
+- **Audit Logging** - Model access and prediction logging
 
-### 📋 **Compliance Features**
+### **Compliance Features**
 
-#### **🏛️ Regulatory Compliance**
-- ✅ **GDPR Compliance** - Data privacy and deletion rights
-- ✅ **SOX Compliance** - Financial data controls (for RMB transactions)
-- ✅ **ISO 27001** - Information security management
-- ✅ **Cloud Security** - AWS Well-Architected Framework
+#### **Regulatory Compliance**
+- **GDPR Compliance** - Data privacy and deletion rights
+- **SOX Compliance** - Financial data controls (for RMB transactions)
+- **ISO 27001** - Information security management
+- **Cloud Security** - AWS Well-Architected Framework
 
-#### **📊 Audit & Governance**
+#### **Audit & Governance**
 ```yaml
 # Compliance monitoring
 compliance:
@@ -1222,8 +1222,8 @@ make api-start              # Production mode
 make api-dev               # Development mode with auto-reload
 
 # API available at: http://localhost:8000
-# 📚 Swagger Documentation: http://localhost:8000/docs
-# 📋 ReDoc Documentation: http://localhost:8000/redoc
+# Swagger Documentation: http://localhost:8000/docs
+# ReDoc Documentation: http://localhost:8000/redoc
 ```
 
 #### **🎯 Core Endpoints**
@@ -1257,7 +1257,7 @@ GET /data/features         # Available features
 POST /data/drift           # Drift detection
 ```
 
-#### **📋 API Usage Examples**
+#### **API Usage Examples**
 
 ##### **Single Prediction**
 ```python
@@ -1302,7 +1302,7 @@ results = response.json()
 # {"job_id": "abc123", "status": "processing", "estimated_completion": "2024-06-24T10:05:00Z"}
 ```
 
-#### **🧪 API Testing**
+#### **API Testing**
 
 ```bash
 # Comprehensive API testing
@@ -1316,7 +1316,7 @@ curl -X POST http://localhost:8000/predict \
   -d '{"item_code": "PROD001", "date": "2024-06-24", "price": 25.50}'
 ```
 
-#### **🔒 Authentication & Security**
+#### **Authentication & Security**
 
 ```python
 # API Security Configuration
@@ -1329,7 +1329,7 @@ security_config = {
 }
 ```
 
-#### **📊 Response Formats**
+#### **Response Formats**
 
 ##### **Successful Prediction Response**
 ```json
@@ -1396,7 +1396,7 @@ aws:
         target_value: 70.0
 ```
 
-#### **🤖 Model Configuration**
+#### **Model Configuration**
 
 ```yaml
 # ML Model Settings
@@ -1418,7 +1418,7 @@ models:
     max_parallel_jobs: 4
 ```
 
-#### **📊 Monitoring Configuration**
+#### **Monitoring Configuration**
 
 ```yaml
 # Monitoring & Alerting
@@ -1435,9 +1435,9 @@ monitoring:
     email: btiduwarlambodhar@sandiego.edu
 ```
 
-### 🎛️ **Environment-Specific Settings**
+### **Environment-Specific Settings**
 
-#### **🔧 Development Configuration**
+#### **Development Configuration**
 ```yaml
 # Override for development
 development:
@@ -1449,7 +1449,7 @@ development:
     alert_threshold: 0.5  # Less sensitive alerts
 ```
 
-#### **🏭 Production Configuration**
+#### **Production Configuration**
 ```yaml
 # Production optimizations
 production:
@@ -1462,9 +1462,9 @@ production:
     high_availability: true
 ```
 
-### 🔀 **Configuration Customization**
+### **Configuration Customization**
 
-#### **📝 Custom Configuration Files**
+#### **Custom Configuration Files**
 ```bash
 # Using custom configuration
 export CONFIG_PATH=config/production.yaml
@@ -1475,7 +1475,7 @@ make deploy-staging CONFIG=config/staging.yaml
 make deploy-prod CONFIG=config/production.yaml
 ```
 
-#### **🔧 Runtime Configuration Override**
+#### **Runtime Configuration Override**
 ```python
 # Python configuration override
 from src.utils.config import load_config
